@@ -21,6 +21,7 @@ Patch5:		iptables-1.3.2-ipp2p_extension.patch
 Patch6:		iptables-1.3.3-IFWLOG_extension.patch
 Patch7:		iptables-1.3.7-CLUSTERIP_extension.patch
 Patch8:		iptables-1.3.7-IPV4OPTSSTRIP_extension.patch
+Patch9:		iptables-1.3.7-add-missing-ipv6-extensions.patch
 
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -82,7 +83,8 @@ you should install this package.
 #%patch5 -p1 -b .ipp2p
 %patch6 -p1 -b .IFWLOG
 %patch7 -p1 -b .CLUSTERIP
-%patch8 -p8 -b .IPV4OPTSSTRIP
+%patch8 -p1 -b .IPV4OPTSSTRIP
+%patch9 -p1 -b .ipv6_extensions
 cp %{SOURCE3} iptables.sample
 cp %{SOURCE4} ip6tables.sample
 
