@@ -105,6 +105,7 @@ rm -rf %{buildroot}
 %makeinstall_std BINDIR=/sbin MANDIR=%{_mandir} LIBDIR=/lib COPT_FLAGS="$RPM_OPT_FLAGS -DNETLINK_NFLOG=4" KERNEL_DIR=/usr install-experimental
 %if %{build_devel}
 make install-devel DESTDIR=%{buildroot} KERNEL_DIR=/usr BINDIR=/sbin LIBDIR=%{_libdir} MANDIR=%{_mandir}
+install -m644 libiptc/libiptc.a -D %{buildroot}%{_libdir}/libiptc.a
 %endif
 rm -rf %{buildroot}/lib/iptables
 for i in linux-*; do
@@ -153,6 +154,7 @@ fi
 /sbin/iptables
 /sbin/iptables-save
 /sbin/iptables-restore
+/sbin/iptables-xml
 %{_mandir}/*/iptables*
 %dir /lib/iptables.d
 %dir /lib/iptables.d/*
