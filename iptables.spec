@@ -19,6 +19,7 @@ Patch3:		iptables-1.2.8-libiptc.h.patch
 #Patch4:		iptables-1.3.2-fix_extension_test.patch
 Patch5:		iptables-1.3.2-ipp2p_extension.patch
 Patch6:		iptables-1.3.3-IFWLOG_extension.patch
+Patch7:		iptables-1.3.7-CLUSTERIP_extension.patch
 
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -79,6 +80,7 @@ you should install this package.
 #%patch4 -p1 -b .fix_extension_test
 #%patch5 -p1 -b .ipp2p
 %patch6 -p1 -b .IFWLOG
+%patch7 -p1 -b .CLUSTERIP
 cp %{SOURCE3} iptables.sample
 cp %{SOURCE4} ip6tables.sample
 
