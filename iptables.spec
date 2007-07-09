@@ -2,8 +2,8 @@
 
 Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
-Version:	1.3.7
-Release:	%mkrel 2
+Version:	1.3.8
+Release:	%mkrel 1
 
 Source:		http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	iptables.init
