@@ -27,7 +27,7 @@ Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 License:	GPL
-BuildRequires:	/usr/bin/perl
+BuildRequires:	perl-base
 BuildRequires:  kernel-source >= 2.4.13-3mdk
 Requires:	kernel >= 2.4.13
 Provides:	userspace-ipfilter
