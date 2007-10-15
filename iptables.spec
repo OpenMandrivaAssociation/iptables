@@ -3,25 +3,26 @@
 Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Version:	1.3.8
-Release:	%mkrel 2
+Release:	%mkrel 1
 
 Source:		http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	iptables.init
 Source2:	ip6tables.init
 Source3:	iptables.config
 Source4:	ip6tables.config
+
 # must be in a linux-$kmajor.$kminor-<foo> directory for "service iptables check"
 Source5:	iptables-kernel-headers.tar.bz2
 
-Patch1:		iptables-1.3.7-stealth_grsecurity.patch 
+Patch1:		iptables-stealth_grsecurity.diff
 Patch2:		iptables-1.2.8-imq.patch 
 Patch3:		iptables-1.2.8-libiptc.h.patch 
 #Patch4:		iptables-1.3.2-fix_extension_test.patch
 Patch5:		iptables-1.3.2-ipp2p_extension.patch
 Patch6:		iptables-1.3.3-IFWLOG_extension.patch
-Patch7:		iptables-1.3.7-CLUSTERIP_extension.patch
+Patch7:		iptables-CLUSTERIP_extension.diff
 Patch8:		iptables-1.3.7-IPV4OPTSSTRIP_extension.patch
-Patch9:		iptables-1.3.7-add-missing-ipv6-extensions.patch
+Patch9:		iptables-add-missing-ipv6-extensions.diff
 
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -82,9 +83,12 @@ you should install this package.
 #%patch4 -p1 -b .fix_extension_test
 #%patch5 -p1 -b .ipp2p
 %patch6 -p1 -b .IFWLOG
-%patch7 -p1 -b .CLUSTERIP
-%patch8 -p1 -b .IPV4OPTSSTRIP
-%patch9 -p1 -b .ipv6_extensions
+%patch7 -p0 -b .CLUSTERIP
+#%patch8 -p1 -b .IPV4OPTSSTRIP
+%patch9 -p0 -b .ipv6_extensions
+
+cp %{SOURCE1} iptables.init
+cp %{SOURCE2} ip6tables.init
 cp %{SOURCE3} iptables.sample
 cp %{SOURCE4} ip6tables.sample
 
@@ -99,19 +103,39 @@ find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 OPT="%{optflags} -DNDEBUG"
 for i in linux-2.6*
 	do find extensions -name '*.[ao]' -o -name '*.so' | xargs rm -f
-	make COPT_FLAGS="$OPT" KERNEL_DIR=$PWD/$i LIBDIR=/lib all
+	make COPT_FLAGS="$OPT" KERNEL_DIR=/usr/src/linux LIBDIR=/lib all
 	rm -fr $i/extensions
 	mkdir -p $i/extensions
 	mv extensions/*.so $i/extensions
 done
 
+# make more devel libs (debian)
+ar rcs libiptables.a iptables.o
+ar rcs libip6tables.a ip6tables.o
+
 %install
 rm -rf %{buildroot}
+
 # Dunno why this happens. -- Geoff
 %makeinstall_std BINDIR=/sbin MANDIR=%{_mandir} LIBDIR=/lib COPT_FLAGS="$RPM_OPT_FLAGS -DNETLINK_NFLOG=4" KERNEL_DIR=/usr install-experimental
+
 %if %{build_devel}
 make install-devel DESTDIR=%{buildroot} KERNEL_DIR=/usr BINDIR=/sbin LIBDIR=%{_libdir} MANDIR=%{_mandir}
-install -m644 libiptc/libiptc.a -D %{buildroot}%{_libdir}/libiptc.a
+
+# static development files
+install -d %{buildroot}%{_libdir}
+install -m0644 libiptc/libiptc.a %{buildroot}%{_libdir}/libiptc.a
+install -m0644 libiptables.a %{buildroot}%{_libdir}/
+install -m0644 libip6tables.a %{buildroot}%{_libdir}/
+
+# header development files
+install -d %{buildroot}%{_includedir}/{libipq,libiptc,libipulog}
+install -m0644 include/ip6tables.h %{buildroot}%{_includedir}/
+install -m0644 include/iptables_common.h %{buildroot}%{_includedir}/
+install -m0644 include/iptables.h %{buildroot}%{_includedir}/
+install -m0644 include/libipq/*.h %{buildroot}%{_includedir}/libipq/
+install -m0644 include/libiptc/*.h %{buildroot}%{_includedir}/libiptc/
+install -m0644 include/libipulog/*.h %{buildroot}%{_includedir}/libipulog/
 %endif
 rm -rf %{buildroot}/lib/iptables
 for i in linux-*; do
@@ -128,8 +152,10 @@ for i in linux-*/extensions/*.so; do
 		fi
 	done
 done
-install -m755 %{SOURCE1} -D %{buildroot}%{_initrddir}/iptables
-install -m755 %{SOURCE2} -D %{buildroot}%{_initrddir}/ip6tables
+
+install -d %{buildroot}%{_initrddir}
+install -m0755 iptables.init %{buildroot}%{_initrddir}/iptables
+install -m0755 ip6tables.init %{buildroot}%{_initrddir}/ip6tables
 
 %clean
 rm -rf %{buildroot}
@@ -156,7 +182,8 @@ fi
 
 %files
 %defattr(-,root,root,0755)
-%config(noreplace) %{_initrddir}/iptables
+%doc INSTALL INCOMPATIBILITIES iptables.sample
+%{_initrddir}/iptables
 /sbin/iptables
 /sbin/iptables-save
 /sbin/iptables-restore
@@ -165,11 +192,11 @@ fi
 %dir /lib/iptables.d
 %dir /lib/iptables.d/*
 /lib/iptables.d/*/libipt*
-%doc INSTALL INCOMPATIBILITIES iptables.sample
 
 %files ipv6
 %defattr(-,root,root,0755)
-%config(noreplace) %{_initrddir}/ip6tables
+%doc INSTALL INCOMPATIBILITIES ip6tables.sample
+%{_initrddir}/ip6tables
 /sbin/ip6tables
 /sbin/ip6tables-save
 /sbin/ip6tables-restore
@@ -177,13 +204,20 @@ fi
 %dir /lib/iptables.d
 %dir /lib/iptables.d/*
 /lib/iptables.d/*/libip6t*
-%doc INSTALL INCOMPATIBILITIES ip6tables.sample
 
 %if %{build_devel}
 %files devel
 %defattr(-,root,root,0755)
-%{_includedir}/libipq.h
+%{_includedir}/*.h
+%dir %{_includedir}/libipq/
+%dir %{_includedir}/libiptc/
+%dir %{_includedir}/libipulog/
+%{_includedir}/libipq/*.h
+%{_includedir}/libiptc/*.h
+%{_includedir}/libipulog/*.h
 %{_libdir}/libipq.a
 %{_libdir}/libiptc.a
+%{_libdir}/libiptables.a
+%{_libdir}/libip6tables.a
 %{_mandir}/man3/*
 %endif
