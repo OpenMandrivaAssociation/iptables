@@ -1,10 +1,12 @@
 %define build_devel 1
 
-Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
+Name:		iptables
 Version:	1.3.8
 Release:	%mkrel 1
-
+License:	GPL
+Group:		System/Kernel and hardware
+URL:		http://netfilter.org/
 Source:		http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	iptables.init
 Source2:	ip6tables.init
@@ -21,13 +23,11 @@ Patch3:		iptables-1.2.8-libiptc.h.patch
 Patch5:		iptables-1.3.2-ipp2p_extension.patch
 Patch6:		iptables-1.3.3-IFWLOG_extension.patch
 Patch7:		iptables-CLUSTERIP_extension.diff
-Patch8:		iptables-1.3.7-IPV4OPTSSTRIP_extension.patch
+Patch8:		iptables-IPV4OPTSSTRIP_extension.diff
 Patch9:		iptables-add-missing-ipv6-extensions.diff
+# (oe) P10 comes from iptables-1.3.7, was removed in iptables-1.3.8
+Patch10:	iptables-psd.diff
 
-Group:		System/Kernel and hardware
-URL:		http://netfilter.org/
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-License:	GPL
 BuildRequires:	perl-base
 BuildRequires:  kernel-source >= 2.4.13-3mdk
 Requires:	kernel >= 2.4.13
@@ -35,6 +35,7 @@ Provides:	userspace-ipfilter
 Requires(post):	rpm-helper
 Requires(preun):	rpm-helper
 Conflicts:	ipchains
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 iptables controls the Linux kernel network packet filtering code.
@@ -84,23 +85,23 @@ you should install this package.
 #%patch5 -p1 -b .ipp2p
 %patch6 -p1 -b .IFWLOG
 %patch7 -p0 -b .CLUSTERIP
+# (oe) disable P8 - IPV4OPTSSTRIP in the kernel does not compile
 #%patch8 -p1 -b .IPV4OPTSSTRIP
 %patch9 -p0 -b .ipv6_extensions
+%patch10 -p1 -b .psd
 
 cp %{SOURCE1} iptables.init
 cp %{SOURCE2} ip6tables.init
 cp %{SOURCE3} iptables.sample
 cp %{SOURCE4} ip6tables.sample
 
-chmod +x extensions/.IMQ-test
-#chmod +x extensions/.ipp2p-test
-chmod +x extensions/.IFWLOG-test
+chmod +x extensions/.*-test
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
 %build
 %serverbuild
-OPT="%{optflags} -DNDEBUG"
+OPT="$CFLAGS -DNDEBUG"
 for i in linux-2.6*
 	do find extensions -name '*.[ao]' -o -name '*.so' | xargs rm -f
 	make COPT_FLAGS="$OPT" KERNEL_DIR=/usr/src/linux LIBDIR=/lib all
@@ -116,8 +117,10 @@ ar rcs libip6tables.a ip6tables.o
 %install
 rm -rf %{buildroot}
 
+%serverbuild
+
 # Dunno why this happens. -- Geoff
-%makeinstall_std BINDIR=/sbin MANDIR=%{_mandir} LIBDIR=/lib COPT_FLAGS="$RPM_OPT_FLAGS -DNETLINK_NFLOG=4" KERNEL_DIR=/usr install-experimental
+%makeinstall_std BINDIR=/sbin MANDIR=%{_mandir} LIBDIR=/lib COPT_FLAGS="$CFLAGS -DNETLINK_NFLOG=4" KERNEL_DIR=/usr install-experimental
 
 %if %{build_devel}
 make install-devel DESTDIR=%{buildroot} KERNEL_DIR=/usr BINDIR=/sbin LIBDIR=%{_libdir} MANDIR=%{_mandir}
