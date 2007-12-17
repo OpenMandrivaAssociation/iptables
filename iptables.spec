@@ -35,7 +35,6 @@ Provides:	userspace-ipfilter
 Requires(post):	rpm-helper
 Requires(preun):	rpm-helper
 Conflicts:	ipchains
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 iptables controls the Linux kernel network packet filtering code.
