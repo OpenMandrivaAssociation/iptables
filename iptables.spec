@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.3.8
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -30,7 +30,6 @@ Patch10:	iptables-psd.diff
 
 BuildRequires:	perl-base
 BuildRequires:  kernel-source >= 2.4.13-3mdk
-Requires:	kernel >= 2.4.13
 Provides:	userspace-ipfilter
 Requires(post):	rpm-helper
 Requires(preun):	rpm-helper
