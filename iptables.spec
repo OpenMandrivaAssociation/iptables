@@ -28,7 +28,7 @@ Patch8:		iptables-IPV4OPTSSTRIP_extension.diff
 Patch10:	iptables-psd.diff
 
 BuildRequires:	perl-base
-BuildRequires:  kernel-source >= 2.4.13-3mdk
+BuildRequires:  kernel-source
 Provides:	userspace-ipfilter
 Requires(post):	rpm-helper
 Requires(preun):	rpm-helper
@@ -41,8 +41,6 @@ It allows you to set up firewalls and IP masquerading, etc.
 
 Install iptables if you need to set up firewalling for your
 network.
-
-Install this only if you are using the 2.4 or 2.6 kernels!!
 
 %package	ipv6
 Summary:	IPv6 support for iptables
