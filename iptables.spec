@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.0
-Release:	%mkrel 0.1
+Release:	%mkrel 0.2
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -98,10 +98,9 @@ chmod +x extensions/.*-test
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
 %build
-#%%serverbuild
-#OPT="$CFLAGS -DNDEBUG"
-
-OPT="%{optflags} -DNDEBUG -DNETLINK_NFLOG=5"
+%serverbuild
+export CFLAGS="${CFLAGS:-%{optflags}}"
+export OPT="$CFLAGS -DNDEBUG -DNETLINK_NFLOG=5"
 
 for i in linux-2.6*
 	do find extensions -name '*.[ao]' -o -name '*.so' | xargs rm -f
@@ -117,11 +116,9 @@ ar rcs libip6tables.a ip6tables.o
 
 %install
 rm -rf %{buildroot}
-
-#%%serverbuild
-#OPT="$CFLAGS -DNDEBUG"
-
-OPT="%{optflags} -DNDEBUG -DNETLINK_NFLOG=5"
+%serverbuild
+export CFLAGS="${CFLAGS:-%{optflags}}"
+export OPT="$CFLAGS -DNDEBUG -DNETLINK_NFLOG=5"
 
 # Dunno why this happens. -- Geoff
 %makeinstall_std \
