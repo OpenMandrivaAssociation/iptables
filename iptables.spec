@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.0
-Release:	%mkrel 0.2
+Release:	%mkrel 0.3
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -12,26 +12,23 @@ Source1:	iptables.init
 Source2:	ip6tables.init
 Source3:	iptables.config
 Source4:	ip6tables.config
-
 # must be in a linux-$kmajor.$kminor-<foo> directory for "service iptables check"
 Source5:	iptables-kernel-headers.tar.bz2
-
-Patch1:		iptables-stealth_grsecurity.diff
-Patch2:		iptables-1.2.8-imq.patch 
-Patch3:		iptables-1.2.8-libiptc.h.patch 
-#Patch4:		iptables-1.3.2-fix_extension_test.patch
-Patch5:		iptables-1.3.2-ipp2p_extension.patch
-Patch6:		iptables-1.3.3-IFWLOG_extension.patch
-Patch7:		iptables-CLUSTERIP_extension.diff
-Patch8:		iptables-IPV4OPTSSTRIP_extension.diff
+# S100 and up used to be in the added patches
+Source100:	libipt_stealth.c
+Source101:	libipt_IMQ.c
+Source102:	libipt_IFWLOG.c
+Patch0:		iptables-1.2.8-libiptc.h.patch 
+Patch100:	iptables-stealth_grsecurity.diff
+Patch101:	iptables-imq.diff
+Patch102:	iptables-IFWLOG_extension.diff
 # (oe) P10 comes from iptables-1.3.7, was removed in iptables-1.3.8
-Patch10:	iptables-psd.diff
-
+Patch103:	iptables-psd.diff
 BuildRequires:	perl-base
 BuildRequires:  kernel-source
 Provides:	userspace-ipfilter
-Requires(post):	rpm-helper
-Requires(preun):	rpm-helper
+Requires(post): rpm-helper
+Requires(preun): rpm-helper
 Conflicts:	ipchains
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
@@ -46,8 +43,8 @@ network.
 Summary:	IPv6 support for iptables
 Group:		System/Kernel and hardware
 Requires:	%{name} = %{version}
-Requires(post):	rpm-helper
-Requires(preun):	rpm-helper
+Requires(post): rpm-helper
+Requires(preun): rpm-helper
 
 %description	ipv6
 IPv6 support for iptables.
@@ -75,21 +72,24 @@ you should install this package.
 %prep
 
 %setup -q -a 5
-%patch1 -p1 -b .stealth
-%patch2 -p1 -b .imq
-%patch3 -p1 -b .libiptc
-#%patch4 -p1 -b .fix_extension_test
-#%patch5 -p1 -b .ipp2p
-#%patch6 -p1 -b .IFWLOG <- NEEDS REWORK
-%patch7 -p0 -b .CLUSTERIP
-# (oe) disable P8 - IPV4OPTSSTRIP in the kernel does not compile
-#%patch8 -p1 -b .IPV4OPTSSTRIP
-%patch10 -p1 -b .psd
 
 cp %{SOURCE1} iptables.init
 cp %{SOURCE2} ip6tables.init
 cp %{SOURCE3} iptables.sample
 cp %{SOURCE4} ip6tables.sample
+
+%patch0 -p1 -b .libiptc
+
+# extensions
+install -m0644 %{SOURCE100} extensions/
+install -m0644 %{SOURCE101} extensions/
+#install -m0644 %{SOURCE102} extensions/
+
+%patch100 -p0 -b .stealth
+%patch101 -p0
+#%patch102 -p0
+# (oe) P10 comes from iptables-1.3.7, was removed in iptables-1.3.8
+%patch103 -p1 -b .psd
 
 chmod +x extensions/.*-test
 
