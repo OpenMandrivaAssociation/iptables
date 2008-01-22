@@ -2,8 +2,8 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.3.8
-Release:	%mkrel 2
+Version:	1.4.0
+Release:	%mkrel 0.1
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -24,7 +24,6 @@ Patch5:		iptables-1.3.2-ipp2p_extension.patch
 Patch6:		iptables-1.3.3-IFWLOG_extension.patch
 Patch7:		iptables-CLUSTERIP_extension.diff
 Patch8:		iptables-IPV4OPTSSTRIP_extension.diff
-Patch9:		iptables-add-missing-ipv6-extensions.diff
 # (oe) P10 comes from iptables-1.3.7, was removed in iptables-1.3.8
 Patch10:	iptables-psd.diff
 
@@ -76,17 +75,17 @@ you should install this package.
 %endif
 
 %prep
+
 %setup -q -a 5
 %patch1 -p1 -b .stealth
 %patch2 -p1 -b .imq
 %patch3 -p1 -b .libiptc
 #%patch4 -p1 -b .fix_extension_test
 #%patch5 -p1 -b .ipp2p
-%patch6 -p1 -b .IFWLOG
+#%patch6 -p1 -b .IFWLOG <- NEEDS REWORK
 %patch7 -p0 -b .CLUSTERIP
 # (oe) disable P8 - IPV4OPTSSTRIP in the kernel does not compile
 #%patch8 -p1 -b .IPV4OPTSSTRIP
-%patch9 -p0 -b .ipv6_extensions
 %patch10 -p1 -b .psd
 
 cp %{SOURCE1} iptables.init
@@ -99,11 +98,14 @@ chmod +x extensions/.*-test
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
 %build
-%serverbuild
-OPT="$CFLAGS -DNDEBUG"
+#%%serverbuild
+#OPT="$CFLAGS -DNDEBUG"
+
+OPT="%{optflags} -DNDEBUG -DNETLINK_NFLOG=5"
+
 for i in linux-2.6*
 	do find extensions -name '*.[ao]' -o -name '*.so' | xargs rm -f
-	make COPT_FLAGS="$OPT" KERNEL_DIR=/usr/src/linux LIBDIR=/lib all
+	make LD=gcc COPT_FLAGS="$OPT" KBUILD_OUTPUT=/usr/src/linux KERNEL_DIR=/usr/src/linux LIBDIR=/lib all
 	rm -fr $i/extensions
 	mkdir -p $i/extensions
 	mv extensions/*.so $i/extensions
@@ -116,13 +118,32 @@ ar rcs libip6tables.a ip6tables.o
 %install
 rm -rf %{buildroot}
 
-%serverbuild
+#%%serverbuild
+#OPT="$CFLAGS -DNDEBUG"
+
+OPT="%{optflags} -DNDEBUG -DNETLINK_NFLOG=5"
 
 # Dunno why this happens. -- Geoff
-%makeinstall_std BINDIR=/sbin MANDIR=%{_mandir} LIBDIR=/lib COPT_FLAGS="$CFLAGS -DNETLINK_NFLOG=4" KERNEL_DIR=/usr install-experimental
+%makeinstall_std \
+    COPT_FLAGS="$OPT" \
+    LD=gcc \
+    BINDIR=/sbin \
+    LIBDIR=/lib \
+    MANDIR=%{_mandir} \
+    KERNEL_DIR=/usr \
+    install install-experimental
 
 %if %{build_devel}
-make install-devel DESTDIR=%{buildroot} KERNEL_DIR=/usr BINDIR=/sbin LIBDIR=%{_libdir} MANDIR=%{_mandir}
+make \
+    DESTDIR=%{buildroot} \
+    COPT_FLAGS="$OPT" \
+    LD=gcc \
+    BINDIR=/sbin \
+    LIBDIR=%{_libdir} \
+    INCDIR=%{_includedir} \
+    MANDIR=%{_mandir} \
+    KERNEL_DIR=/usr \
+    install-devel 
 
 # static development files
 install -d %{buildroot}%{_libdir}
@@ -133,12 +154,13 @@ install -m0644 libip6tables.a %{buildroot}%{_libdir}/
 # header development files
 install -d %{buildroot}%{_includedir}/{libipq,libiptc,libipulog}
 install -m0644 include/ip6tables.h %{buildroot}%{_includedir}/
-install -m0644 include/iptables_common.h %{buildroot}%{_includedir}/
+install -m0644 include/xtables.h %{buildroot}%{_includedir}/
 install -m0644 include/iptables.h %{buildroot}%{_includedir}/
 install -m0644 include/libipq/*.h %{buildroot}%{_includedir}/libipq/
 install -m0644 include/libiptc/*.h %{buildroot}%{_includedir}/libiptc/
 install -m0644 include/libipulog/*.h %{buildroot}%{_includedir}/libipulog/
 %endif
+
 rm -rf %{buildroot}/lib/iptables
 for i in linux-*; do
 	mkdir -p %{buildroot}/lib/iptables.d/$i
@@ -148,7 +170,7 @@ for i in linux-*/extensions/*.so; do
 		if [ -e %{buildroot}/lib/iptables.d/${i%%%/*}/${i##*/} ]; then
 			:
 		elif cmp -s $i $j/${i##*/}; then
-			ln $j/${i##*/} %buildroot/lib/iptables.d/${i%%%/*}/
+			ln $j/${i##*/} %{buildroot}/lib/iptables.d/${i%%%/*}/
 		else
 			cp $i %{buildroot}/lib/iptables.d/${i%%%/*}/
 		fi
@@ -194,6 +216,7 @@ fi
 %dir /lib/iptables.d
 %dir /lib/iptables.d/*
 /lib/iptables.d/*/libipt*
+/lib/iptables.d/*/libxt*
 
 %files ipv6
 %defattr(-,root,root,0755)
