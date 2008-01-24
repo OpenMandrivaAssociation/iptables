@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.0
-Release:	%mkrel 0.3
+Release:	%mkrel 0.4
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -83,11 +83,11 @@ cp %{SOURCE4} ip6tables.sample
 # extensions
 install -m0644 %{SOURCE100} extensions/
 install -m0644 %{SOURCE101} extensions/
-#install -m0644 %{SOURCE102} extensions/
+install -m0644 %{SOURCE102} extensions/
 
 %patch100 -p0 -b .stealth
 %patch101 -p0
-#%patch102 -p0
+%patch102 -p0
 # (oe) P10 comes from iptables-1.3.7, was removed in iptables-1.3.8
 %patch103 -p1 -b .psd
 
