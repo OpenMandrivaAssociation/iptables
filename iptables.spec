@@ -15,15 +15,13 @@ Source4:	ip6tables.config
 # must be in a linux-$kmajor.$kminor-<foo> directory for "service iptables check"
 Source5:	iptables-kernel-headers.tar.bz2
 # S100 and up used to be in the added patches
-Source100:	libipt_stealth.c
-Source101:	libipt_IMQ.c
-Source102:	libipt_IFWLOG.c
+Source100:	libipt_IMQ.c
+Source101:	libipt_IFWLOG.c
 Patch0:		iptables-1.2.8-libiptc.h.patch 
-Patch100:	iptables-stealth_grsecurity.diff
-Patch101:	iptables-imq.diff
-Patch102:	iptables-IFWLOG_extension.diff
-# (oe) P10 comes from iptables-1.3.7, was removed in iptables-1.3.8
-Patch103:	iptables-psd.diff
+Patch100:	iptables-imq.diff
+Patch101:	iptables-IFWLOG_extension.diff
+# (oe) this comes from iptables-1.3.7, was removed in iptables-1.3.8
+Patch102:	iptables-psd.diff
 BuildRequires:	perl-base
 BuildRequires:  kernel-source
 Provides:	userspace-ipfilter
@@ -83,13 +81,11 @@ cp %{SOURCE4} ip6tables.sample
 # extensions
 install -m0644 %{SOURCE100} extensions/
 install -m0644 %{SOURCE101} extensions/
-install -m0644 %{SOURCE102} extensions/
 
-%patch100 -p0 -b .stealth
+%patch100 -p0
 %patch101 -p0
-%patch102 -p0
 # (oe) P10 comes from iptables-1.3.7, was removed in iptables-1.3.8
-%patch103 -p1 -b .psd
+%patch102 -p1 -b .psd
 
 chmod +x extensions/.*-test
 
