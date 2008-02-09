@@ -3,8 +3,8 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.0
-Release:	%mkrel 0.4
-License:	GPL
+Release:	%mkrel 0.5
+License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
 Source:		http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
@@ -12,8 +12,6 @@ Source1:	iptables.init
 Source2:	ip6tables.init
 Source3:	iptables.config
 Source4:	ip6tables.config
-# must be in a linux-$kmajor.$kminor-<foo> directory for "service iptables check"
-Source5:	iptables-kernel-headers.tar.bz2
 # S100 and up used to be in the added patches
 Source100:	libipt_IMQ.c
 Source101:	libipt_IFWLOG.c
@@ -59,7 +57,8 @@ network and you're using ipv6.
 %package	devel
 Summary:	Development package for iptables
 Group:		Development/C
-Requires:	%{name} = %{version}
+Requires:	%{name} = %{version}-%{release}
+Requires:	kernel-headers
 
 %description devel
 The iptables utility controls the network packet filtering code in the
@@ -69,7 +68,7 @@ you should install this package.
 
 %prep
 
-%setup -q -a 5
+%setup -q
 
 cp %{SOURCE1} iptables.init
 cp %{SOURCE2} ip6tables.init
@@ -121,7 +120,7 @@ export OPT="$CFLAGS -DNDEBUG -DNETLINK_NFLOG=5"
     BINDIR=/sbin \
     LIBDIR=/lib \
     MANDIR=%{_mandir} \
-    KERNEL_DIR=/usr \
+    KERNEL_DIR=%{_prefix} \
     install install-experimental
 
 %if %{build_devel}
@@ -133,7 +132,7 @@ make \
     LIBDIR=%{_libdir} \
     INCDIR=%{_includedir} \
     MANDIR=%{_mandir} \
-    KERNEL_DIR=/usr \
+    KERNEL_DIR=%{_prefix} \
     install-devel 
 
 # static development files
