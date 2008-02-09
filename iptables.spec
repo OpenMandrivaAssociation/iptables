@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.0
-Release:	%mkrel 0.5
+Release:	%mkrel 0.6
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -95,7 +95,10 @@ find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 export CFLAGS="${CFLAGS:-%{optflags}}"
 export OPT="$CFLAGS -DNDEBUG -DNETLINK_NFLOG=5"
 
-for i in linux-2.6*
+# (cg) the old kernel-headers tarball contained the folder
+# linux-2.6-pom so we emulate that here...
+# Can we tidy this whole thing up and not use a /lib/iptables symplink?
+for i in linux-2.6-pom
 	do find extensions -name '*.[ao]' -o -name '*.so' | xargs rm -f
 	make LD=gcc COPT_FLAGS="$OPT" KBUILD_OUTPUT=/usr/src/linux KERNEL_DIR=/usr/src/linux LIBDIR=/lib all
 	rm -fr $i/extensions
