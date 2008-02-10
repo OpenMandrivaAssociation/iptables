@@ -155,10 +155,10 @@ install -m0644 include/libipulog/*.h %{buildroot}%{_includedir}/libipulog/
 %endif
 
 rm -rf %{buildroot}/lib/iptables
-for i in linux-*; do
+for i in linux-2.6-pom; do
 	mkdir -p %{buildroot}/lib/iptables.d/$i
 done
-for i in linux-*/extensions/*.so; do
+for i in linux-2.6-pom/extensions/*.so; do
 	for j in %{buildroot}/lib/iptables.d/*; do
 		if [ -e %{buildroot}/lib/iptables.d/${i%%%/*}/${i##*/} ]; then
 			:
