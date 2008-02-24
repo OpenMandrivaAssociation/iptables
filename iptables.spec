@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.0
-Release:	%manbo_mkrel 0.7
+Release:	%manbo_mkrel 0.8
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -92,7 +92,7 @@ find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
 %build
 %serverbuild
-export CFLAGS="${CFLAGS:-%{optflags}}"
+export CFLAGS="${CFLAGS:-%{optflags}} -fPIC"
 export OPT="$CFLAGS -DNDEBUG -DNETLINK_NFLOG=5"
 
 # (cg) the old kernel-headers tarball contained the folder
@@ -113,7 +113,7 @@ ar rcs libip6tables.a ip6tables.o
 %install
 rm -rf %{buildroot}
 %serverbuild
-export CFLAGS="${CFLAGS:-%{optflags}}"
+export CFLAGS="${CFLAGS:-%{optflags}} -fPIC"
 export OPT="$CFLAGS -DNDEBUG -DNETLINK_NFLOG=5"
 
 # Dunno why this happens. -- Geoff
