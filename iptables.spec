@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.0
-Release:	%manbo_mkrel 0.8
+Release:	%manbo_mkrel 0.9
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -15,10 +15,12 @@ Source4:	ip6tables.config
 # S100 and up used to be in the added patches
 Source100:	libipt_IMQ.c
 Source101:	libipt_IFWLOG.c
+# (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
+Source102:	libipt_psd.c
+Source103:	libipt_psd.man
 Patch0:		iptables-1.2.8-libiptc.h.patch 
 Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
-# (oe) this comes from iptables-1.3.7, was removed in iptables-1.3.8
 Patch102:	iptables-psd.diff
 BuildRequires:	perl-base
 BuildRequires:  kernel-source
@@ -80,11 +82,13 @@ cp %{SOURCE4} ip6tables.sample
 # extensions
 install -m0644 %{SOURCE100} extensions/
 install -m0644 %{SOURCE101} extensions/
+# (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
+install -m0644 %{SOURCE102} extensions/
+install -m0644 %{SOURCE103} extensions/
 
 %patch100 -p0
 %patch101 -p0
-# (oe) P10 comes from iptables-1.3.7, was removed in iptables-1.3.8
-%patch102 -p1 -b .psd
+%patch102 -p0
 
 chmod +x extensions/.*-test
 
