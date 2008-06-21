@@ -1,9 +1,9 @@
-%define build_devel 1
+%define _disable_ld_no_undefined 1
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.0
-Release:	%manbo_mkrel 1
+Version:	1.4.1.1
+Release:	%manbo_mkrel 0.1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -22,12 +22,10 @@ Patch0:		iptables-1.2.8-libiptc.h.patch
 Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
-BuildRequires:	perl-base
 BuildRequires:  kernel-source
 Provides:	userspace-ipfilter
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
-Conflicts:	ipchains
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
@@ -55,18 +53,16 @@ IPv6 is the next version of the IP protocol.
 Install iptables-ipv6 if you need to set up firewalling for your
 network and you're using ipv6.
 
-%if %{build_devel}
 %package	devel
 Summary:	Development package for iptables
 Group:		Development/C
 Requires:	%{name} = %{version}-%{release}
 Requires:	kernel-headers
 
-%description devel
+%description	devel
 The iptables utility controls the network packet filtering code in the
 Linux kernel. If you need to set up firewalls and/or IP masquerading,
 you should install this package.
-%endif
 
 %prep
 
@@ -77,10 +73,13 @@ cp %{SOURCE2} ip6tables.init
 cp %{SOURCE3} iptables.sample
 cp %{SOURCE4} ip6tables.sample
 
+# fix libdir
+perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
+
 %patch0 -p1 -b .libiptc
 
 # extensions
-install -m0644 %{SOURCE100} extensions/
+#install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
 install -m0644 %{SOURCE101} extensions/
 # (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
 install -m0644 %{SOURCE102} extensions/
@@ -90,25 +89,22 @@ install -m0644 %{SOURCE103} extensions/
 %patch101 -p0
 %patch102 -p0
 
-chmod +x extensions/.*-test
-
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
 %build
 %serverbuild
-export CFLAGS="${CFLAGS:-%{optflags}} -fPIC"
-export OPT="$CFLAGS -DNDEBUG -DNETLINK_NFLOG=5"
 
-# (cg) the old kernel-headers tarball contained the folder
-# linux-2.6-pom so we emulate that here...
-# Can we tidy this whole thing up and not use a /lib/iptables symplink?
-for i in linux-2.6-pom
-	do find extensions -name '*.[ao]' -o -name '*.so' | xargs rm -f
-	make LD=gcc COPT_FLAGS="$OPT" KBUILD_OUTPUT=/usr/src/linux KERNEL_DIR=/usr/src/linux LIBDIR=/lib all
-	rm -fr $i/extensions
-	mkdir -p $i/extensions
-	mv extensions/*.so $i/extensions
-done
+autoreconf -fis
+
+%configure2_5x \
+    --bindir=/sbin \
+    --sbindir=/sbin \
+    --enable-devel \
+    --enable-libipq \
+    --with-ksource=%{_prefix}/src/linux \
+    --with-xtlibdir=/%{_lib}/iptables.d
+
+%make
 
 # make more devel libs (debian)
 ar rcs libiptables.a iptables.o
@@ -116,31 +112,8 @@ ar rcs libip6tables.a ip6tables.o
 
 %install
 rm -rf %{buildroot}
-%serverbuild
-export CFLAGS="${CFLAGS:-%{optflags}} -fPIC"
-export OPT="$CFLAGS -DNDEBUG -DNETLINK_NFLOG=5"
 
-# Dunno why this happens. -- Geoff
-%makeinstall_std \
-    COPT_FLAGS="$OPT" \
-    LD=gcc \
-    BINDIR=/sbin \
-    LIBDIR=/lib \
-    MANDIR=%{_mandir} \
-    KERNEL_DIR=%{_prefix} \
-    install install-experimental
-
-%if %{build_devel}
-make \
-    DESTDIR=%{buildroot} \
-    COPT_FLAGS="$OPT" \
-    LD=gcc \
-    BINDIR=/sbin \
-    LIBDIR=%{_libdir} \
-    INCDIR=%{_includedir} \
-    MANDIR=%{_mandir} \
-    KERNEL_DIR=%{_prefix} \
-    install-devel 
+%makeinstall_std
 
 # static development files
 install -d %{buildroot}%{_libdir}
@@ -150,36 +123,13 @@ install -m0644 libip6tables.a %{buildroot}%{_libdir}/
 
 # header development files
 install -d %{buildroot}%{_includedir}/{libipq,libiptc,libipulog}
-install -m0644 include/ip6tables.h %{buildroot}%{_includedir}/
-install -m0644 include/xtables.h %{buildroot}%{_includedir}/
-install -m0644 include/iptables.h %{buildroot}%{_includedir}/
 install -m0644 include/libipq/*.h %{buildroot}%{_includedir}/libipq/
 install -m0644 include/libiptc/*.h %{buildroot}%{_includedir}/libiptc/
 install -m0644 include/libipulog/*.h %{buildroot}%{_includedir}/libipulog/
-%endif
-
-rm -rf %{buildroot}/lib/iptables
-for i in linux-2.6-pom; do
-	mkdir -p %{buildroot}/lib/iptables.d/$i
-done
-for i in linux-2.6-pom/extensions/*.so; do
-	for j in %{buildroot}/lib/iptables.d/*; do
-		if [ -e %{buildroot}/lib/iptables.d/${i%%%/*}/${i##*/} ]; then
-			:
-		elif cmp -s $i $j/${i##*/}; then
-			ln $j/${i##*/} %{buildroot}/lib/iptables.d/${i%%%/*}/
-		else
-			cp $i %{buildroot}/lib/iptables.d/${i%%%/*}/
-		fi
-	done
-done
 
 install -d %{buildroot}%{_initrddir}
 install -m0755 iptables.init %{buildroot}%{_initrddir}/iptables
 install -m0755 ip6tables.init %{buildroot}%{_initrddir}/ip6tables
-
-%clean
-rm -rf %{buildroot}
 
 %post
 %_post_service iptables
@@ -187,10 +137,6 @@ rm -rf %{buildroot}
 if [ $1 = 1 ]; then
     /sbin/service iptables check
 fi
-
-%triggerpostun -- iptables < 1.2.9-8mdk
-# fix upgrade from mdk < 10.2
-/sbin/service iptables check
 
 %preun
 %_preun_service iptables
@@ -201,39 +147,122 @@ fi
 %preun ipv6
 %_preun_service ip6tables
 
+%clean
+rm -rf %{buildroot}
+
 %files
 %defattr(-,root,root,0755)
 %doc INSTALL INCOMPATIBILITIES iptables.sample
-%{_initrddir}/iptables
+%attr(0755,root,root) %{_initrddir}/iptables
 /sbin/iptables
-/sbin/iptables-save
+/sbin/iptables-multi
 /sbin/iptables-restore
+/sbin/iptables-save
 /sbin/iptables-xml
+/%{_lib}/iptables.d/libipt_addrtype.so
+/%{_lib}/iptables.d/libipt_ah.so
+/%{_lib}/iptables.d/libipt_CLUSTERIP.so
+/%{_lib}/iptables.d/libipt_DNAT.so
+/%{_lib}/iptables.d/libipt_ecn.so
+/%{_lib}/iptables.d/libipt_ECN.so
+/%{_lib}/iptables.d/libipt_icmp.so
+/%{_lib}/iptables.d/libipt_IFWLOG.so
+/%{_lib}/iptables.d/libipt_LOG.so
+/%{_lib}/iptables.d/libipt_MASQUERADE.so
+/%{_lib}/iptables.d/libipt_MIRROR.so
+/%{_lib}/iptables.d/libipt_NETMAP.so
+/%{_lib}/iptables.d/libipt_policy.so
+/%{_lib}/iptables.d/libipt_psd.so
+/%{_lib}/iptables.d/libipt_realm.so
+/%{_lib}/iptables.d/libipt_recent.so
+/%{_lib}/iptables.d/libipt_REDIRECT.so
+/%{_lib}/iptables.d/libipt_REJECT.so
+/%{_lib}/iptables.d/libipt_SAME.so
+/%{_lib}/iptables.d/libipt_set.so
+/%{_lib}/iptables.d/libipt_SET.so
+/%{_lib}/iptables.d/libipt_SNAT.so
+/%{_lib}/iptables.d/libipt_ttl.so
+/%{_lib}/iptables.d/libipt_TTL.so
+/%{_lib}/iptables.d/libipt_ULOG.so
+/%{_lib}/iptables.d/libipt_unclean.so
+/%{_lib}/iptables.d/libxt_CLASSIFY.so
+/%{_lib}/iptables.d/libxt_comment.so
+/%{_lib}/iptables.d/libxt_connbytes.so
+/%{_lib}/iptables.d/libxt_connlimit.so
+/%{_lib}/iptables.d/libxt_connmark.so
+/%{_lib}/iptables.d/libxt_CONNMARK.so
+/%{_lib}/iptables.d/libxt_CONNSECMARK.so
+/%{_lib}/iptables.d/libxt_conntrack.so
+/%{_lib}/iptables.d/libxt_dccp.so
+/%{_lib}/iptables.d/libxt_dscp.so
+/%{_lib}/iptables.d/libxt_DSCP.so
+/%{_lib}/iptables.d/libxt_esp.so
+/%{_lib}/iptables.d/libxt_hashlimit.so
+/%{_lib}/iptables.d/libxt_helper.so
+/%{_lib}/iptables.d/libxt_iprange.so
+/%{_lib}/iptables.d/libxt_length.so
+/%{_lib}/iptables.d/libxt_limit.so
+/%{_lib}/iptables.d/libxt_mac.so
+/%{_lib}/iptables.d/libxt_mark.so
+/%{_lib}/iptables.d/libxt_MARK.so
+/%{_lib}/iptables.d/libxt_multiport.so
+/%{_lib}/iptables.d/libxt_NFLOG.so
+/%{_lib}/iptables.d/libxt_NFQUEUE.so
+/%{_lib}/iptables.d/libxt_NOTRACK.so
+/%{_lib}/iptables.d/libxt_owner.so
+/%{_lib}/iptables.d/libxt_physdev.so
+/%{_lib}/iptables.d/libxt_pkttype.so
+/%{_lib}/iptables.d/libxt_quota.so
+/%{_lib}/iptables.d/libxt_rateest.so
+/%{_lib}/iptables.d/libxt_RATEEST.so
+/%{_lib}/iptables.d/libxt_sctp.so
+/%{_lib}/iptables.d/libxt_SECMARK.so
+/%{_lib}/iptables.d/libxt_standard.so
+/%{_lib}/iptables.d/libxt_state.so
+/%{_lib}/iptables.d/libxt_statistic.so
+/%{_lib}/iptables.d/libxt_string.so
+/%{_lib}/iptables.d/libxt_tcpmss.so
+/%{_lib}/iptables.d/libxt_TCPMSS.so
+/%{_lib}/iptables.d/libxt_TCPOPTSTRIP.so
+/%{_lib}/iptables.d/libxt_tcp.so
+/%{_lib}/iptables.d/libxt_time.so
+/%{_lib}/iptables.d/libxt_tos.so
+/%{_lib}/iptables.d/libxt_TOS.so
+/%{_lib}/iptables.d/libxt_TRACE.so
+/%{_lib}/iptables.d/libxt_u32.so
+/%{_lib}/iptables.d/libxt_udp.so
 %{_mandir}/*/iptables*
-%dir /lib/iptables.d
-%dir /lib/iptables.d/*
-/lib/iptables.d/*/libipt*
-/lib/iptables.d/*/libxt*
 
 %files ipv6
 %defattr(-,root,root,0755)
 %doc INSTALL INCOMPATIBILITIES ip6tables.sample
-%{_initrddir}/ip6tables
+%attr(0755,root,root) %{_initrddir}/ip6tables
 /sbin/ip6tables
-/sbin/ip6tables-save
+/sbin/ip6tables-multi
 /sbin/ip6tables-restore
+/sbin/ip6tables-save
+/%{_lib}/iptables.d/libip6t_ah.so
+/%{_lib}/iptables.d/libip6t_dst.so
+/%{_lib}/iptables.d/libip6t_eui64.so
+/%{_lib}/iptables.d/libip6t_frag.so
+/%{_lib}/iptables.d/libip6t_hbh.so
+/%{_lib}/iptables.d/libip6t_hl.so
+/%{_lib}/iptables.d/libip6t_HL.so
+/%{_lib}/iptables.d/libip6t_icmp6.so
+/%{_lib}/iptables.d/libip6t_ipv6header.so
+/%{_lib}/iptables.d/libip6t_LOG.so
+/%{_lib}/iptables.d/libip6t_mh.so
+/%{_lib}/iptables.d/libip6t_policy.so
+/%{_lib}/iptables.d/libip6t_REJECT.so
+/%{_lib}/iptables.d/libip6t_rt.so
 %{_mandir}/*/ip6tables*
-%dir /lib/iptables.d
-%dir /lib/iptables.d/*
-/lib/iptables.d/*/libip6t*
 
-%if %{build_devel}
 %files devel
 %defattr(-,root,root,0755)
 %{_includedir}/*.h
-%dir %{_includedir}/libipq/
-%dir %{_includedir}/libiptc/
-%dir %{_includedir}/libipulog/
+%dir %{_includedir}/libipq
+%dir %{_includedir}/libiptc
+%dir %{_includedir}/libipulog
 %{_includedir}/libipq/*.h
 %{_includedir}/libiptc/*.h
 %{_includedir}/libipulog/*.h
@@ -242,4 +271,3 @@ fi
 %{_libdir}/libiptables.a
 %{_libdir}/libip6tables.a
 %{_mandir}/man3/*
-%endif
