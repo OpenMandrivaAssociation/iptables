@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.1.1
-Release:	%manbo_mkrel 0.1
+Release:	%manbo_mkrel 0.2
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -95,6 +95,10 @@ find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 %serverbuild
 
 autoreconf -fis
+
+export CFLAGS="$CFLAGS -fPIC"
+export CXXFLAGS="$CXXFLAGS -fPIC"
+export FFLAGS="$FFLAGS -fPIC"
 
 %configure2_5x \
     --bindir=/sbin \
