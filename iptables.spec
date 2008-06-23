@@ -122,6 +122,7 @@ rm -rf %{buildroot}
 # (oe) this in conjunction with the mandriva initscript will make it possible
 # to use development versions of the netfilter modules and with different
 # api:s. (according to blino)
+install -d %{buildroot}/%{_lib}/iptables.d
 mv %{buildroot}/%{_lib}/iptables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 
 # static development files
