@@ -22,7 +22,6 @@ Patch0:		iptables-1.2.8-libiptc.h.patch
 Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
-BuildRequires:  kernel-source
 Provides:	userspace-ipfilter
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
