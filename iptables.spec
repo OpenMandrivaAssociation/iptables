@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.1.1
-Release:	%manbo_mkrel 0.5
+Release:	%manbo_mkrel 0.6
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -85,13 +85,10 @@ export CFLAGS="$CFLAGS -fPIC"
 export CXXFLAGS="$CXXFLAGS -fPIC"
 export FFLAGS="$FFLAGS -fPIC"
 
-# (oe) this in conjunction with the mandriva initscript will make it possible
-# to use development versions of the netfilter modules and with different
-# api:s. (according to blino)
 # (tpg) be more sane
 # XT_LIB_DIR in include/xtables/internal.h should be always same as --with-xtlibdir
 
-sed -i -e 's#/usr/lib/iptables#/%{_lib}/iptables.d/linux-2.6-main#g' include/xtables/internal.h
+sed -i -e 's#/usr/lib/iptables#/%{_lib}/iptables#g' include/xtables/internal.h
 
 %configure2_5x \
     --bindir=/sbin \
@@ -99,7 +96,7 @@ sed -i -e 's#/usr/lib/iptables#/%{_lib}/iptables.d/linux-2.6-main#g' include/xta
     --enable-devel \
     --enable-libipq \
     --with-ksource=%{_prefix}/src/linux \
-    --with-xtlibdir=/%{_lib}/iptables.d/linux-2.6-main
+    --with-xtlibdir=/%{_lib}/iptables
 
 %make
 
@@ -111,6 +108,12 @@ ar rcs libip6tables.a ip6tables.o
 rm -rf %{buildroot}
 
 %makeinstall_std
+
+# (oe) this in conjunction with the mandriva initscript will make it possible 	 
+# to use development versions of the netfilter modules and with different 	 
+# api:s. (according to blino) 	 
+install -d %{buildroot}/%{_lib}/iptables.d 	 
+mv %{buildroot}/%{_lib}/iptables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 
 # static development files
 install -d %{buildroot}%{_libdir}
