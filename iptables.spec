@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.1.1
-Release:	%manbo_mkrel 0.4
+Release:	%manbo_mkrel 0.5
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -18,13 +18,16 @@ Source101:	libipt_IFWLOG.c
 # (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
 Source102:	libipt_psd.c
 Source103:	libipt_psd.man
-Patch0:		iptables-1.2.8-libiptc.h.patch 
+Patch0:		iptables-1.2.8-libiptc.h.patch
+Patch1:		iptables-1.4.1.1-missing-header.patch
 Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
 Provides:	userspace-ipfilter
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
+Obsoletes:	%{name}-ipv6 < 1.4.1.1-0.5
+Provides:	%{name}-ipv6
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
@@ -33,24 +36,6 @@ It allows you to set up firewalls and IP masquerading, etc.
 
 Install iptables if you need to set up firewalling for your
 network.
-
-%package	ipv6
-Summary:	IPv6 support for iptables
-Group:		System/Kernel and hardware
-Requires:	%{name} = %{version}
-Requires(post): rpm-helper
-Requires(preun): rpm-helper
-
-%description	ipv6
-IPv6 support for iptables.
-
-iptables controls the Linux kernel network packet filtering code.
-It allows you to set up firewalls and IP masquerading, etc.
-
-IPv6 is the next version of the IP protocol.
-
-Install iptables-ipv6 if you need to set up firewalling for your
-network and you're using ipv6.
 
 %package	devel
 Summary:	Development package for iptables
@@ -76,6 +61,7 @@ cp %{SOURCE4} ip6tables.sample
 perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 %patch0 -p1 -b .libiptc
+%patch1 -p1 -b .header
 
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
@@ -99,13 +85,21 @@ export CFLAGS="$CFLAGS -fPIC"
 export CXXFLAGS="$CXXFLAGS -fPIC"
 export FFLAGS="$FFLAGS -fPIC"
 
+# (oe) this in conjunction with the mandriva initscript will make it possible
+# to use development versions of the netfilter modules and with different
+# api:s. (according to blino)
+# (tpg) be more sane
+# XT_LIB_DIR in include/xtables/internal.h should be always same as --with-xtlibdir
+
+sed -i -e 's#/usr/lib/iptables#/%{_lib}/iptables.d/linux-2.6-main#g' include/xtables/internal.h
+
 %configure2_5x \
     --bindir=/sbin \
     --sbindir=/sbin \
     --enable-devel \
     --enable-libipq \
     --with-ksource=%{_prefix}/src/linux \
-    --with-xtlibdir=/%{_lib}/iptables
+    --with-xtlibdir=/%{_lib}/iptables.d/linux-2.6-main
 
 %make
 
@@ -117,12 +111,6 @@ ar rcs libip6tables.a ip6tables.o
 rm -rf %{buildroot}
 
 %makeinstall_std
-
-# (oe) this in conjunction with the mandriva initscript will make it possible
-# to use development versions of the netfilter modules and with different
-# api:s. (according to blino)
-install -d %{buildroot}/%{_lib}/iptables.d
-mv %{buildroot}/%{_lib}/iptables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 
 # static development files
 install -d %{buildroot}%{_libdir}
@@ -142,6 +130,7 @@ install -m0755 ip6tables.init %{buildroot}%{_initrddir}/ip6tables
 
 %post
 %_post_service iptables
+%_post_service ip6tables
 # run only on fresh installation
 if [ $1 = 1 ]; then
     /sbin/service iptables check
@@ -149,11 +138,6 @@ fi
 
 %preun
 %_preun_service iptables
-
-%post ipv6
-%_post_service ip6tables
-
-%preun ipv6
 %_preun_service ip6tables
 
 %clean
@@ -161,15 +145,20 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,0755)
-%doc INSTALL INCOMPATIBILITIES iptables.sample
-%attr(0755,root,root) %{_initrddir}/iptables
+%doc INSTALL INCOMPATIBILITIES iptables.sample ip6tables.sample
+%attr(0755,root,root) %{_initrddir}/ip*
 /sbin/iptables
 /sbin/iptables-multi
 /sbin/iptables-restore
 /sbin/iptables-save
 /sbin/iptables-xml
+# ipv6
+/sbin/ip6tables
+/sbin/ip6tables-multi
+/sbin/ip6tables-restore
+/sbin/ip6tables-save
 %dir /%{_lib}/iptables.d
-%dir /%{_lib}/iptables.d/*
+%dir /%{_lib}/iptables.d/linux-2.6-main
 /%{_lib}/iptables.d/linux-2.6-main/libipt_addrtype.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_ah.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_CLUSTERIP.so
@@ -243,17 +232,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
 %{_mandir}/*/iptables*
-
-%files ipv6
-%defattr(-,root,root,0755)
-%doc INSTALL INCOMPATIBILITIES ip6tables.sample
-%attr(0755,root,root) %{_initrddir}/ip6tables
-/sbin/ip6tables
-/sbin/ip6tables-multi
-/sbin/ip6tables-restore
-/sbin/ip6tables-save
-%dir /%{_lib}/iptables.d
-%dir /%{_lib}/iptables.d/*
+# ipv6
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_ah.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_dst.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_eui64.so
