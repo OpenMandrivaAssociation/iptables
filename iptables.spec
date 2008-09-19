@@ -20,6 +20,10 @@ Source102:	libipt_psd.c
 Source103:	libipt_psd.man
 Patch0:		iptables-1.2.8-libiptc.h.patch
 Patch1:		iptables-1.4.1.1-missing-header.patch
+Patch2:		iptables-1.3.8-typo_latter.patch
+Patch3:		iptables-1.4.1.1-cloexec.patch
+Patch4:		iptables-1.4.1-nf_ext_init.patch
+Patch5:		iptables-1.4.1.1-tos_value_mask.patch
 Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
@@ -62,6 +66,10 @@ perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 %patch0 -p1 -b .libiptc
 %patch1 -p1 -b .header
+%patch2 -p1 -b .typo_latter
+%patch3 -p1 -b .cloexec
+%patch4 -p1 -b .nf_ext_init
+%patch5 -p1 -b .tos_value_mask
 
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
@@ -73,6 +81,10 @@ install -m0644 %{SOURCE103} extensions/
 %patch100 -p0
 %patch101 -p0
 %patch102 -p0
+
+# fix constructor names, see also nf_ext_init patch
+perl -pi -e "s/void _init\(/void __attribute\(\(constructor\)\) nf_ext_init\(/g" extensions/*.c
+perl -pi -e "s/^_init\(/__attribute\(\(constructor\)\) nf_ext_init\(/g" extensions/*.c
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
