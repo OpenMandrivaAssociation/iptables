@@ -3,7 +3,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.1.1
-Release:	%manbo_mkrel 3
+Release:	%manbo_mkrel 4
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -146,10 +146,7 @@ install -m0755 ip6tables.init %{buildroot}%{_initrddir}/ip6tables
 %post
 %_post_service iptables
 %_post_service ip6tables
-# run only on fresh installation
-if [ $1 = 1 ]; then
-    /sbin/service iptables check
-fi
+/sbin/service iptables check
 
 %preun
 %_preun_service iptables
