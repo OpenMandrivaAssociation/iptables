@@ -7,7 +7,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.2
-Release:	%manbo_mkrel 1
+Release:	%manbo_mkrel 2
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -26,6 +26,7 @@ Patch0:		iptables-1.2.8-libiptc.h.patch
 Patch2:		iptables-1.3.8-typo_latter.patch
 Patch3:		iptables-1.4.1.1-cloexec.patch
 Patch4:		iptables-1.4.1-nf_ext_init.patch
+Patch5:		iptables-1.4.2-format_not_a_string_literal_and_no_format_arguments.diff
 Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
@@ -78,10 +79,11 @@ cp %{SOURCE4} ip6tables.sample
 # fix libdir
 perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
-%patch0 -p1 -b .libiptc
+%patch0 -p0 -b .libiptc
 %patch2 -p1 -b .typo_latter
 %patch3 -p1 -b .cloexec
 %patch4 -p1 -b .nf_ext_init
+%patch5 -p0 -b .format_not_a_string_literal_and_no_format_arguments
 
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
@@ -99,6 +101,9 @@ perl -pi -e "s/void _init\(/void __attribute\(\(constructor\)\) nf_ext_init\(/g"
 perl -pi -e "s/^_init\(/__attribute\(\(constructor\)\) nf_ext_init\(/g" extensions/*.c
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
+
+# don't run /sbin/ldconfig
+perl -pi -e "s|/sbin/ldconfig|/bin/true|g" Makefile*
 
 %build
 export LIBS="-ldl"
