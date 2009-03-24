@@ -1,13 +1,13 @@
 %define _disable_ld_no_undefined 1
 
-%define major 0
+%define major 1
 %define libname %mklibname iptables %{major}
 %define develname %mklibname -d iptables
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.2
-Release:	%manbo_mkrel 2
+Version:	1.4.3
+Release:	%manbo_mkrel 1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -23,10 +23,6 @@ Source101:	libipt_IFWLOG.c
 Source102:	libipt_psd.c
 Source103:	libipt_psd.man
 Patch0:		iptables-1.2.8-libiptc.h.patch
-Patch2:		iptables-1.3.8-typo_latter.patch
-Patch3:		iptables-1.4.1.1-cloexec.patch
-Patch4:		iptables-1.4.1-nf_ext_init.patch
-Patch5:		iptables-1.4.2-format_not_a_string_literal_and_no_format_arguments.diff
 Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
@@ -80,10 +76,6 @@ cp %{SOURCE4} ip6tables.sample
 perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 %patch0 -p0 -b .libiptc
-%patch2 -p1 -b .typo_latter
-%patch3 -p1 -b .cloexec
-%patch4 -p1 -b .nf_ext_init
-%patch5 -p0 -b .format_not_a_string_literal_and_no_format_arguments
 
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
@@ -95,10 +87,6 @@ install -m0644 %{SOURCE103} extensions/
 %patch100 -p0
 %patch101 -p0
 %patch102 -p0
-
-# fix constructor names, see also nf_ext_init patch
-perl -pi -e "s/void _init\(/void __attribute\(\(constructor\)\) nf_ext_init\(/g" extensions/*.c
-perl -pi -e "s/^_init\(/__attribute\(\(constructor\)\) nf_ext_init\(/g" extensions/*.c
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
@@ -116,11 +104,6 @@ export CFLAGS="$CFLAGS -fPIC"
 export CXXFLAGS="$CXXFLAGS -fPIC"
 export FFLAGS="$FFLAGS -fPIC"
 
-# (tpg) be more sane
-# XT_LIB_DIR in include/xtables/internal.h should be always same as --with-xtlibdir
-
-sed -i -e 's#/usr/lib/iptables#/%{_lib}/iptables#g' include/xtables/internal.h
-
 %configure2_5x \
     --bindir=/sbin \
     --sbindir=/sbin \
@@ -134,6 +117,9 @@ make
 # make more devel libs (debian)
 ar rcs libiptables.a iptables.o
 ar rcs libip6tables.a ip6tables.o
+
+# hmm...
+ar rcs libiptc/libiptc.a libiptc/.libs/libip4tc.o libiptc/.libs/libip6tc.o
 
 %install
 rm -rf %{buildroot}
@@ -149,6 +135,9 @@ mv %{buildroot}/%{_lib}/iptables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 # move the shared libs
 mv %{buildroot}%{_libdir}/libxtables.so.%{major}* %{buildroot}/%{_lib}/
 ln -snf /%{_lib}/libxtables.so.%{major} %{buildroot}%{_libdir}/libxtables.so
+
+mv %{buildroot}%{_libdir}/libiptc.so.* %{buildroot}/%{_lib}/
+ln -snf /%{_lib}/libiptc.so.0 %{buildroot}%{_libdir}/libiptc.so
 
 # static development files
 install -d %{buildroot}%{_libdir}
@@ -217,7 +206,6 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libipt_policy.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_psd.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_realm.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_recent.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_REDIRECT.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_REJECT.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_SAME.so
@@ -258,8 +246,10 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_quota.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_rateest.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_RATEEST.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_recent.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_sctp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_SECMARK.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_socket.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_standard.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_state.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_statistic.so
@@ -271,6 +261,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_time.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_tos.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_TOS.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_TPROXY.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_TRACE.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
@@ -295,6 +286,7 @@ rm -rf %{buildroot}
 %files -n %{libname}
 %defattr(-,root,root)
 /%{_lib}/libxtables.so.%{major}*
+/%{_lib}/libiptc.so.*
 
 %files -n %{develname}
 %defattr(-, root, root)
@@ -306,10 +298,11 @@ rm -rf %{buildroot}
 %{_includedir}/libiptc/*.h
 %{_includedir}/libipulog/*.h
 %{_libdir}/libxtables.so
-%{_libdir}/libipq.a
-%{_libdir}/libiptc.a
-%{_libdir}/libiptables.a
-%{_libdir}/libip6tables.a
-%{_libdir}/*.la
+%{_libdir}/libxtables.*a
+%{_libdir}/libiptc.so
+%{_libdir}/libipq.*a
+%{_libdir}/libiptc.*a
+%{_libdir}/libiptables.*a
+%{_libdir}/libip6tables.*a
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/*
