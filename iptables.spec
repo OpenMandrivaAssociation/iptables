@@ -6,7 +6,7 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.3
+Version:	1.4.3.1
 Release:	%manbo_mkrel 1
 License:	GPLv2+
 Group:		System/Kernel and hardware
