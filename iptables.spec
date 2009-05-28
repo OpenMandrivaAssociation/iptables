@@ -4,6 +4,10 @@
 %define libname %mklibname iptables %{major}
 %define develname %mklibname -d iptables
 
+%define iptc_major 0
+%define iptc_libname %mklibname iptc %{iptc_major}
+%define iptc_develname %mklibname -d iptc
+
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.3.2
@@ -64,6 +68,30 @@ iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the static iptables library.
+
+
+%package -n	%{iptc_libname}
+Summary:	Shared iptables library
+Group:          System/Libraries
+
+%description -n	%{iptc_libname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
+This package contains the IPTC library.
+
+%package -n	%{iptc_develname}
+Summary:	Static library and header files for the iptables library
+Group:		Development/C
+Requires:	kernel-headers
+Requires:	%{iptc_libname} = %{version}-%{release}
+Provides:	iptables-iptc-devel = %{version}
+
+%description -n	%{iptc_develname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
+This package contains the IPTC library.
 
 %prep
 
@@ -288,23 +316,30 @@ rm -rf %{buildroot}
 %files -n %{libname}
 %defattr(-,root,root)
 /%{_lib}/libxtables.so.%{major}*
-/%{_lib}/libiptc.so.*
 
 %files -n %{develname}
 %defattr(-, root, root)
 %{_includedir}/*.h
 %dir %{_includedir}/libipq
-%dir %{_includedir}/libiptc
 %dir %{_includedir}/libipulog
 %{_includedir}/libipq/*.h
-%{_includedir}/libiptc/*.h
 %{_includedir}/libipulog/*.h
 %{_libdir}/libxtables.so
 %{_libdir}/libxtables.*a
-%{_libdir}/libiptc.so
 %{_libdir}/libipq.*a
-%{_libdir}/libiptc.*a
 %{_libdir}/libiptables.*a
 %{_libdir}/libip6tables.*a
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/*
+
+%files -n %{iptc_libname}
+%defattr(-,root,root)
+/%{_lib}/libiptc.so.*
+
+%files -n %{iptc_develname}
+%defattr(-, root, root)
+%{_includedir}/*.h
+%dir %{_includedir}/libiptc
+%{_includedir}/libiptc/*.h
+%{_libdir}/libiptc.so
+%{_libdir}/libiptc.*a
