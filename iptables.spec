@@ -1,13 +1,13 @@
 %define _disable_ld_no_undefined 1
 
-%define major 1
+%define major 2
 %define libname %mklibname iptables %{major}
 %define develname %mklibname -d iptables
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.3.1
-Release:	%manbo_mkrel 3
+Version:	1.4.3.2
+Release:	%manbo_mkrel 1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -29,6 +29,7 @@ Patch102:	iptables-psd.diff
 Provides:	userspace-ipfilter
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
+Obsoletes:	%{name} < 1.4.3.2
 Obsoletes:	%{name}-ipv6 < 1.4.1.1-0.5
 Provides:	%{name}-ipv6
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -42,6 +43,7 @@ Install iptables if you need to set up firewalling for your network.
 %package -n	%{libname}
 Summary:	Shared iptables library
 Group:          System/Libraries
+Obsoletes:	%mklibname %{name} 1
 
 %description -n	%{libname}
 iptables controls the Linux kernel network packet filtering code. It allows you
