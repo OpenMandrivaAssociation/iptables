@@ -47,7 +47,7 @@ Install iptables if you need to set up firewalling for your network.
 %package -n	%{libname}
 Summary:	Shared iptables library
 Group:          System/Libraries
-Obsoletes:	%mklibname %{name} 1
+Conflicts:	%mklibname %{name} 1
 
 %description -n	%{libname}
 iptables controls the Linux kernel network packet filtering code. It allows you
