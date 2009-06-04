@@ -11,7 +11,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.3.2
-Release:	%manbo_mkrel 2
+Release:	%manbo_mkrel 3
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -73,7 +73,7 @@ This package contains the static iptables library.
 %package -n	%{iptc_libname}
 Summary:	Shared iptables library
 Group:          System/Libraries
-Obsoletes:	%mklibname %name 1 < 1.4.3.2
+Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{iptc_libname}
 iptables controls the Linux kernel network packet filtering code. It allows you
