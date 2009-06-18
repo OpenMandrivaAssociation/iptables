@@ -11,7 +11,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.4
-Release:	%manbo_mkrel 1
+Release:	%manbo_mkrel 2
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -330,7 +330,7 @@ rm -rf %{buildroot}
 %{_libdir}/libipq.*a
 %{_libdir}/libiptables.*a
 %{_libdir}/libip6tables.*a
-%{_libdir}/pkgconfig/*.pc
+%{_libdir}/pkgconfig/xtables.pc
 %{_mandir}/man3/*
 
 %files -n %{iptc_libname}
@@ -339,8 +339,9 @@ rm -rf %{buildroot}
 
 %files -n %{iptc_develname}
 %defattr(-, root, root)
-%{_includedir}/*.h
+%{_includedir}/libiptc/*.h
 %dir %{_includedir}/libiptc
 %{_includedir}/libiptc/*.h
 %{_libdir}/libiptc.so
 %{_libdir}/libiptc.*a
+%{_libdir}/pkgconfig/libiptc.pc
