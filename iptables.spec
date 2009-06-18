@@ -10,8 +10,8 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.3.2
-Release:	%manbo_mkrel 3
+Version:	1.4.4
+Release:	%manbo_mkrel 1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -234,7 +234,6 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libipt_MASQUERADE.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_MIRROR.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_NETMAP.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_policy.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_psd.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_realm.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_REDIRECT.so
@@ -248,6 +247,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libipt_ULOG.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_unclean.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CLASSIFY.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_cluster.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_comment.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_connbytes.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_connlimit.so
@@ -274,6 +274,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_owner.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_physdev.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_pkttype.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_policy.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_quota.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_rateest.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_RATEEST.so
@@ -309,7 +310,6 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_ipv6header.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_LOG.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_mh.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_policy.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_REJECT.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_rt.so
 %{_mandir}/*/ip6tables*
