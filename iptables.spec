@@ -8,9 +8,17 @@
 %define iptc_libname %mklibname iptc %{iptc_major}
 %define iptc_develname %mklibname -d iptc
 
+%define ip4tc_major 0
+%define ip4tc_libname %mklibname ip4tc %{ip4tc_major}
+%define ip4tc_develname %mklibname -d ip4tc
+
+%define ip6tc_major 0
+%define ip6tc_libname %mklibname ip6tc %{ip6tc_major}
+%define ip6tc_develname %mklibname -d ip6tc
+
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.4
+Version:	1.4.5
 Release:	%manbo_mkrel 2
 License:	GPLv2+
 Group:		System/Kernel and hardware
@@ -70,6 +78,7 @@ to set up firewalls and IP masquerading, etc.
 This package contains the static iptables library.
 
 
+# iptc
 %package -n	%{iptc_libname}
 Summary:	Shared iptables library
 Group:          System/Libraries
@@ -86,6 +95,7 @@ Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
 Requires:	%{iptc_libname} = %{version}-%{release}
+Requires:	%{iptc_develname} = %{version}-%{release}
 Provides:	iptables-iptc-devel = %{version}
 
 %description -n	%{iptc_develname}
@@ -93,6 +103,57 @@ iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the IPTC library.
+
+# ip4tc
+%package -n	%{ip4tc_libname}
+Summary:	Shared iptables library
+Group:          System/Libraries
+Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
+
+%description -n	%{ip4tc_libname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
+This package contains the IP4TC library.
+
+%package -n	%{ip4tc_develname}
+Summary:	Static library and header files for the iptables library
+Group:		Development/C
+Requires:	kernel-headers
+Requires:	%{ip4tc_libname} = %{version}-%{release}
+Requires:	%{iptc_develname} = %{version}-%{release}
+Provides:	iptables-ip6tc-devel = %{version}
+
+%description -n	%{ip4tc_develname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
+This package contains the development files for IPTC library.
+
+# ip6tc
+%package -n	%{ip6tc_libname}
+Summary:	Shared iptables library
+Group:          System/Libraries
+Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
+
+%description -n	%{ip6tc_libname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
+This package contains the IP6TC library.
+
+%package -n	%{ip6tc_develname}
+Summary:	Static library and header files for the iptables library
+Group:		Development/C
+Requires:	kernel-headers
+Requires:	%{ip6tc_libname} = %{version}-%{release}
+Provides:	iptables-ip6tc-devel = %{version}
+
+%description -n	%{ip6tc_develname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
+This package contains the development files for IP6TC library.
 
 %prep
 
@@ -106,7 +167,7 @@ cp %{SOURCE4} ip6tables.sample
 # fix libdir
 perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
-%patch0 -p0 -b .libiptc
+#%patch0 -p0 -b .libiptc
 
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
@@ -140,14 +201,16 @@ export FFLAGS="$FFLAGS -fPIC"
     --sbindir=/sbin \
     --enable-devel \
     --enable-libipq \
+    --enable-ipv4 \
+    --enable-ipv6 \
     --with-ksource=%{_prefix}/src/linux \
     --with-xtlibdir=/%{_lib}/iptables
 
 make
 
-# make more devel libs (debian)
-ar rcs libiptables.a iptables.o
-ar rcs libip6tables.a ip6tables.o
+## make more devel libs (debian)
+#ar rcs libiptables.a iptables.o
+#ar rcs libip6tables.a ip6tables.o
 
 # hmm...
 ar rcs libiptc/libiptc.a libiptc/.libs/libip4tc.o libiptc/.libs/libip6tc.o
@@ -173,8 +236,8 @@ ln -snf /%{_lib}/libiptc.so.0 %{buildroot}%{_libdir}/libiptc.so
 # static development files
 install -d %{buildroot}%{_libdir}
 install -m0644 libiptc/libiptc.a %{buildroot}%{_libdir}/libiptc.a
-install -m0644 libiptables.a %{buildroot}%{_libdir}/
-install -m0644 libip6tables.a %{buildroot}%{_libdir}/
+#install -m0644 libiptables.a %{buildroot}%{_libdir}/
+#install -m0644 libip6tables.a %{buildroot}%{_libdir}/
 
 # header development files
 install -d %{buildroot}%{_includedir}/{libipq,libiptc,libipulog}
@@ -328,8 +391,8 @@ rm -rf %{buildroot}
 %{_libdir}/libxtables.so
 %{_libdir}/libxtables.*a
 %{_libdir}/libipq.*a
-%{_libdir}/libiptables.*a
-%{_libdir}/libip6tables.*a
+#%{_libdir}/libiptables.*a
+#%{_libdir}/libip6tables.*a
 %{_libdir}/pkgconfig/xtables.pc
 %{_mandir}/man3/*
 
@@ -341,7 +404,24 @@ rm -rf %{buildroot}
 %defattr(-, root, root)
 %{_includedir}/libiptc/*.h
 %dir %{_includedir}/libiptc
-%{_includedir}/libiptc/*.h
 %{_libdir}/libiptc.so
 %{_libdir}/libiptc.*a
 %{_libdir}/pkgconfig/libiptc.pc
+
+%files -n %{ip4tc_libname}
+%defattr(-,root,root)
+%{_libdir}/libip4tc.so.*
+
+%files -n %{ip4tc_develname}
+%defattr(-, root, root)
+%{_libdir}/libip4tc.so
+%{_libdir}/libip4tc.*a
+
+%files -n %{ip6tc_libname}
+%defattr(-,root,root)
+%{_libdir}/libip6tc.so.*
+
+%files -n %{ip6tc_develname}
+%defattr(-, root, root)
+%{_libdir}/libip6tc.so
+%{_libdir}/libip6tc.*a
