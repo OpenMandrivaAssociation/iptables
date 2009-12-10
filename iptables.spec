@@ -1,6 +1,6 @@
 %define _disable_ld_no_undefined 1
 
-%define major 2
+%define major 4
 %define libname %mklibname iptables %{major}
 %define develname %mklibname -d iptables
 
@@ -18,8 +18,8 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.5
-Release:	%manbo_mkrel 2
+Version:	1.4.6
+Release:	%manbo_mkrel 1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -360,6 +360,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_TRACE.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_osf.so
 %{_mandir}/*/iptables*
 # ipv6
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_ah.so
