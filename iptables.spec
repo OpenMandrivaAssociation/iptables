@@ -8,6 +8,10 @@
 %define iptc_libname %mklibname iptc %{iptc_major}
 %define iptc_develname %mklibname -d iptc
 
+%define ipq_major 0
+%define ipq_libname %mklibname ipq %{ipq_major}
+%define ipq_develname %mklibname -d ipq
+
 %define ip4tc_major 0
 %define ip4tc_libname %mklibname ip4tc %{ip4tc_major}
 %define ip4tc_develname %mklibname -d ip4tc
@@ -18,7 +22,7 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.6
+Version:	1.4.7
 Release:	%manbo_mkrel 1
 License:	GPLv2+
 Group:		System/Kernel and hardware
@@ -77,6 +81,32 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the static iptables library.
 
+
+# ipq
+%package -n	%{ipq_libname}
+Summary:	Shared iptables library
+Group:          System/Libraries
+Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
+
+%description -n	%{ipq_libname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
+This package contains the ipq library.
+
+%package -n	%{ipq_develname}
+Summary:	Static library and header files for the iptables library
+Group:		Development/C
+Requires:	kernel-headers
+Requires:	%{ipq_libname} = %{version}-%{release}
+Requires:	%{ipq_develname} = %{version}-%{release}
+Provides:	iptables-ipq-devel = %{version}
+
+%description -n	%{ipq_develname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
+This package contains the ipq library.
 
 # iptc
 %package -n	%{iptc_libname}
@@ -395,7 +425,18 @@ rm -rf %{buildroot}
 #%{_libdir}/libiptables.*a
 #%{_libdir}/libip6tables.*a
 %{_libdir}/pkgconfig/xtables.pc
-%{_mandir}/man3/*
+
+%files -n %{ipq_libname}
+%defattr(-,root,root)
+/%{_libdir}/libipq.so.*
+
+%files -n %{ipq_develname}
+%defattr(-, root, root)
+%{_includedir}/libipq/*.h
+%dir %{_includedir}/libipq
+%{_libdir}/libipq.so
+%{_libdir}/libipq.*a
+%{_mandir}/man3/*ipq*
 
 %files -n %{iptc_libname}
 %defattr(-,root,root)
