@@ -23,7 +23,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.7
-Release:	%manbo_mkrel 1
+Release:	%manbo_mkrel 2
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -275,6 +275,13 @@ install -m0644 include/libipq/*.h %{buildroot}%{_includedir}/libipq/
 install -m0644 include/libiptc/*.h %{buildroot}%{_includedir}/libiptc/
 install -m0644 include/libipulog/*.h %{buildroot}%{_includedir}/libipulog/
 
+# iptables and netfilter development files
+install -d %{buildroot}%{_includedir}/net/netfilter/
+install -d %{buildroot}%{_includedir}/iptables
+install -m0644 include/net/netfilter/*.h %{buildroot}%{_includedir}/net/netfilter/
+install -m0644 include/ip*tables.h %{buildroot}%{_includedir}/
+install -m0644 include/iptables/internal.h %{buildroot}%{_includedir}/iptables
+
 install -d %{buildroot}%{_initrddir}
 install -m0755 iptables.init %{buildroot}%{_initrddir}/iptables
 install -m0755 ip6tables.init %{buildroot}%{_initrddir}/ip6tables
@@ -419,6 +426,8 @@ rm -rf %{buildroot}
 %dir %{_includedir}/libipulog
 %{_includedir}/libipq/*.h
 %{_includedir}/libipulog/*.h
+%{_includedir}/iptables/*.h
+%{_includedir}/net/netfilter/*.h
 %{_libdir}/libxtables.so
 %{_libdir}/libxtables.*a
 %{_libdir}/libipq.*a
