@@ -22,12 +22,12 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.7
-Release:	%manbo_mkrel 2
+Version:	1.4.8
+Release:	%manbo_mkrel 1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
-Source:		http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
+Source0:	http://netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
 Source1:	iptables.init
 Source2:	ip6tables.init
 Source3:	iptables.config
@@ -315,6 +315,7 @@ rm -rf %{buildroot}
 /sbin/iptables-restore
 /sbin/iptables-save
 /sbin/iptables-xml
+/sbin/nfnl_osf
 # ipv6
 /sbin/ip6tables
 /sbin/ip6tables-multi
@@ -398,7 +399,9 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_osf.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_CT.so
 %{_mandir}/*/iptables*
+%{_datadir}/xtables/pf.os
 # ipv6
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_ah.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_dst.so
