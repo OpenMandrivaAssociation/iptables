@@ -43,6 +43,7 @@ Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
 Provides:	userspace-ipfilter
+#BuildRequires:	nfnetlink-devel
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Obsoletes:	%{name} < 1.4.3.2
@@ -315,7 +316,7 @@ rm -rf %{buildroot}
 /sbin/iptables-restore
 /sbin/iptables-save
 /sbin/iptables-xml
-/sbin/nfnl_osf
+#/sbin/nfnl_osf
 # ipv6
 /sbin/ip6tables
 /sbin/ip6tables-multi
@@ -401,7 +402,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_osf.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CT.so
 %{_mandir}/*/iptables*
-%{_datadir}/xtables/pf.os
+#%{_datadir}/xtables/pf.os
 # ipv6
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_ah.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_dst.so
