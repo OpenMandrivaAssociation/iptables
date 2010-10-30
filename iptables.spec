@@ -1,6 +1,6 @@
 %define _disable_ld_no_undefined 1
 
-%define major 4
+%define major 5
 %define libname %mklibname iptables %{major}
 %define develname %mklibname -d iptables
 
@@ -22,7 +22,7 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.8
+Version:	1.4.10
 Release:	%manbo_mkrel 1
 License:	GPLv2+
 Group:		System/Kernel and hardware
@@ -341,13 +341,12 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libipt_REDIRECT.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_REJECT.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_SAME.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_set.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_SET.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_SNAT.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_ttl.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_TTL.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_ULOG.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_unclean.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_CHECKSUM.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CLASSIFY.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_cluster.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_comment.so
@@ -357,13 +356,18 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CONNMARK.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CONNSECMARK.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_conntrack.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_cpu.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_CT.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_dccp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_dscp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_DSCP.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_esp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_hashlimit.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_helper.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_IDLETIMER.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_iprange.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_ipvs.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_LED.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_length.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_limit.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_mac.so
@@ -373,6 +377,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_NFLOG.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_NFQUEUE.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_NOTRACK.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_osf.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_owner.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_physdev.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_pkttype.so
@@ -383,6 +388,8 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_recent.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_sctp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_SECMARK.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_set.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_SET.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_socket.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_standard.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_state.so
@@ -392,6 +399,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_TCPMSS.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_TCPOPTSTRIP.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_tcp.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_TEE.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_time.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_tos.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_TOS.so
@@ -399,8 +407,6 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_TRACE.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_osf.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_CT.so
 %{_mandir}/*/iptables*
 #%{_datadir}/xtables/pf.os
 # ipv6
