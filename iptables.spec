@@ -23,7 +23,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.10
-Release:	%manbo_mkrel 1
+Release:	%manbo_mkrel 2
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -153,7 +153,7 @@ Group:		Development/C
 Requires:	kernel-headers
 Requires:	%{ip4tc_libname} = %{version}-%{release}
 Requires:	%{iptc_develname} = %{version}-%{release}
-Provides:	iptables-ip6tc-devel = %{version}
+Provides:	iptables-ip4tc-devel = %{version}
 
 %description -n	%{ip4tc_develname}
 iptables controls the Linux kernel network packet filtering code. It allows you
@@ -221,7 +221,7 @@ export LIBS="-ldl"
 
 %serverbuild
 
-autoreconf -fis
+autoreconf -fi
 
 export CFLAGS="$CFLAGS -fPIC"
 export CXXFLAGS="$CXXFLAGS -fPIC"
@@ -432,15 +432,12 @@ rm -rf %{buildroot}
 %files -n %{develname}
 %defattr(-, root, root)
 %{_includedir}/*.h
-%dir %{_includedir}/libipq
 %dir %{_includedir}/libipulog
-%{_includedir}/libipq/*.h
 %{_includedir}/libipulog/*.h
 %{_includedir}/iptables/*.h
 %{_includedir}/net/netfilter/*.h
 %{_libdir}/libxtables.so
 %{_libdir}/libxtables.*a
-%{_libdir}/libipq.*a
 #%{_libdir}/libiptables.*a
 #%{_libdir}/libip6tables.*a
 %{_libdir}/pkgconfig/xtables.pc
