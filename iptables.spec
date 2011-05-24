@@ -23,7 +23,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.10
-Release:	%manbo_mkrel 2
+Release:	3
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -230,6 +230,8 @@ export FFLAGS="$FFLAGS -fPIC"
 %configure2_5x \
     --bindir=/sbin \
     --sbindir=/sbin \
+    --libdir=/%{_lib} \
+    --libexecdir=/%{_lib} \
     --enable-devel \
     --enable-libipq \
     --enable-ipv4 \
@@ -257,16 +259,12 @@ rm -rf %{buildroot}
 install -d %{buildroot}/%{_lib}/iptables.d 	 
 mv %{buildroot}/%{_lib}/iptables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 
-# move the shared libs
-mv %{buildroot}%{_libdir}/libxtables.so.%{major}* %{buildroot}/%{_lib}/
-ln -snf /%{_lib}/libxtables.so.%{major} %{buildroot}%{_libdir}/libxtables.so
-
-mv %{buildroot}%{_libdir}/libiptc.so.* %{buildroot}/%{_lib}/
-ln -snf /%{_lib}/libiptc.so.0 %{buildroot}%{_libdir}/libiptc.so
-
+# pkgconfig files
+mkdir -p %{buildroot}%{_libdir}
+mv %{buildroot}/%{_lib}/pkgconfig %{buildroot}%{_libdir}/
 # static development files
-install -d %{buildroot}%{_libdir}
-install -m0644 libiptc/libiptc.a %{buildroot}%{_libdir}/libiptc.a
+install -d %{buildroot}/%{_lib}
+install -m0644 libiptc/libiptc.a %{buildroot}/%{_lib}/libiptc.a
 #install -m0644 libiptables.a %{buildroot}%{_libdir}/
 #install -m0644 libip6tables.a %{buildroot}%{_libdir}/
 
@@ -436,22 +434,22 @@ rm -rf %{buildroot}
 %{_includedir}/libipulog/*.h
 %{_includedir}/iptables/*.h
 %{_includedir}/net/netfilter/*.h
-%{_libdir}/libxtables.so
-%{_libdir}/libxtables.*a
+/%{_lib}/libxtables.so
+/%{_lib}/libxtables.*a
 #%{_libdir}/libiptables.*a
 #%{_libdir}/libip6tables.*a
 %{_libdir}/pkgconfig/xtables.pc
 
 %files -n %{ipq_libname}
 %defattr(-,root,root)
-/%{_libdir}/libipq.so.*
+/%{_lib}/libipq.so.*
 
 %files -n %{ipq_develname}
 %defattr(-, root, root)
 %{_includedir}/libipq/*.h
 %dir %{_includedir}/libipq
-%{_libdir}/libipq.so
-%{_libdir}/libipq.*a
+/%{_lib}/libipq.so
+/%{_lib}/libipq.*a
 %{_mandir}/man3/*ipq*
 
 %files -n %{iptc_libname}
@@ -462,24 +460,24 @@ rm -rf %{buildroot}
 %defattr(-, root, root)
 %{_includedir}/libiptc/*.h
 %dir %{_includedir}/libiptc
-%{_libdir}/libiptc.so
-%{_libdir}/libiptc.*a
+/%{_lib}/libiptc.so
+/%{_lib}/libiptc.*a
 %{_libdir}/pkgconfig/libiptc.pc
 
 %files -n %{ip4tc_libname}
 %defattr(-,root,root)
-%{_libdir}/libip4tc.so.*
+/%{_lib}/libip4tc.so.*
 
 %files -n %{ip4tc_develname}
 %defattr(-, root, root)
-%{_libdir}/libip4tc.so
-%{_libdir}/libip4tc.*a
+/%{_lib}/libip4tc.so
+/%{_lib}/libip4tc.*a
 
 %files -n %{ip6tc_libname}
 %defattr(-,root,root)
-%{_libdir}/libip6tc.so.*
+/%{_lib}/libip6tc.so.*
 
 %files -n %{ip6tc_develname}
 %defattr(-, root, root)
-%{_libdir}/libip6tc.so
-%{_libdir}/libip6tc.*a
+/%{_lib}/libip6tc.so
+/%{_lib}/libip6tc.*a
