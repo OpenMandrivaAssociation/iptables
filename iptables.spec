@@ -313,6 +313,7 @@ rm -rf %{buildroot}
 /sbin/iptables-restore
 /sbin/iptables-save
 /sbin/iptables-xml
+/sbin/xtables-multi
 #/sbin/nfnl_osf
 # ipv6
 /sbin/ip6tables
@@ -342,6 +343,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libipt_TTL.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_ULOG.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_unclean.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_AUDIT.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CHECKSUM.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CLASSIFY.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_cluster.so
@@ -355,6 +357,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_cpu.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CT.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_dccp.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_devgroup.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_dscp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_DSCP.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_esp.so
