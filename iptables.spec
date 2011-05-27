@@ -310,14 +310,12 @@ rm -rf %{buildroot}
 %doc INSTALL INCOMPATIBILITIES iptables.sample ip6tables.sample
 %attr(0755,root,root) %{_initrddir}/ip*
 /sbin/iptables
-/sbin/iptables-multi
 /sbin/iptables-restore
 /sbin/iptables-save
 /sbin/iptables-xml
 #/sbin/nfnl_osf
 # ipv6
 /sbin/ip6tables
-/sbin/ip6tables-multi
 /sbin/ip6tables-restore
 /sbin/ip6tables-save
 %dir /%{_lib}/iptables.d
