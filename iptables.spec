@@ -23,7 +23,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.11
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -285,6 +285,10 @@ install -d %{buildroot}%{_initrddir}
 install -m0755 iptables.init %{buildroot}%{_initrddir}/iptables
 install -m0755 ip6tables.init %{buildroot}%{_initrddir}/ip6tables
 
+# install compatible excutable (since 1.4.11)
+ln -sf xtables-multi %{buildroot}/sbin/iptables-multi
+ln -sf xtables-multi %{buildroot}/sbin/ip6tables-multi
+
 %post
 %_post_service iptables
 %_post_service ip6tables
@@ -313,6 +317,8 @@ rm -rf %{buildroot}
 /sbin/iptables-restore
 /sbin/iptables-save
 /sbin/iptables-xml
+/sbin/iptables-multi
+/sbin/ip6tables-multi
 /sbin/xtables-multi
 #/sbin/nfnl_osf
 # ipv6
