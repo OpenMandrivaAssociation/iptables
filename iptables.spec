@@ -1,6 +1,6 @@
 %define _disable_ld_no_undefined 1
 
-%define major 6
+%define major 7
 %define libname %mklibname iptables %{major}
 %define develname %mklibname -d iptables
 
@@ -22,16 +22,17 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.11.1
+Version:	1.4.12
 Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
 Source0:	http://netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
-Source1:	iptables.init
-Source2:	ip6tables.init
-Source3:	iptables.config
-Source4:	ip6tables.config
+Source1:	http://netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2.sig
+Source2:	iptables.init
+Source3:	ip6tables.init
+Source4:	iptables.config
+Source5:	ip6tables.config
 # S100 and up used to be in the added patches
 Source100:	libipt_IMQ.c
 Source101:	libipt_IFWLOG.c
@@ -190,10 +191,10 @@ This package contains the development files for IP6TC library.
 
 %setup -q
 
-cp %{SOURCE1} iptables.init
-cp %{SOURCE2} ip6tables.init
-cp %{SOURCE3} iptables.sample
-cp %{SOURCE4} ip6tables.sample
+cp %{SOURCE2} iptables.init
+cp %{SOURCE3} ip6tables.init
+cp %{SOURCE4} iptables.sample
+cp %{SOURCE5} ip6tables.sample
 
 # fix libdir
 perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
@@ -320,7 +321,7 @@ rm -rf %{buildroot}
 /sbin/iptables-multi
 /sbin/ip6tables-multi
 /sbin/xtables-multi
-#/sbin/nfnl_osf
+/sbin/nfnl_osf
 # ipv6
 /sbin/ip6tables
 /sbin/ip6tables-restore
@@ -413,7 +414,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
 %{_mandir}/*/iptables*
-#%{_datadir}/xtables/pf.os
+%{_datadir}/xtables/pf.os
 # ipv6
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_ah.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_dst.so
