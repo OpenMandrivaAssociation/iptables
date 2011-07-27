@@ -321,7 +321,7 @@ rm -rf %{buildroot}
 /sbin/iptables-multi
 /sbin/ip6tables-multi
 /sbin/xtables-multi
-/sbin/nfnl_osf
+#/sbin/nfnl_osf < wtf!? it gets built on 2010.2
 # ipv6
 /sbin/ip6tables
 /sbin/ip6tables-restore
@@ -414,7 +414,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
 %{_mandir}/*/iptables*
-%{_datadir}/xtables/pf.os
+#%{_datadir}/xtables/pf.os < wtf!? it gets built on 2010.2
 # ipv6
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_ah.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_dst.so
