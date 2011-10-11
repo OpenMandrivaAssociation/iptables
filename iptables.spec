@@ -46,7 +46,9 @@ Patch102:	iptables-psd.diff
 #Without it shorewall not restart with DrakGuard using (may be in other way)
 Patch103:	iptables-1.4.12-conntract.patch
 Provides:	userspace-ipfilter
+%if %mdkver >= 201200
 BuildRequires:	nfnetlink-devel
+%endif
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Obsoletes:	%{name} < 1.4.3.2
@@ -324,7 +326,9 @@ rm -rf %{buildroot}
 /sbin/iptables-multi
 /sbin/ip6tables-multi
 /sbin/xtables-multi
-#/sbin/nfnl_osf < wtf!? it gets built on 2010.2
+%if %mdkver >= 201200
+/sbin/nfnl_osf
+%endif
 # ipv6
 /sbin/ip6tables
 /sbin/ip6tables-restore
@@ -417,7 +421,9 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
 %{_mandir}/*/iptables*
-#%{_datadir}/xtables/pf.os < wtf!? it gets built on 2010.2
+%if %mdkver >= 201200
+%{_datadir}/xtables/pf.os
+%endif
 # ipv6
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_ah.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_dst.so
