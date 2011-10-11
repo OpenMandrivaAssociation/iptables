@@ -46,7 +46,7 @@ Patch102:	iptables-psd.diff
 #Without it shorewall not restart with DrakGuard using (may be in other way)
 Patch103:	iptables-1.4.12-conntract.patch
 Provides:	userspace-ipfilter
-#BuildRequires:	nfnetlink-devel
+BuildRequires:	nfnetlink-devel
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Obsoletes:	%{name} < 1.4.3.2
@@ -462,6 +462,7 @@ rm -rf %{buildroot}
 /%{_lib}/libipq.so
 /%{_lib}/libipq.*a
 %{_mandir}/man3/*ipq*
+%{_libdir}/pkgconfig/libipq.pc
 
 %files -n %{iptc_libname}
 %defattr(-,root,root)
