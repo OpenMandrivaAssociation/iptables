@@ -22,7 +22,7 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.12.1
+Version:	1.4.12.2
 Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
@@ -43,10 +43,8 @@ Patch0:		iptables-1.2.8-libiptc.h.patch
 Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
-#Without it shorewall not restart with DrakGuard using (may be in other way)
-Patch103:	iptables-1.4.12-conntract.patch
 Provides:	userspace-ipfilter
-%if %mdkver >= 201200
+%if %mdkversion >= 201200
 BuildRequires:	nfnetlink-devel
 %endif
 Requires(post): rpm-helper
@@ -215,7 +213,6 @@ install -m0644 %{SOURCE103} extensions/
 %patch100 -p0
 %patch101 -p0
 %patch102 -p0
-%patch103 -p0
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
@@ -480,7 +477,7 @@ rm -rf %{buildroot}
 %dir %{_includedir}/libiptc
 /%{_lib}/libiptc.so
 /%{_lib}/libiptc.*a
-%{_libdir}/pkgconfig/libiptc.pc
+%{_libdir}/pkgconfig/libip*tc.pc
 
 %files -n %{ip4tc_libname}
 %defattr(-,root,root)
