@@ -1,3 +1,4 @@
+# because the modules are not libtool aware
 %define _disable_ld_no_undefined 1
 
 %define major 7
@@ -84,7 +85,6 @@ iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the static iptables library.
-
 
 # ipq
 %package -n	%{ipq_libname}
@@ -244,13 +244,6 @@ export FFLAGS="$FFLAGS -fPIC"
 
 make
 
-## make more devel libs (debian)
-#ar rcs libiptables.a iptables.o
-#ar rcs libip6tables.a ip6tables.o
-
-# hmm...
-ar rcs libiptc/libiptc.a libiptc/.libs/libip4tc.o libiptc/.libs/libip6tc.o
-
 %install
 rm -rf %{buildroot}
 
@@ -259,17 +252,12 @@ rm -rf %{buildroot}
 # (oe) this in conjunction with the mandriva initscript will make it possible 	 
 # to use development versions of the netfilter modules and with different 	 
 # api:s. (according to blino) 	 
-install -d %{buildroot}/%{_lib}/iptables.d 	 
+install -d %{buildroot}/%{_lib}/iptables.d
 mv %{buildroot}/%{_lib}/iptables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 
 # pkgconfig files
 mkdir -p %{buildroot}%{_libdir}
 mv %{buildroot}/%{_lib}/pkgconfig %{buildroot}%{_libdir}/
-# static development files
-install -d %{buildroot}/%{_lib}
-install -m0644 libiptc/libiptc.a %{buildroot}/%{_lib}/libiptc.a
-#install -m0644 libiptables.a %{buildroot}%{_libdir}/
-#install -m0644 libip6tables.a %{buildroot}%{_libdir}/
 
 # header development files
 install -d %{buildroot}%{_includedir}/{libipq,libiptc,libipulog}
@@ -292,6 +280,9 @@ install -m0755 ip6tables.init %{buildroot}%{_initrddir}/ip6tables
 ln -sf xtables-multi %{buildroot}/sbin/iptables-multi
 ln -sf xtables-multi %{buildroot}/sbin/ip6tables-multi
 
+# nuke *.la and static files
+rm -f %{buildroot}/%{_lib}/*.*a
+
 %post
 %_post_service iptables
 %_post_service ip6tables
@@ -301,19 +292,7 @@ ln -sf xtables-multi %{buildroot}/sbin/ip6tables-multi
 %_preun_service iptables
 %_preun_service ip6tables
 
-%if %mdkversion < 200900
-%post -n %{libname} -p /sbin/ldconfig
-%endif
-
-%if %mdkversion < 200900
-%postun -n %{libname} -p /sbin/ldconfig
-%endif
-
-%clean
-rm -rf %{buildroot}
-
 %files
-%defattr(-,root,root,0755)
 %doc INSTALL INCOMPATIBILITIES iptables.sample ip6tables.sample
 %attr(0755,root,root) %{_initrddir}/ip*
 /sbin/iptables
@@ -323,7 +302,7 @@ rm -rf %{buildroot}
 /sbin/iptables-multi
 /sbin/ip6tables-multi
 /sbin/xtables-multi
-%if %mdkver >= 201200
+%if %mdkversion >= 201200
 /sbin/nfnl_osf
 %endif
 # ipv6
@@ -418,7 +397,7 @@ rm -rf %{buildroot}
 /%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
 %{_mandir}/*/iptables*
-%if %mdkver >= 201200
+%if %mdkversion >= 201200
 %{_datadir}/xtables/pf.os
 %endif
 # ipv6
@@ -438,61 +417,44 @@ rm -rf %{buildroot}
 %{_mandir}/*/ip6tables*
 
 %files -n %{libname}
-%defattr(-,root,root)
 /%{_lib}/libxtables.so.%{major}*
 
 %files -n %{develname}
-%defattr(-, root, root)
 %{_includedir}/*.h
 %dir %{_includedir}/libipulog
 %{_includedir}/libipulog/*.h
 %{_includedir}/iptables/*.h
 %{_includedir}/net/netfilter/*.h
 /%{_lib}/libxtables.so
-/%{_lib}/libxtables.*a
-#%{_libdir}/libiptables.*a
-#%{_libdir}/libip6tables.*a
 %{_libdir}/pkgconfig/xtables.pc
 
 %files -n %{ipq_libname}
-%defattr(-,root,root)
 /%{_lib}/libipq.so.*
 
 %files -n %{ipq_develname}
-%defattr(-, root, root)
 %{_includedir}/libipq/*.h
 %dir %{_includedir}/libipq
 /%{_lib}/libipq.so
-/%{_lib}/libipq.*a
 %{_mandir}/man3/*ipq*
 %{_libdir}/pkgconfig/libipq.pc
 
 %files -n %{iptc_libname}
-%defattr(-,root,root)
 /%{_lib}/libiptc.so.*
 
 %files -n %{iptc_develname}
-%defattr(-, root, root)
 %{_includedir}/libiptc/*.h
 %dir %{_includedir}/libiptc
 /%{_lib}/libiptc.so
-/%{_lib}/libiptc.*a
 %{_libdir}/pkgconfig/libip*tc.pc
 
 %files -n %{ip4tc_libname}
-%defattr(-,root,root)
 /%{_lib}/libip4tc.so.*
 
 %files -n %{ip4tc_develname}
-%defattr(-, root, root)
 /%{_lib}/libip4tc.so
-/%{_lib}/libip4tc.*a
 
 %files -n %{ip6tc_libname}
-%defattr(-,root,root)
 /%{_lib}/libip6tc.so.*
 
 %files -n %{ip6tc_develname}
-%defattr(-, root, root)
 /%{_lib}/libip6tc.so
-/%{_lib}/libip6tc.*a
