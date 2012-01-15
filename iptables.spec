@@ -24,7 +24,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.12.2
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -41,6 +41,7 @@ Source101:	libipt_IFWLOG.c
 Source102:	libipt_psd.c
 Source103:	libipt_psd.man
 Patch0:		iptables-1.2.8-libiptc.h.patch
+Patch1:		iptables-1.4.12.2-fix-build-with-3.2.patch
 Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
@@ -202,6 +203,7 @@ cp %{SOURCE5} ip6tables.sample
 perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 #%patch0 -p0 -b .libiptc
+%patch1 -p1
 
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
