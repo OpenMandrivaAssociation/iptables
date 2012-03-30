@@ -23,8 +23,8 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.12.2
-Release:	2
+Version:	1.4.13
+Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -313,11 +313,9 @@ rm -f %{buildroot}/%{_lib}/*.*a
 /sbin/ip6tables-save
 %dir /%{_lib}/iptables.d
 %dir /%{_lib}/iptables.d/linux-2.6-main
-/%{_lib}/iptables.d/linux-2.6-main/libipt_addrtype.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_ah.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_CLUSTERIP.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_DNAT.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_ecn.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_ECN.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_icmp.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_IFWLOG.so
@@ -335,6 +333,7 @@ rm -f %{buildroot}/%{_lib}/*.*a
 /%{_lib}/iptables.d/linux-2.6-main/libipt_TTL.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_ULOG.so
 /%{_lib}/iptables.d/linux-2.6-main/libipt_unclean.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_addrtype.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_AUDIT.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CHECKSUM.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CLASSIFY.so
@@ -352,6 +351,7 @@ rm -f %{buildroot}/%{_lib}/*.*a
 /%{_lib}/iptables.d/linux-2.6-main/libxt_devgroup.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_dscp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_DSCP.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_ecn.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_esp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_hashlimit.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_helper.so
@@ -365,6 +365,7 @@ rm -f %{buildroot}/%{_lib}/*.*a
 /%{_lib}/iptables.d/linux-2.6-main/libxt_mark.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_MARK.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_multiport.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_nfacct.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_NFLOG.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_NFQUEUE.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_NOTRACK.so
@@ -377,6 +378,7 @@ rm -f %{buildroot}/%{_lib}/*.*a
 /%{_lib}/iptables.d/linux-2.6-main/libxt_rateest.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_RATEEST.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_recent.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_rpfilter.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_sctp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_SECMARK.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_set.so
