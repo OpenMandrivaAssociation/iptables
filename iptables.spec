@@ -24,7 +24,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.14
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -66,6 +66,8 @@ Install iptables if you need to set up firewalling for your network.
 Summary:	Shared iptables library
 Group:          System/Libraries
 Conflicts:	%mklibname %{name} 1
+Conflicts:	%mklibname %{name} 4
+Conflicts:	%mklibname %{name} 5
 
 %description -n	%{libname}
 iptables controls the Linux kernel network packet filtering code. It allows you
