@@ -23,8 +23,8 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.14
-Release:	2
+Version:	1.4.15
+Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -46,15 +46,12 @@ Patch100:	iptables-imq.diff
 Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
 Provides:	userspace-ipfilter
-%if %mdkversion >= 201200
 BuildRequires:	nfnetlink-devel
-%endif
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Obsoletes:	%{name} < 1.4.3.2
 Obsoletes:	%{name}-ipv6 < 1.4.1.1-0.5
 Provides:	%{name}-ipv6
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 iptables controls the Linux kernel network packet filtering code. It allows you
@@ -306,9 +303,7 @@ rm -f %{buildroot}/%{_lib}/*.*a
 /sbin/iptables-multi
 /sbin/ip6tables-multi
 /sbin/xtables-multi
-%if %mdkversion >= 201200
 /sbin/nfnl_osf
-%endif
 # ipv6
 /sbin/ip6tables
 /sbin/ip6tables-restore
@@ -357,6 +352,7 @@ rm -f %{buildroot}/%{_lib}/*.*a
 /%{_lib}/iptables.d/linux-2.6-main/libxt_esp.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_hashlimit.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_helper.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_HMARK.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_IDLETIMER.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_iprange.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_ipvs.so
@@ -403,9 +399,7 @@ rm -f %{buildroot}/%{_lib}/*.*a
 /%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
 %{_mandir}/*/iptables*
-%if %mdkversion >= 201200
 %{_datadir}/xtables/pf.os
-%endif
 # ipv6
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_ah.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_dst.so
