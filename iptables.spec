@@ -1,7 +1,7 @@
 # because the modules are not libtool aware
 %define _disable_ld_no_undefined 1
 
-%define major 7
+%define major 9
 %define libname %mklibname iptables %{major}
 %define develname %mklibname -d iptables
 
@@ -23,7 +23,7 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.15
+Version:	1.4.16.3
 Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
@@ -34,6 +34,7 @@ Source2:	iptables.init
 Source3:	ip6tables.init
 Source4:	iptables.config
 Source5:	ip6tables.config
+Source6:	iptables.service
 # S100 and up used to be in the added patches
 Source100:	libipt_IMQ.c
 Source101:	libipt_IFWLOG.c
@@ -47,8 +48,9 @@ Patch101:	iptables-IFWLOG_extension.diff
 Patch102:	iptables-psd.diff
 Provides:	userspace-ipfilter
 BuildRequires:	nfnetlink-devel
-Requires(post): rpm-helper
-Requires(preun): rpm-helper
+BuildRequires:	systemd-units
+Requires(post):	rpm-helper
+Requires(preun):	 rpm-helper
 Obsoletes:	%{name} < 1.4.3.2
 Obsoletes:	%{name}-ipv6 < 1.4.1.1-0.5
 Provides:	%{name}-ipv6
@@ -59,9 +61,9 @@ to set up firewalls and IP masquerading, etc.
 
 Install iptables if you need to set up firewalling for your network.
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	Shared iptables library
-Group:          System/Libraries
+Group:		System/Libraries
 Conflicts:	%mklibname %{name} 1
 Conflicts:	%mklibname %{name} 4
 Conflicts:	%mklibname %{name} 5
@@ -72,7 +74,7 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the shared iptables library.
 
-%package -n	%{develname}
+%package -n %{develname}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
@@ -87,9 +89,9 @@ to set up firewalls and IP masquerading, etc.
 This package contains the static iptables library.
 
 # ipq
-%package -n	%{ipq_libname}
+%package -n %{ipq_libname}
 Summary:	Shared iptables library
-Group:          System/Libraries
+Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{ipq_libname}
@@ -98,7 +100,7 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the ipq library.
 
-%package -n	%{ipq_develname}
+%package -n %{ipq_develname}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
@@ -113,9 +115,9 @@ to set up firewalls and IP masquerading, etc.
 This package contains the ipq library.
 
 # iptc
-%package -n	%{iptc_libname}
+%package -n %{iptc_libname}
 Summary:	Shared iptables library
-Group:          System/Libraries
+Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{iptc_libname}
@@ -124,7 +126,7 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the IPTC library.
 
-%package -n	%{iptc_develname}
+%package -n %{iptc_develname}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
@@ -139,9 +141,9 @@ to set up firewalls and IP masquerading, etc.
 This package contains the IPTC library.
 
 # ip4tc
-%package -n	%{ip4tc_libname}
+%package -n %{ip4tc_libname}
 Summary:	Shared iptables library
-Group:          System/Libraries
+Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{ip4tc_libname}
@@ -150,7 +152,7 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the IP4TC library.
 
-%package -n	%{ip4tc_develname}
+%package -n %{ip4tc_develname}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
@@ -165,9 +167,9 @@ to set up firewalls and IP masquerading, etc.
 This package contains the development files for IPTC library.
 
 # ip6tc
-%package -n	%{ip6tc_libname}
+%package -n %{ip6tc_libname}
 Summary:	Shared iptables library
-Group:          System/Libraries
+Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{ip6tc_libname}
@@ -176,7 +178,7 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the IP6TC library.
 
-%package -n	%{ip6tc_develname}
+%package -n %{ip6tc_develname}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
@@ -202,7 +204,7 @@ cp %{SOURCE5} ip6tables.sample
 perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 #%patch0 -p0 -b .libiptc
-%patch1 -p1
+#patch1 -p1
 
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
@@ -225,7 +227,7 @@ export LIBS="-ldl"
 
 %serverbuild
 
-autoreconf -fi
+autoreconf -fis
 
 export CFLAGS="$CFLAGS -fPIC"
 export CXXFLAGS="$CXXFLAGS -fPIC"
@@ -243,16 +245,17 @@ export FFLAGS="$FFLAGS -fPIC"
     --with-ksource=%{_prefix}/src/linux \
     --with-xtlibdir=/%{_lib}/iptables
 
-make
+%make
+
+# hmm...
+ar rcs libiptc/libiptc.a libiptc/.libs/libip4tc.o libiptc/.libs/libip6tc.o
 
 %install
-rm -rf %{buildroot}
-
 %makeinstall_std
 
-# (oe) this in conjunction with the mandriva initscript will make it possible 	 
-# to use development versions of the netfilter modules and with different 	 
-# api:s. (according to blino) 	 
+# (oe) this in conjunction with the mandriva initscript will make it possible
+# to use development versions of the netfilter modules and with different
+# api:s. (according to blino)
 install -d %{buildroot}/%{_lib}/iptables.d
 mv %{buildroot}/%{_lib}/iptables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 
@@ -284,6 +287,14 @@ ln -sf xtables-multi %{buildroot}/sbin/ip6tables-multi
 # nuke *.la and static files
 rm -f %{buildroot}/%{_lib}/*.*a
 
+# install systemd service files
+install -d -m 755 %{buildroot}/lib/systemd/system
+install -c -m 644 %{SOURCE6} %{buildroot}/lib/systemd/system/
+sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' < %{SOURCE6} > ip6tables.service
+install -c -m 644 ip6tables.service %{buildroot}/lib/systemd/system/
+sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/ip6tables.service
+sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/iptables.service
+
 %post
 %_post_service iptables
 %_post_service ip6tables
@@ -296,6 +307,7 @@ rm -f %{buildroot}/%{_lib}/*.*a
 %files
 %doc INSTALL INCOMPATIBILITIES iptables.sample ip6tables.sample
 %attr(0755,root,root) %{_initrddir}/ip*
+%{_unitdir}/ip*.service
 /sbin/iptables
 /sbin/iptables-restore
 /sbin/iptables-save
