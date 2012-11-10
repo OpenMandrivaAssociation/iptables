@@ -1,0 +1,12 @@
+sources:
+  "ip6tables.config:"	38f3a49057d124759d8b369d85bebe245e7829ec
+  "ip6tables.init:"	783311a53e3dc8164f97f961d5b7a7f2a5d814bf
+  "iptables-1.4.16.3.tar.bz2:"	819949fdf4276a04c5061b82898b515f139b0117
+  "iptables-1.4.16.3.tar.bz2.sig:"	4d29fcf82f72a3f6113b12a13c675af36f41b769
+  "iptables.config:"	7cdb10dcc3811505146075f575b74c8fce4cdc9c
+  "iptables.init:"	f368d424b3b584b1b001a5663016532b6811c6bb
+  "iptables.service:"	7e9cacb14d4c76fe8c4fa3b51dfd0abc7ad2097e
+  "libipt_IFWLOG.c:"	b8137ca5a8ce4283c7ed972d975ba326e59d42e4
+  "libipt_IMQ.c:"	91c2174883c3cd87fc2ec12712c834a3cf9565d8
+  "libipt_psd.c:"	686aa492c92fec9d78a9646333d42266a6d4ce6b
+  "libipt_psd.man:"	a87bc4c3415bbe28a938025dba6eb3519b1f3cb0

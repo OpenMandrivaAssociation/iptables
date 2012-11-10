@@ -1,0 +1,5 @@
+--- /dev/null	2008-01-21 22:31:06.560007105 +0100
++++ extensions/.IFWLOG-test	2008-01-22 17:23:53.000000000 +0100
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_IFWLOG.h ] && echo IFWLOG
