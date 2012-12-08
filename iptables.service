@@ -1,0 +1,17 @@
+[Unit]
+Description=iptables Firewall for IPv4
+After=syslog.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=@LIBDIR@/iptables.init start
+ExecStop=@LIBDIR@/iptables.init stop
+ExecReload=@LIBDIR@/iptables.init reload
+Environment=BOOTUP=serial
+Environment=CONSOLETYPE=serial
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=basic.target
