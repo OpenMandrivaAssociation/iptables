@@ -26,18 +26,17 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.15
-Release:	2
+Version:	1.4.17
+Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
 Source0:	http://netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
-Source1:	http://netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2.sig
 Source2:	iptables.init
 Source3:	ip6tables.init
 Source4:	iptables.config
 Source5:	ip6tables.config
-Source6:    iptables.service
+Source6:	iptables.service
 # S100 and up used to be in the added patches
 Source100:	libipt_IMQ.c
 #Source101:	libipt_IFWLOG.c
@@ -52,11 +51,11 @@ Patch100:	iptables-imq.diff
 #Patch102:	iptables-psd.diff
 Provides:	userspace-ipfilter
 BuildRequires:	nfnetlink-devel
-Requires(post): rpm-helper
-Requires(preun): rpm-helper
+Requires(post):	rpm-helper
+Requires(preun):	rpm-helper
 Obsoletes:	%{name} < 1.4.3.2
 Obsoletes:	%{name}-ipv6 < 1.4.1.1-0.5
-Provides:	%{name}-ipv6
+Provides:	%{name}-ipv6 = %{version}
 
 %description
 iptables controls the Linux kernel network packet filtering code. It allows you
@@ -64,9 +63,9 @@ to set up firewalls and IP masquerading, etc.
 
 Install iptables if you need to set up firewalling for your network.
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	Shared iptables library
-Group:          System/Libraries
+Group:		System/Libraries
 Conflicts:	%mklibname %{name} 1
 Conflicts:	%mklibname %{name} 4
 Conflicts:	%mklibname %{name} 5
@@ -77,7 +76,7 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the shared iptables library.
 
-%package -n	%{develname}
+%package -n %{develname}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
@@ -92,9 +91,9 @@ to set up firewalls and IP masquerading, etc.
 This package contains the static iptables library.
 
 # ipq
-%package -n	%{ipq_libname}
+%package -n %{ipq_libname}
 Summary:	Shared iptables library
-Group:          System/Libraries
+Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{ipq_libname}
@@ -103,7 +102,7 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the ipq library.
 
-%package -n	%{ipq_develname}
+%package -n %{ipq_develname}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
@@ -118,9 +117,9 @@ to set up firewalls and IP masquerading, etc.
 This package contains the ipq library.
 
 # iptc
-%package -n	%{iptc_libname}
+%package -n %{iptc_libname}
 Summary:	Shared iptables library
-Group:          System/Libraries
+Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{iptc_libname}
@@ -129,7 +128,7 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the IPTC library.
 
-%package -n	%{iptc_develname}
+%package -n %{iptc_develname}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
@@ -144,9 +143,9 @@ to set up firewalls and IP masquerading, etc.
 This package contains the IPTC library.
 
 # ip4tc
-%package -n	%{ip4tc_libname}
+%package -n %{ip4tc_libname}
 Summary:	Shared iptables library
-Group:          System/Libraries
+Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{ip4tc_libname}
@@ -170,9 +169,9 @@ to set up firewalls and IP masquerading, etc.
 This package contains the development files for IPTC library.
 
 # ip6tc
-%package -n	%{ip6tc_libname}
+%package -n %{ip6tc_libname}
 Summary:	Shared iptables library
-Group:          System/Libraries
+Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{ip6tc_libname}
@@ -181,7 +180,7 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the IP6TC library.
 
-%package -n	%{ip6tc_develname}
+%package -n %{ip6tc_develname}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
@@ -249,16 +248,15 @@ export FFLAGS="$FFLAGS -fPIC"
     --with-ksource=%{_prefix}/src/linux \
     --with-xtlibdir=/%{_lib}/iptables
 
-make
+%make
 
 %install
-rm -rf %{buildroot}
 
 %makeinstall_std
 
-# (oe) this in conjunction with the mandriva initscript will make it possible 	 
-# to use development versions of the netfilter modules and with different 	 
-# api:s. (according to blino) 	 
+# (oe) this in conjunction with the mandriva initscript will make it possible
+# to use development versions of the netfilter modules and with different
+# api:s. (according to blino)
 install -d %{buildroot}/%{_lib}/iptables.d
 mv %{buildroot}/%{_lib}/iptables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 
