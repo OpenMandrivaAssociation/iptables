@@ -271,7 +271,7 @@ install -m0644 include/libipulog/*.h %{buildroot}%{_includedir}/libipulog/
 # iptables and netfilter development files
 install -d %{buildroot}%{_includedir}/net/netfilter/
 install -d %{buildroot}%{_includedir}/iptables
-install -m0644 include/net/netfilter/*.h %{buildroot}%{_includedir}/net/netfilter/
+#install -m0644 include/net/netfilter/*.h %{buildroot}%{_includedir}/net/netfilter/
 install -m0644 include/ip*tables.h %{buildroot}%{_includedir}/
 install -m0644 include/iptables/internal.h %{buildroot}%{_includedir}/iptables
 
