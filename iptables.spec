@@ -460,7 +460,7 @@ sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/iptables.service
 %dir %{_includedir}/libipulog
 %{_includedir}/libipulog/*.h
 %{_includedir}/iptables/*.h
-%{_includedir}/net/netfilter/*.h
+#%{_includedir}/net/netfilter/*.h
 /%{_lib}/libxtables.so
 %{_libdir}/pkgconfig/xtables.pc
 
