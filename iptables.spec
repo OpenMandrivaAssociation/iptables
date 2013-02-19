@@ -206,7 +206,7 @@ cp %{SOURCE5} ip6tables.sample
 perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 #%patch0 -p0 -b .libiptc
-%patch1 -p1
+#patch1 -p1
 %patch2 -p1
 
 # extensions
