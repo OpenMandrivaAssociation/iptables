@@ -207,14 +207,14 @@ perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
-install -m0644 %{SOURCE101} extensions/
+#install -m0644 %{SOURCE101} extensions/
 # (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
 install -m0644 %{SOURCE102} extensions/
 install -m0644 %{SOURCE103} extensions/
 
 %patch0 -p1 -b .libiptc
 %patch100 -p0
-%patch101 -p0
+#patch101 -p0
 %patch102 -p0
 %patch103 -p1
 
