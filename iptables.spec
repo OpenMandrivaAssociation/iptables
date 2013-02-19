@@ -207,7 +207,7 @@ perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 #%patch0 -p0 -b .libiptc
 #patch1 -p1
-%patch2 -p1
+#patch2 -p1
 
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
