@@ -449,6 +449,13 @@ sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/iptables.service
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_LOG.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_mh.so
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_REJECT.so
+/%{_lib}/iptables.d/linux-2.6-main/libip6t_DNAT.so
+/%{_lib}/iptables.d/linux-2.6-main/libip6t_DNPT.so
+/%{_lib}/iptables.d/linux-2.6-main/libip6t_MASQUERADE.so
+/%{_lib}/iptables.d/linux-2.6-main/libip6t_NETMAP.so
+/%{_lib}/iptables.d/linux-2.6-main/libip6t_REDIRECT.so
+/%{_lib}/iptables.d/linux-2.6-main/libip6t_SNAT.so
+/%{_lib}/iptables.d/linux-2.6-main/libip6t_SNPT.so    
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_rt.so
 %{_mandir}/*/ip6tables*
 
