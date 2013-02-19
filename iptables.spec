@@ -1,7 +1,7 @@
 # because the modules are not libtool aware
 %define _disable_ld_no_undefined 1
 
-%define major 7
+%define major 9
 %define libname %mklibname iptables %{major}
 %define develname %mklibname -d iptables
 
