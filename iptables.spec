@@ -39,16 +39,16 @@ Source5:	ip6tables.config
 Source6:	iptables.service
 # S100 and up used to be in the added patches
 Source100:	libipt_IMQ.c
-#Source101:	libipt_IFWLOG.c
+Source101:	libipt_IFWLOG.c
 # (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
-#Source102:	libipt_psd.c
-#Source103:	libipt_psd.man
+Source102:	libipt_psd.c
+Source103:	libipt_psd.man
 Patch0:		iptables-1.2.8-libiptc.h.patch
-Patch1:		iptables-1.4.12.2-fix-build-with-3.2.patch
-Patch2:		iptables-1.4.15-upstream-kernel_3.5_support.patch
+
 Patch100:	iptables-imq.diff
-#Patch101:	iptables-IFWLOG_extension.diff
-#Patch102:	iptables-psd.diff
+Patch101:	iptables-IFWLOG_extension.diff
+Patch102:	iptables-psd.diff
+Patch103:	iptables-1.4.17-fix-linking.patch
 Provides:	userspace-ipfilter
 BuildRequires:	nfnetlink-devel
 Requires(post):	rpm-helper
@@ -205,20 +205,18 @@ cp %{SOURCE5} ip6tables.sample
 # fix libdir
 perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
-#%patch0 -p0 -b .libiptc
-#patch1 -p1
-#patch2 -p1
-
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
-#install -m0644 %{SOURCE101} extensions/
+install -m0644 %{SOURCE101} extensions/
 # (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
-#install -m0644 %{SOURCE102} extensions/
-#install -m0644 %{SOURCE103} extensions/
+install -m0644 %{SOURCE102} extensions/
+install -m0644 %{SOURCE103} extensions/
 
+%patch0 -p1 -b .libiptc
 %patch100 -p0
-#patch101 -p0
-#patch102 -p0
+%patch101 -p0
+%patch102 -p0
+%patch103 -p1
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
