@@ -27,7 +27,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.17
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
@@ -306,7 +306,7 @@ sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/iptables.service
 %post
 %_post_service iptables
 %_post_service ip6tables
-/sbin/service iptables check
+%{script_path}/iptables.init check
 
 %preun
 %_preun_service iptables
