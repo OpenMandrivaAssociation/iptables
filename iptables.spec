@@ -1,8 +1,8 @@
 # because the modules are not libtool aware
 %define _disable_ld_no_undefined 1
 
-%define major 9
-%define libname %mklibname iptables %{major}
+%define major 10
+%define libname %mklibname xtables %{major}
 %define devname %mklibname -d iptables
 
 %define ipq_major 0
@@ -61,137 +61,94 @@ Install iptables if you need to set up firewalling for your network.
 %package -n %{libname}
 Summary:	Shared iptables library
 Group:		System/Libraries
-Conflicts:	%mklibname %{name} 1
-Conflicts:	%mklibname %{name} 4
-Conflicts:	%mklibname %{name} 5
 
 %description -n	%{libname}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
 This package contains the shared iptables library.
 
 %package -n %{devname}
-Summary:	Static library and header files for the iptables library
+Summary:	Development library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
 Requires:	%{libname} = %{version}-%{release}
-Provides:	iptables-devel = %{version}
-Obsoletes:	iptables-devel < 1.4.2
+Provides:	%{name}-devel = %{version}
 
 %description -n	%{devname}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
-This package contains the static iptables library.
+This package contains the shared iptables library.
 
 # ipq
 %package -n %{libipq}
 Summary:	Shared iptables library
 Group:		System/Libraries
-Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{libipq}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
 This package contains the ipq library.
 
 %package -n %{devipq}
-Summary:	Static library and header files for the iptables library
+Summary:	Development library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
 Requires:	%{libipq} = %{version}-%{release}
-Requires:	%{devipq} = %{version}-%{release}
-Provides:	iptables-ipq-devel = %{version}
+Provides:	%{name}-ipq-devel = %{version}
 
 %description -n	%{devipq}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
 This package contains the ipq library.
 
 # iptc
 %package -n %{libiptc}
 Summary:	Shared iptables library
 Group:		System/Libraries
-Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{libiptc}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
 This package contains the IPTC library.
 
 %package -n %{deviptc}
-Summary:	Static library and header files for the iptables library
+Summary:	Development library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
 Requires:	%{libiptc} = %{version}-%{release}
-Requires:	%{deviptc} = %{version}-%{release}
-Provides:	iptables-iptc-devel = %{version}
+Provides:	%{name}-iptc-devel = %{version}
 
 %description -n	%{deviptc}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
 This package contains the IPTC library.
 
 # ip4tc
 %package -n %{libip4tc}
 Summary:	Shared iptables library
 Group:		System/Libraries
-Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{libip4tc}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
 This package contains the IP4TC library.
 
 %package -n	%{devip4tc}
-Summary:	Static library and header files for the iptables library
+Summary:	Development library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
 Requires:	%{libip4tc} = %{version}-%{release}
-Requires:	%{deviptc} = %{version}-%{release}
-Provides:	iptables-ip4tc-devel = %{version}
+Provides:	%{name}-ip4tc-devel = %{version}
 
 %description -n	%{devip4tc}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
 This package contains the development files for IPTC library.
 
 # ip6tc
 %package -n %{libip6tc}
 Summary:	Shared iptables library
 Group:		System/Libraries
-Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
 %description -n	%{libip6tc}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
 This package contains the IP6TC library.
 
 %package -n %{devip6tcg}
-Summary:	Static library and header files for the iptables library
+Summary:	Development library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
 Requires:	%{libip6tc} = %{version}-%{release}
-Provides:	iptables-ip6tc-devel = %{version}
+Provides:	%{name}-ip6tc-devel = %{version}
 
 %description -n	%{devip6tcg}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
 This package contains the development files for IP6TC library.
 
 %prep
-
 %setup -q
-
 cp %{SOURCE2} iptables.init
 cp %{SOURCE3} ip6tables.init
 cp %{SOURCE4} iptables.sample
@@ -226,6 +183,7 @@ export CXXFLAGS="$CXXFLAGS -fPIC"
 export FFLAGS="$FFLAGS -fPIC"
 
 %configure2_5x \
+	--disable-static \
 	--bindir=/sbin \
 	--sbindir=/sbin \
 	--libdir=/%{_lib} \
@@ -273,9 +231,6 @@ install -m0644 include/iptables/internal.h %{buildroot}%{_includedir}/iptables
 # install compatible excutable (since 1.4.11)
 ln -sf xtables-multi %{buildroot}/sbin/iptables-multi
 ln -sf xtables-multi %{buildroot}/sbin/ip6tables-multi
-
-# nuke *.la and static files
-rm -f %{buildroot}/%{_lib}/*.*a
 
 # (cg) NB the name "iptables.init" is important. The dracut usrmove convertfs
 # module will avoid a post-merge conflict by renaming the files to match this
