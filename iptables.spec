@@ -3,34 +3,32 @@
 
 %define major 9
 %define libname %mklibname iptables %{major}
-%define develname %mklibname -d iptables
-
-%define iptc_major 0
-%define iptc_libname %mklibname iptc %{iptc_major}
-%define iptc_develname %mklibname -d iptc
+%define devname %mklibname -d iptables
 
 %define ipq_major 0
-%define ipq_libname %mklibname ipq %{ipq_major}
-%define ipq_develname %mklibname -d ipq
+%define libipq %mklibname ipq %{ipq_major}
+%define devipq %mklibname -d ipq
 
-%define ip4tc_major 0
-%define ip4tc_libname %mklibname ip4tc %{ip4tc_major}
-%define ip4tc_develname %mklibname -d ip4tc
+%define iptc_major 0
+%define libiptc %mklibname iptc %{iptc_major}
+%define deviptc %mklibname -d iptc
 
-%define ip6tc_major 0
-%define ip6tc_libname %mklibname ip6tc %{ip6tc_major}
-%define ip6tc_develname %mklibname -d ip6tc
+%define libip4tc %mklibname ip4tc %{iptc_major}
+%define devip4tc %mklibname -d ip4tc
+
+%define libip6tc %mklibname ip6tc %{iptc_major}
+%define devip6tcg %mklibname -d ip6tc
 
 # install init scripts to /usr/libexec with systemd
 %define script_path %{_libexecdir}
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.17
-Release:	2
+Version:	1.4.18
+Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
-URL:		http://netfilter.org/
+Url:		http://netfilter.org/
 Source0:	http://netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
 Source2:	iptables.init
 Source3:	ip6tables.init
@@ -44,18 +42,15 @@ Source101:	libipt_IFWLOG.c
 Source102:	libipt_psd.c
 Source103:	libipt_psd.man
 Patch0:		iptables-1.2.8-libiptc.h.patch
-
 Patch100:	iptables-imq.diff
-Patch101:	iptables-IFWLOG_extension.diff
-Patch102:	iptables-psd.diff
-Patch103:	iptables-1.4.17-fix-linking.patch
-Provides:	userspace-ipfilter
-BuildRequires:	nfnetlink-devel
-Requires(post):	rpm-helper
-Requires(preun):	rpm-helper
-Obsoletes:	%{name} < 1.4.3.2
-Obsoletes:	%{name}-ipv6 < 1.4.1.1-0.5
+#Patch101:	iptables-IFWLOG_extension.diff
+#Patch102:	iptables-psd.diff
+#Patch103:	iptables-1.4.17-fix-linking.patch
+
+BuildRequires:	pkgconfig(libnfnetlink)
+Requires(post,preun):	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
+Provides:	userspace-ipfilter
 
 %description
 iptables controls the Linux kernel network packet filtering code. It allows you
@@ -76,7 +71,7 @@ to set up firewalls and IP masquerading, etc.
 
 This package contains the shared iptables library.
 
-%package -n %{develname}
+%package -n %{devname}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
@@ -84,110 +79,110 @@ Requires:	%{libname} = %{version}-%{release}
 Provides:	iptables-devel = %{version}
 Obsoletes:	iptables-devel < 1.4.2
 
-%description -n	%{develname}
+%description -n	%{devname}
 iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the static iptables library.
 
 # ipq
-%package -n %{ipq_libname}
+%package -n %{libipq}
 Summary:	Shared iptables library
 Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
-%description -n	%{ipq_libname}
+%description -n	%{libipq}
 iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the ipq library.
 
-%package -n %{ipq_develname}
+%package -n %{devipq}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
-Requires:	%{ipq_libname} = %{version}-%{release}
-Requires:	%{ipq_develname} = %{version}-%{release}
+Requires:	%{libipq} = %{version}-%{release}
+Requires:	%{devipq} = %{version}-%{release}
 Provides:	iptables-ipq-devel = %{version}
 
-%description -n	%{ipq_develname}
+%description -n	%{devipq}
 iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the ipq library.
 
 # iptc
-%package -n %{iptc_libname}
+%package -n %{libiptc}
 Summary:	Shared iptables library
 Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
-%description -n	%{iptc_libname}
+%description -n	%{libiptc}
 iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the IPTC library.
 
-%package -n %{iptc_develname}
+%package -n %{deviptc}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
-Requires:	%{iptc_libname} = %{version}-%{release}
-Requires:	%{iptc_develname} = %{version}-%{release}
+Requires:	%{libiptc} = %{version}-%{release}
+Requires:	%{deviptc} = %{version}-%{release}
 Provides:	iptables-iptc-devel = %{version}
 
-%description -n	%{iptc_develname}
+%description -n	%{deviptc}
 iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the IPTC library.
 
 # ip4tc
-%package -n %{ip4tc_libname}
+%package -n %{libip4tc}
 Summary:	Shared iptables library
 Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
-%description -n	%{ip4tc_libname}
+%description -n	%{libip4tc}
 iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the IP4TC library.
 
-%package -n	%{ip4tc_develname}
+%package -n	%{devip4tc}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
-Requires:	%{ip4tc_libname} = %{version}-%{release}
-Requires:	%{iptc_develname} = %{version}-%{release}
+Requires:	%{libip4tc} = %{version}-%{release}
+Requires:	%{deviptc} = %{version}-%{release}
 Provides:	iptables-ip4tc-devel = %{version}
 
-%description -n	%{ip4tc_develname}
+%description -n	%{devip4tc}
 iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the development files for IPTC library.
 
 # ip6tc
-%package -n %{ip6tc_libname}
+%package -n %{libip6tc}
 Summary:	Shared iptables library
 Group:		System/Libraries
 Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
-%description -n	%{ip6tc_libname}
+%description -n	%{libip6tc}
 iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
 This package contains the IP6TC library.
 
-%package -n %{ip6tc_develname}
+%package -n %{devip6tcg}
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
-Requires:	%{ip6tc_libname} = %{version}-%{release}
+Requires:	%{libip6tc} = %{version}-%{release}
 Provides:	iptables-ip6tc-devel = %{version}
 
-%description -n	%{ip6tc_develname}
+%description -n	%{devip6tcg}
 iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
@@ -203,7 +198,7 @@ cp %{SOURCE4} iptables.sample
 cp %{SOURCE5} ip6tables.sample
 
 # fix libdir
-perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
+sed -i -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 # extensions
 #install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
@@ -212,16 +207,12 @@ perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 #install -m0644 %{SOURCE102} extensions/
 #install -m0644 %{SOURCE103} extensions/
 
-%patch0 -p1 -b .libiptc
-%patch100 -p0
-#patch101 -p0
-#patch102 -p0
-%patch103 -p1
+%apply_patches
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
 # don't run /sbin/ldconfig
-perl -pi -e "s|/sbin/ldconfig|/bin/true|g" Makefile*
+sed -i -e "s|/sbin/ldconfig|/bin/true|g" Makefile*
 
 %build
 export LIBS="-ldl"
@@ -235,21 +226,20 @@ export CXXFLAGS="$CXXFLAGS -fPIC"
 export FFLAGS="$FFLAGS -fPIC"
 
 %configure2_5x \
-    --bindir=/sbin \
-    --sbindir=/sbin \
-    --libdir=/%{_lib} \
-    --libexecdir=/%{_lib} \
-    --enable-devel \
-    --enable-libipq \
-    --enable-ipv4 \
-    --enable-ipv6 \
-    --with-ksource=%{_prefix}/src/linux \
-    --with-xtlibdir=/%{_lib}/iptables
+	--bindir=/sbin \
+	--sbindir=/sbin \
+	--libdir=/%{_lib} \
+	--libexecdir=/%{_lib} \
+	--enable-devel \
+	--enable-libipq \
+	--enable-ipv4 \
+	--enable-ipv6 \
+	--with-ksource=%{_prefix}/src/linux \
+	--with-xtlibdir=/%{_lib}/iptables
 
 %make
 
 %install
-
 %makeinstall_std
 
 # (oe) this in conjunction with the mandriva initscript will make it possible
@@ -462,7 +452,7 @@ sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/iptables.service
 %files -n %{libname}
 /%{_lib}/libxtables.so.%{major}*
 
-%files -n %{develname}
+%files -n %{devname}
 %{_includedir}/*.h
 %dir %{_includedir}/libipulog
 %{_includedir}/libipulog/*.h
@@ -471,422 +461,36 @@ sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/iptables.service
 /%{_lib}/libxtables.so
 %{_libdir}/pkgconfig/xtables.pc
 
-%files -n %{ipq_libname}
-/%{_lib}/libipq.so.*
+%files -n %{libipq}
+/%{_lib}/libipq.so.%{ipq_major}*
 
-%files -n %{ipq_develname}
+%files -n %{devipq}
 %{_includedir}/libipq/*.h
 %dir %{_includedir}/libipq
 /%{_lib}/libipq.so
 %{_mandir}/man3/*ipq*
 %{_libdir}/pkgconfig/libipq.pc
 
-%files -n %{iptc_libname}
-/%{_lib}/libiptc.so.*
+%files -n %{libiptc}
+/%{_lib}/libiptc.so.%{iptc_major}*
 
-%files -n %{iptc_develname}
+%files -n %{deviptc}
 %{_includedir}/libiptc/*.h
 %dir %{_includedir}/libiptc
 /%{_lib}/libiptc.so
-%{_libdir}/pkgconfig/libip*tc.pc
+%{_libdir}/pkgconfig/libiptc.pc
 
-%files -n %{ip4tc_libname}
-/%{_lib}/libip4tc.so.*
+%files -n %{libip4tc}
+/%{_lib}/libip4tc.so.%{iptc_major}*
 
-%files -n %{ip4tc_develname}
+%files -n %{devip4tc}
 /%{_lib}/libip4tc.so
+%{_libdir}/pkgconfig/libip4tc.pc
 
-%files -n %{ip6tc_libname}
-/%{_lib}/libip6tc.so.*
+%files -n %{libip6tc}
+/%{_lib}/libip6tc.so.%{iptc_major}*
 
-%files -n %{ip6tc_develname}
+%files -n %{devip6tcg}
 /%{_lib}/libip6tc.so
-
-
-%changelog
-* Mon Dec 3 2012 akdengi <akdengi> 1.4.15-2
-- drop SysVinit service. Add systemd service support.
-
-* Fri Jul 20 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 1.4.14-2
-+ Revision: 810338
-- obsolete old majors 4 and 5
-
-* Mon May 28 2012 Oden Eriksson <oeriksson@mandriva.com> 1.4.14-1
-+ Revision: 800898
-- 1.4.14
-
-* Fri Mar 30 2012 Oden Eriksson <oeriksson@mandriva.com> 1.4.13-1
-+ Revision: 788404
-- 1.4.13
-
-* Sun Jan 15 2012 Oden Eriksson <oeriksson@mandriva.com> 1.4.12.2-2
-+ Revision: 760932
-- P1: fix build with linux 3.2 (tmb)
-
-* Tue Jan 10 2012 Oden Eriksson <oeriksson@mandriva.com> 1.4.12.2-1
-+ Revision: 759269
-- various cleanups
-- slight cleanup
-- 1.4.12.2
-- the iptables-1.4.12-conntract.patch patch was added upstream
-- sync with mageia
-
-* Tue Oct 11 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 1.4.12.1-1
-+ Revision: 704311
-- enable support for libnfnetlink on mdv2012
-- update file list
-- update to new version 1.4.12.1
-
-* Fri Aug 19 2011 Александр Казанцев <kazancas@mandriva.org> 1.4.12-2
-+ Revision: 695829
-- fix bug with 'iptables-restore v1.4.12: conntrack rev 2 does not support port ranges'
-
-* Wed Jul 27 2011 Oden Eriksson <oeriksson@mandriva.com> 1.4.12-1
-+ Revision: 691915
-- /sbin/nfnl_osf and /usr/share/xtables/pf.os is not installed for some reason...
-- 1.4.12
-
-* Thu Jun 09 2011 Funda Wang <fwang@mandriva.org> 1.4.11.1-1
-+ Revision: 683329
-- update to new version 1.4.11.1
-
-* Fri May 27 2011 Funda Wang <fwang@mandriva.org> 1.4.11-2
-+ Revision: 679378
-- add compatible executable symlink
-
-* Fri May 27 2011 Funda Wang <fwang@mandriva.org> 1.4.11-1
-+ Revision: 679238
-- update file list
-- update libmajor
-- update file list
-- update to new version 1.4.11
-
-* Tue May 24 2011 Funda Wang <fwang@mandriva.org> 1.4.10-3
-+ Revision: 678001
-- move *.so into /lib (bug#63356)
-
-* Sun May 01 2011 Funda Wang <fwang@mandriva.org> 1.4.10-2
-+ Revision: 661135
-- fix provides of ip4tc-devel
-
-* Sat Oct 30 2010 Oden Eriksson <oeriksson@mandriva.com> 1.4.10-1mnb2
-+ Revision: 590455
-- 1.4.10
-
-* Thu Jul 15 2010 Tomasz Pawel Gajc <tpg@mandriva.org> 1.4.8-1mnb2
-+ Revision: 553702
-- do not enable nfnetlink support for now
-- update to new version 1.4.8
-- fix url for Source0
-- update file list
-
-* Mon Mar 08 2010 Eugeni Dodonov <eugeni@mandriva.com> 1.4.7-2mnb2
-+ Revision: 515788
-- Install missing devel files.
-
-* Tue Mar 02 2010 Eugeni Dodonov <eugeni@mandriva.com> 1.4.7-1mnb2
-+ Revision: 513519
-- Updated to 1.4.7.
-  Added IPQ library and its documentation.
-
-* Thu Dec 10 2009 Eugeni Dodonov <eugeni@mandriva.com> 1.4.6-1mnb2
-+ Revision: 475942
-- Updated to 1.4.6
-
-* Wed Sep 16 2009 Eugeni Dodonov <eugeni@mandriva.com> 1.4.5-2mnb2
-+ Revision: 443613
-- Updated to 1.4.5.
-  Packaged libip4tc and libip6tc.
-
-* Thu Jun 18 2009 Eugeni Dodonov <eugeni@mandriva.com> 1.4.4-2mnb2
-+ Revision: 387180
-- Resolve conflict over libiptables-devel and libiptc-devel packages.
-
-* Thu Jun 18 2009 Oden Eriksson <oeriksson@mandriva.com> 1.4.4-1mnb2
-+ Revision: 386939
-- 1.4.4
-
-* Thu Jun 04 2009 Gustavo De Nardin <gustavodn@mandriva.com> 1.4.3.2-3mnb2
-+ Revision: 382860
-- fixed obsoletes macro call
-
-* Tue Jun 02 2009 Eugeni Dodonov <eugeni@mandriva.com> 1.4.3.2-2mnb2
-+ Revision: 382223
-- Adding Obsolete to prevent conflict between iptc and old iptables.
-
-* Fri May 29 2009 Eugeni Dodonov <eugeni@mandriva.com> 1.4.3.2-1mnb2
-+ Revision: 381113
-- Splitting libiptc to a separate package (it has a different major).
-- Updated to 1.4.3.2.
-  New major.
-
-* Mon Mar 30 2009 Luiz Fernando Capitulino <lcapitulino@mandriva.com> 1.4.3.1-3mnb2
-+ Revision: 362745
-- bump release
-- libipt_IFWLOG: Update to latest netfilter's API
-- libipt_psd: Update to latest netfilter's API
-
-* Thu Mar 26 2009 Oden Eriksson <oeriksson@mandriva.com> 1.4.3.1-2mnb2
-+ Revision: 361305
-- 1.4.3.1 (thanks fhimpe)
-- 1.4.3
-- drop redundant patches and other stuff (P2,P3,P4,P5)
-- new major (1)
-
-* Fri Dec 19 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.2-2mnb2
-+ Revision: 316266
-- rediffed one fuzzy patch
-- fix build with -Werror=format-security
-
-* Thu Oct 23 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.2-1mnb2
-+ Revision: 296770
-- 1.4.2
-- drop redundant patches (P1,P5)
-- libfifiction adaptations
-
-* Tue Sep 23 2008 Olivier Blin <blino@mandriva.org> 1.4.1.1-4mnb2
-+ Revision: 287357
-- create /lib/iptables if it does not exist
-- always run iptables check on post (real fix for #42579)
-
-* Mon Sep 22 2008 Frederic Crozat <fcrozat@mandriva.com> 1.4.1.1-3mnb2
-+ Revision: 286533
-- Update source1 to no do useless things when it is not needed (improve boot time)
-
-* Fri Sep 19 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.1.1-2mnb2
-+ Revision: 285907
-- rebuild
-- sync with iptables-1.4.1.1-2.fc10.src.rpm
-
-* Mon Jul 14 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.1.1-1mnb2
-+ Revision: 234896
-- rebuild
-
-* Sat Jul 12 2008 Tomasz Pawel Gajc <tpg@mandriva.org> 1.4.1.1-0.6mnb2
-+ Revision: 234172
-- revert last commit only with paths for iptables
-
-* Sat Jul 12 2008 Tomasz Pawel Gajc <tpg@mandriva.org> 1.4.1.1-0.5mnb2
-+ Revision: 234155
-- merge subpackage iptables-ipv6 into main package
-- pass with xtlibdir a real iptables directory
-- spec file clean
-
-  + Luiz Fernando Capitulino <lcapitulino@mandriva.com>
-    - Remove kernel-source BuildRequires
-      kernel-headers package has been fixed to export the needed
-      headers, iptables does not have to use headers directly from
-      the kernel sources anymore.
-    - libipt_psd: convert from target to match (again) and make psd
-      to work again.
-
-* Mon Jun 23 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.1.1-0.4mnb2
-+ Revision: 227990
-- fix build (duh!)
-- make it work as it used to. this change in conjunction with the mandriva
-  initscript will make it possible to use development versions of the netfilter
-  modules and with different api:s. (according to blino)
-
-* Sun Jun 22 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.1.1-0.3mnb2
-+ Revision: 227943
-- rebuild
-- added -fPIC because it's needed by packages linking against the devel libs
-
-* Sat Jun 21 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.1.1-0.1mnb2
-+ Revision: 227740
-- 1.4.1.1 (uses autoconf now)
-- put the modules in /%%{_lib}/iptables.d/ though default now is
-  LIBEXECDIR/xtables, but we used to have it in /lib/iptables.d/
-  NOTE: third party modules has to be adjusted!
-- adjust /lib/ in iptables.init
-- tried to port S100,S101,S102 to the new api, but the psd one
-  needs some work again (blino?,lcapitulino?)
-- had to use _disable_ld_no_undefined due to build problems in
-  libxt_comment.c and libxt_CLASSIFY.c
-- again...
-- fix a small error
-- added some props
-
-* Thu Mar 06 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.0-1mnb1
-+ Revision: 181032
-- bump release
-
-* Tue Mar 04 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.0-0.9mnb1
-+ Revision: 178419
-- added fixes to psd and IFWLOG by lcapitulino to hopefully fix #37158
-
-* Sun Feb 24 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.0-0.8mnb1
-+ Revision: 174357
-- pass -fPIC to the CFLAGS
-
-* Mon Feb 18 2008 Thierry Vignaud <tv@mandriva.org> 1.4.0-0.7mnb1
-+ Revision: 170652
-- replace %%mkrel with %%manbo_mkrel for Manbo Core 1
-
-* Sun Feb 10 2008 Tomasz Pawel Gajc <tpg@mandriva.org> 1.4.0-0.7mdv2008.1
-+ Revision: 164942
-- fix broken symlink
-
-* Sat Feb 09 2008 Colin Guthrie <cguthrie@mandriva.org> 1.4.0-0.6mdv2008.1
-+ Revision: 164496
-- Work around the removal of the kernel headers tarball.
-
-* Sat Feb 09 2008 Tomasz Pawel Gajc <tpg@mandriva.org> 1.4.0-0.5mdv2008.1
-+ Revision: 164392
-- remove source 5, a kernel headers which are now a system wide standalone package
-- devel package requires kernel-headers
-- new license policy
-
-  + Oden Eriksson <oeriksson@mandriva.com>
-    - remove the grsecurity stuff, we don't have it anyway
-
-* Thu Jan 24 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.0-0.4mdv2008.1
-+ Revision: 157396
-- enable the build of the IFWLOG extension now that kernel-source-latest is fixed (#37082)
-
-* Tue Jan 22 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.0-0.3mdv2008.1
-+ Revision: 156462
-- added most of the added extensions as sources instead
-- dropped unmaintained extensions
-
-  + Thierry Vignaud <tv@mandriva.org>
-    - drop kernel-2.4.x versionning
-
-* Tue Jan 22 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.0-0.2mdv2008.1
-+ Revision: 156206
-- fix the %%serverbuild stuff again...
-
-* Tue Jan 22 2008 Oden Eriksson <oeriksson@mandriva.com> 1.4.0-0.1mdv2008.1
-+ Revision: 156091
-- 1.4.0
-- dropped obsolete patches; P9
-- the IFWLOG extension needs rework, it won't build (P6)
-- rediffed patches; P1,P7
-- rediff P8, but don't apply it just yet
-- really use the %%serverbuild rpm macro
-- add P10 (psd support)
-
-  + Thierry Vignaud <tv@mandriva.org>
-    - remove useless kernel require
-    - kill re-definition of %%buildroot on Pixel's request
-
-  + Olivier Blin <blino@mandriva.org>
-    - restore BuildRoot
-
-* Mon Oct 15 2007 Oden Eriksson <oeriksson@mandriva.com> 1.3.8-1mdv2008.1
-+ Revision: 98487
-- 1.3.8
-- rediffed P1,P7,P9
-- added more static development and header files
-
-  + Thierry Vignaud <tv@mandriva.org>
-    - kill file require on perl-base
-    - buildrequires obsoletes buildprereq
-
-  + Tomasz Pawel Gajc <tpg@mandriva.org>
-    - new version
-
-* Thu Jun 07 2007 Anssi Hannula <anssi@mandriva.org> 1.3.7-2mdv2008.0
-+ Revision: 36175
-- rebuild with correct optflags
-
-  + Per Øyvind Karlsen <peroyvind@mandriva.org>
-    - add missing ipv6 extensions: rt ipv6header hbh frag dst ah
-    - reenable IPV4OPTSSTRIP extension
-    - enable building of CLUSTERIP module
-    - fix install of libiptc.a
-    - add iptables-xml
-    - new version: 1.3.7
-    - regenerate P1
-    - cleanups
-
-
-* Tue Aug 08 2006 Emmanuel Andry <eandry@mandriva.org> 1.3.5-3mdv2007.0
-- rebuild for x86_64
-
-* Mon Aug 07 2006 Olivier Blin <blino@mandriva.com> 1.3.5-2mdv2007.0
-- use linux-2.6-pom (patch-o-matic) as kernel headers basename (#24147)
-
-* Fri Aug 04 2006 Samir Bellabes <sbellabes@n4.mandriva.com> 1.3.5-1mdv2007.0
-- new release
-- desactive patch ipp2p
-- new kernel-headers
-
-* Mon Jan 09 2006 Olivier Blin <oblin@mandriva.com> 1.3.3-6mdk
-- convert parallel init to LSB
-- mkrel
-- Requires(post), Requires(preun)
-- remove requires-on-release
-
-* Sat Dec 31 2005 Couriousous <couriousous@mandriva.org> 1.3.3-5mdk
-- Add parallel init info
-
-* Sat Dec 31 2005 Mandriva Linux Team <http://www.mandrivaexpert.com/> 1.3.3-4mdk
-- Rebuild
-
-* Wed Aug 10 2005 Samir Bellabes <sbellabes@mandriva.com> 1.3.3-3mdk
-- rebuild with new kernel headers 2.6.12-9mdk.
-
-* Wed Aug 03 2005 Samir Bellabes <sbellabes@mandriva.com> 1.3.3-2mdk
-- IFWLOG target
-
-* Fri Jul 29 2005 Samir Bellabes <sbellabes@mandriva.com> 1.3.3-1mdk
-- update to version 1.3.3
-
-* Wed Jul 27 2005 Samir Bellabes <sbellabes@mandriva.com> 1.3.2-2mdk
-- update kernel headers to lastest versions (2.6.12-8mdk) and fix 
-  malformed path in iptables-kernel-headers.tar.bz2
-- fix lot of extensions test : Makefile check for $KERNEL_DIR/net/*/*/*.c
-  but we provide only headers files ($KERNEL_DIR/include/linux/*/*.h)
-  So test failed every time, and we don't get extension.
-- add ipp2p extension, that is not in upstream iptables-1.3.2
-- deleted extensions for linux-2.4 ( obsolete by now )
-
-* Wed Jul 13 2005 Herton Ronaldo Krzesinski <herton@mandriva.com> 1.3.2-1mdk
-- new upstream version: 1.3.2.
-- redid stealth patch.
-- obsoleted patch CAN-2004-0986.
-- updated kernel headers to latest versions (2.6.12.2 & 2.4.31).
-
-* Sat Apr 02 2005 Luca Berra <bluca@vodka.it> 1.2.9-8mdk 
-- update kernel headers, we now have 4 flavors
-- update initscript to test all flavors
-
-* Tue Nov 02 2004 Vincent Danen <vdanen@mandrakesoft.com> 1.2.9-7.1.101mdk
-- security fix for CAN-2004-0986
-
-* Wed Jun 02 2004 Florin <florin@mandrakesoft.com> 1.2.9-7mdk
-- add new extenions: see the kernel changelog here below
-- netfilter (CLASSIFY CONNMARK IPMARK TARPIT addrtype condition 
-	connbytes h323-conntrack-nat owner-socketlookup pptp-conntrack-nat 
-	connlimit dstlimit iprange mport nth osf quota random time 
-	rtsp-conntrack)
-
-* Wed Jun 02 2004 Florin <florin@mandrakesoft.com> 1.2.9-6mdk
-- add the devel package
-
-* Sun Feb 15 2004 Luca Berra <bluca@vodka.it> 1.2.9-5mdk
-- fix detection of iptables version at boot (again)
-
-* Wed Jan 28 2004 Marcel Pol <mpol@mandrake.org> 1.2.9-4mdk
-- update-alternatives seems unreliable, sorry
-
-* Sun Jan 25 2004 Marcel Pol <mpol@mandrake.org> 1.2.9-3mdk
-- doh, I can't read
-
-* Sun Jan 25 2004 Luca Berra <bluca@vodka.it> 1.2.9-2mdk 
-- compatible with both 2.4 and 2.6 (with and without pptp_conntrack)
-- added check option to initscripts
-- use alternatives (mpol)
-
-* Fri Nov 28 2003 Juan Quintela <quintela@mandrakesoft.com> 1.2.9-1mdk
-- IMQ should work now (cross fingers).
-- reddiff stealth patch.
-- 1.2.9.
-
-* Wed Oct 08 2003 Juan Quintela <quintela@mandrakesoft.com> 1.2.9-0rc1mdk
-- 1.2.9rc1.
-
-* Tue Aug 26 2003 Juan Quintela <quintela@mandrakesoft.com> 1.2.8-2mdk
-- added imq support.
+%{_libdir}/pkgconfig/libip6tc.pc
 
