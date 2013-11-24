@@ -24,8 +24,8 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.19.1
-Release:	5
+Version:	1.4.21
+Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -319,7 +319,6 @@ sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/iptables.service
 /%{_lib}/iptables.d/linux-2.6-main/libxt_cluster.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_comment.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_connbytes.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_connlabel.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_connlimit.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_connmark.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_CONNMARK.so
@@ -369,6 +368,7 @@ sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/iptables.service
 /%{_lib}/iptables.d/linux-2.6-main/libxt_state.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_statistic.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_string.so
+/%{_lib}/iptables.d/linux-2.6-main/libxt_SYNPROXY.so    
 /%{_lib}/iptables.d/linux-2.6-main/libxt_tcpmss.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_TCPMSS.so
 /%{_lib}/iptables.d/linux-2.6-main/libxt_TCPOPTSTRIP.so
@@ -405,7 +405,6 @@ sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/iptables.service
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_SNPT.so    
 /%{_lib}/iptables.d/linux-2.6-main/libip6t_rt.so
 %{_mandir}/*/ip6tables*
-%{_sysconfdir}/xtables
 
 %files -n %{libname}
 /%{_lib}/libxtables.so.%{major}*
