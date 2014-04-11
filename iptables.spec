@@ -25,7 +25,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.21
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -245,8 +245,8 @@ install -d -m 755 %{buildroot}/lib/systemd/system
 install -c -m 644 %{SOURCE6} %{buildroot}/lib/systemd/system/
 sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' < %{SOURCE6} > ip6tables.service
 install -c -m 644 ip6tables.service %{buildroot}/lib/systemd/system/
-sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/ip6tables.service
-sed -i 's!@LIBDIR@!%{_libdir}!' %{buildroot}/lib/systemd/system/iptables.service
+sed -i 's!@LIBDIR@!%{script_path}!' %{buildroot}/lib/systemd/system/ip6tables.service
+sed -i 's!@LIBDIR@!%{script_path}!' %{buildroot}/lib/systemd/system/iptables.service
 
 %post
 %_post_service iptables
