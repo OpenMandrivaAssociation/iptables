@@ -25,7 +25,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.21
-Release:	9
+Release:	10
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -48,7 +48,7 @@ Patch100:	iptables-imq.diff
 #Patch103:	iptables-1.4.17-fix-linking.patch
 
 BuildRequires:	pkgconfig(libnfnetlink)
-Requires(post,preun):	rpm-helper
+Requires:	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
 Provides:	userspace-ipfilter
 
@@ -182,7 +182,7 @@ export CFLAGS="$CFLAGS -fPIC"
 export CXXFLAGS="$CXXFLAGS -fPIC"
 export FFLAGS="$FFLAGS -fPIC"
 
-%configure2_5x \
+%configure \
 	--disable-static \
 	--bindir=/sbin \
 	--sbindir=/sbin \
@@ -247,15 +247,6 @@ sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' < %{SOURCE6} > ip6tables.serv
 install -c -m 644 ip6tables.service %{buildroot}/lib/systemd/system/
 sed -i 's!@LIBDIR@!%{script_path}!' %{buildroot}/lib/systemd/system/ip6tables.service
 sed -i 's!@LIBDIR@!%{script_path}!' %{buildroot}/lib/systemd/system/iptables.service
-
-%post
-%_post_service iptables
-%_post_service ip6tables
-%{script_path}/iptables.init check
-
-%preun
-%_preun_service iptables
-%_preun_service ip6tables
 
 %triggerun -- iptables < 1.4.12.1
 # Autostart
