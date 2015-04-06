@@ -25,7 +25,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.21
-Release:	10
+Release:	11
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -193,7 +193,7 @@ export FFLAGS="$FFLAGS -fPIC"
 	--enable-ipv4 \
 	--enable-ipv6 \
 	--with-ksource=%{_prefix}/src/linux \
-	--with-xtlibdir=/%{_lib}/iptables
+	--with-xtlibdir=/%{_lib}/xtables
 
 %make
 
@@ -203,8 +203,8 @@ export FFLAGS="$FFLAGS -fPIC"
 # (oe) this in conjunction with the mandriva initscript will make it possible
 # to use development versions of the netfilter modules and with different
 # api:s. (according to blino)
-install -d %{buildroot}/%{_lib}/iptables.d
-mv %{buildroot}/%{_lib}/iptables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
+ln -sf /%{_lib}/xtables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
+ln -sf /%{_lib}/xtables %{buildroot}/%{_lib}/iptables
 
 # pkgconfig files
 mkdir -p %{buildroot}%{_libdir}
@@ -280,121 +280,123 @@ sed -i 's!@LIBDIR@!%{script_path}!' %{buildroot}/lib/systemd/system/iptables.ser
 /sbin/ip6tables
 /sbin/ip6tables-restore
 /sbin/ip6tables-save
+%dir /%{_lib}/xtables
+%dir /%{_lib}/iptables
 %dir /%{_lib}/iptables.d
 %dir /%{_lib}/iptables.d/linux-2.6-main
-/%{_lib}/iptables.d/linux-2.6-main/libipt_ah.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_CLUSTERIP.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_DNAT.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_ECN.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_icmp.so
-#/%{_lib}/iptables.d/linux-2.6-main/libipt_IFWLOG.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_LOG.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_MASQUERADE.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_MIRROR.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_NETMAP.so
-#/%{_lib}/iptables.d/linux-2.6-main/libipt_psd.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_realm.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_REDIRECT.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_REJECT.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_SAME.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_SNAT.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_ttl.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_TTL.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_ULOG.so
-/%{_lib}/iptables.d/linux-2.6-main/libipt_unclean.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_addrtype.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_AUDIT.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_bpf.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_CHECKSUM.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_CLASSIFY.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_cluster.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_comment.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_connbytes.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_connlimit.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_connmark.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_CONNMARK.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_CONNSECMARK.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_conntrack.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_cpu.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_CT.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_dccp.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_devgroup.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_dscp.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_DSCP.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_ecn.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_esp.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_hashlimit.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_helper.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_HMARK.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_IDLETIMER.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_iprange.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_ipvs.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_LED.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_length.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_limit.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_mac.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_mark.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_MARK.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_multiport.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_nfacct.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_NFLOG.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_NFQUEUE.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_NOTRACK.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_osf.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_owner.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_physdev.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_pkttype.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_policy.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_quota.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_rateest.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_RATEEST.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_recent.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_rpfilter.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_sctp.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_SECMARK.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_set.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_SET.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_socket.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_standard.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_state.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_statistic.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_string.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_SYNPROXY.so    
-/%{_lib}/iptables.d/linux-2.6-main/libxt_tcpmss.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_TCPMSS.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_TCPOPTSTRIP.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_tcp.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_TEE.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_time.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_tos.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_TOS.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_TPROXY.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_TRACE.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_u32.so
-/%{_lib}/iptables.d/linux-2.6-main/libxt_udp.so
+/%{_lib}/xtables/libipt_ah.so
+/%{_lib}/xtables/libipt_CLUSTERIP.so
+/%{_lib}/xtables/libipt_DNAT.so
+/%{_lib}/xtables/libipt_ECN.so
+/%{_lib}/xtables/libipt_icmp.so
+#/%{_lib}/xtables/libipt_IFWLOG.so
+/%{_lib}/xtables/libipt_LOG.so
+/%{_lib}/xtables/libipt_MASQUERADE.so
+/%{_lib}/xtables/libipt_MIRROR.so
+/%{_lib}/xtables/libipt_NETMAP.so
+#/%{_lib}/xtables/libipt_psd.so
+/%{_lib}/xtables/libipt_realm.so
+/%{_lib}/xtables/libipt_REDIRECT.so
+/%{_lib}/xtables/libipt_REJECT.so
+/%{_lib}/xtables/libipt_SAME.so
+/%{_lib}/xtables/libipt_SNAT.so
+/%{_lib}/xtables/libipt_ttl.so
+/%{_lib}/xtables/libipt_TTL.so
+/%{_lib}/xtables/libipt_ULOG.so
+/%{_lib}/xtables/libipt_unclean.so
+/%{_lib}/xtables/libxt_addrtype.so
+/%{_lib}/xtables/libxt_AUDIT.so
+/%{_lib}/xtables/libxt_bpf.so
+/%{_lib}/xtables/libxt_CHECKSUM.so
+/%{_lib}/xtables/libxt_CLASSIFY.so
+/%{_lib}/xtables/libxt_cluster.so
+/%{_lib}/xtables/libxt_comment.so
+/%{_lib}/xtables/libxt_connbytes.so
+/%{_lib}/xtables/libxt_connlimit.so
+/%{_lib}/xtables/libxt_connmark.so
+/%{_lib}/xtables/libxt_CONNMARK.so
+/%{_lib}/xtables/libxt_CONNSECMARK.so
+/%{_lib}/xtables/libxt_conntrack.so
+/%{_lib}/xtables/libxt_cpu.so
+/%{_lib}/xtables/libxt_CT.so
+/%{_lib}/xtables/libxt_dccp.so
+/%{_lib}/xtables/libxt_devgroup.so
+/%{_lib}/xtables/libxt_dscp.so
+/%{_lib}/xtables/libxt_DSCP.so
+/%{_lib}/xtables/libxt_ecn.so
+/%{_lib}/xtables/libxt_esp.so
+/%{_lib}/xtables/libxt_hashlimit.so
+/%{_lib}/xtables/libxt_helper.so
+/%{_lib}/xtables/libxt_HMARK.so
+/%{_lib}/xtables/libxt_IDLETIMER.so
+/%{_lib}/xtables/libxt_iprange.so
+/%{_lib}/xtables/libxt_ipvs.so
+/%{_lib}/xtables/libxt_LED.so
+/%{_lib}/xtables/libxt_length.so
+/%{_lib}/xtables/libxt_limit.so
+/%{_lib}/xtables/libxt_mac.so
+/%{_lib}/xtables/libxt_mark.so
+/%{_lib}/xtables/libxt_MARK.so
+/%{_lib}/xtables/libxt_multiport.so
+/%{_lib}/xtables/libxt_nfacct.so
+/%{_lib}/xtables/libxt_NFLOG.so
+/%{_lib}/xtables/libxt_NFQUEUE.so
+/%{_lib}/xtables/libxt_NOTRACK.so
+/%{_lib}/xtables/libxt_osf.so
+/%{_lib}/xtables/libxt_owner.so
+/%{_lib}/xtables/libxt_physdev.so
+/%{_lib}/xtables/libxt_pkttype.so
+/%{_lib}/xtables/libxt_policy.so
+/%{_lib}/xtables/libxt_quota.so
+/%{_lib}/xtables/libxt_rateest.so
+/%{_lib}/xtables/libxt_RATEEST.so
+/%{_lib}/xtables/libxt_recent.so
+/%{_lib}/xtables/libxt_rpfilter.so
+/%{_lib}/xtables/libxt_sctp.so
+/%{_lib}/xtables/libxt_SECMARK.so
+/%{_lib}/xtables/libxt_set.so
+/%{_lib}/xtables/libxt_SET.so
+/%{_lib}/xtables/libxt_socket.so
+/%{_lib}/xtables/libxt_standard.so
+/%{_lib}/xtables/libxt_state.so
+/%{_lib}/xtables/libxt_statistic.so
+/%{_lib}/xtables/libxt_string.so
+/%{_lib}/xtables/libxt_SYNPROXY.so    
+/%{_lib}/xtables/libxt_tcpmss.so
+/%{_lib}/xtables/libxt_TCPMSS.so
+/%{_lib}/xtables/libxt_TCPOPTSTRIP.so
+/%{_lib}/xtables/libxt_tcp.so
+/%{_lib}/xtables/libxt_TEE.so
+/%{_lib}/xtables/libxt_time.so
+/%{_lib}/xtables/libxt_tos.so
+/%{_lib}/xtables/libxt_TOS.so
+/%{_lib}/xtables/libxt_TPROXY.so
+/%{_lib}/xtables/libxt_TRACE.so
+/%{_lib}/xtables/libxt_u32.so
+/%{_lib}/xtables/libxt_udp.so
 %{_mandir}/*/iptables*
 %{_datadir}/xtables/pf.os
 # ipv6
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_ah.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_dst.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_eui64.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_frag.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_hbh.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_hl.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_HL.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_icmp6.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_ipv6header.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_LOG.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_mh.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_REJECT.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_DNAT.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_DNPT.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_MASQUERADE.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_NETMAP.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_REDIRECT.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_SNAT.so
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_SNPT.so    
-/%{_lib}/iptables.d/linux-2.6-main/libip6t_rt.so
+/%{_lib}/xtables/libip6t_ah.so
+/%{_lib}/xtables/libip6t_dst.so
+/%{_lib}/xtables/libip6t_eui64.so
+/%{_lib}/xtables/libip6t_frag.so
+/%{_lib}/xtables/libip6t_hbh.so
+/%{_lib}/xtables/libip6t_hl.so
+/%{_lib}/xtables/libip6t_HL.so
+/%{_lib}/xtables/libip6t_icmp6.so
+/%{_lib}/xtables/libip6t_ipv6header.so
+/%{_lib}/xtables/libip6t_LOG.so
+/%{_lib}/xtables/libip6t_mh.so
+/%{_lib}/xtables/libip6t_REJECT.so
+/%{_lib}/xtables/libip6t_DNAT.so
+/%{_lib}/xtables/libip6t_DNPT.so
+/%{_lib}/xtables/libip6t_MASQUERADE.so
+/%{_lib}/xtables/libip6t_NETMAP.so
+/%{_lib}/xtables/libip6t_REDIRECT.so
+/%{_lib}/xtables/libip6t_SNAT.so
+/%{_lib}/xtables/libip6t_SNPT.so
+/%{_lib}/xtables/libip6t_rt.so
 %{_mandir}/*/ip6tables*
 
 %files -n %{libname}
