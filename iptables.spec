@@ -48,9 +48,11 @@ Patch100:	iptables-imq.diff
 #Patch103:	iptables-1.4.17-fix-linking.patch
 
 BuildRequires:	pkgconfig(libnfnetlink)
+Requires(pre):	coreutils
 Requires:	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
 Provides:	userspace-ipfilter
+Conflicts:	%{name} < 1.4.21-11
 
 %description
 iptables controls the Linux kernel network packet filtering code. It allows you
@@ -203,6 +205,7 @@ export FFLAGS="$FFLAGS -fPIC"
 # (oe) this in conjunction with the mandriva initscript will make it possible
 # to use development versions of the netfilter modules and with different
 # api:s. (according to blino)
+# (tpg) p[rovide symlinks for backward compatibility
 ln -sf /%{_lib}/xtables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 ln -sf /%{_lib}/xtables %{buildroot}/%{_lib}/iptables
 
@@ -247,6 +250,22 @@ sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' < %{SOURCE6} > ip6tables.serv
 install -c -m 644 ip6tables.service %{buildroot}/lib/systemd/system/
 sed -i 's!@LIBDIR@!%{script_path}!' %{buildroot}/lib/systemd/system/ip6tables.service
 sed -i 's!@LIBDIR@!%{script_path}!' %{buildroot}/lib/systemd/system/iptables.service
+
+%pre
+if [ $1 -ge 2 ]; then
+	if [ -d /%{_lib}/iptables.d/linux-2.6-main ]; then
+    	rm -rf /%{_lib}/iptables.d/linux-2.6-main
+    elif [ -L /%{_lib}/iptables.d/linux-2.6-main ] && [ ! "$(readlink /%{_lib}/iptables.d/linux-2.6-main)" = "/%{_lib}/xtables" ];
+    	rm -rf /%{_lib}/iptables.d/linux-2.6-main
+	fi
+    
+    if [ -d /%{_lib}/iptables ]; then
+    	rm -rf /%{_lib}/iptables
+	elif [ -L /%{_lib}/iptables ] && [ ! "$(readlink /%{_lib}/iptables)" = "/%{_lib}/xtables" ];
+    	rm -rf /%{_lib}/iptables
+	fi
+
+fi
 
 %triggerun -- iptables < 1.4.12.1
 # Autostart
