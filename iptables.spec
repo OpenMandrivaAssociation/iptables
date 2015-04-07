@@ -25,7 +25,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.21
-Release:	11
+Release:	12
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -256,13 +256,13 @@ sed -i 's!@LIBDIR@!%{script_path}!' %{buildroot}/lib/systemd/system/iptables.ser
 if [ $1 -ge 2 ]; then
 	if [ -d /%{_lib}/iptables.d/linux-2.6-main ]; then
     	rm -rf /%{_lib}/iptables.d/linux-2.6-main
-    elif [ -L /%{_lib}/iptables.d/linux-2.6-main ] && [ ! "$(readlink /%{_lib}/iptables.d/linux-2.6-main)" = "/%{_lib}/xtables" ];
+    elif [ -L /%{_lib}/iptables.d/linux-2.6-main ] && [ ! "$(readlink /%{_lib}/iptables.d/linux-2.6-main)" = "/%{_lib}/xtables" ]; then
     	rm -rf /%{_lib}/iptables.d/linux-2.6-main
 	fi
     
     if [ -d /%{_lib}/iptables ]; then
     	rm -rf /%{_lib}/iptables
-	elif [ -L /%{_lib}/iptables ] && [ ! "$(readlink /%{_lib}/iptables)" = "/%{_lib}/xtables" ];
+	elif [ -L /%{_lib}/iptables ] && [ ! "$(readlink /%{_lib}/iptables)" = "/%{_lib}/xtables" ]; then
     	rm -rf /%{_lib}/iptables
 	fi
 
