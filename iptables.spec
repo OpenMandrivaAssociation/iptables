@@ -206,6 +206,7 @@ export FFLAGS="$FFLAGS -fPIC"
 # to use development versions of the netfilter modules and with different
 # api:s. (according to blino)
 # (tpg) p[rovide symlinks for backward compatibility
+mkdir -p %{buildroot}/%{_lib}/iptables.d
 ln -sf /%{_lib}/xtables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 ln -sf /%{_lib}/xtables %{buildroot}/%{_lib}/iptables
 
