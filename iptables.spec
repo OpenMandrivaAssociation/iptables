@@ -25,7 +25,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.21
-Release:	12
+Release:	13
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
