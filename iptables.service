@@ -1,13 +1,13 @@
 [Unit]
-Description=iptables Firewall for IPv4
-After=syslog.target
+Description=IPv4 firewall with iptables
+ConditionPathExists=/etc/sysconfig/iptables
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=@LIBDIR@/iptables.init start
-ExecStop=@LIBDIR@/iptables.init stop
-ExecReload=@LIBDIR@/iptables.init reload
+ExecStart=/usr/libexec/iptables/iptables.init start
+ExecReload=/usr/libexec/iptables/iptables.init reload
+ExecStop=/usr/libexec/iptables/iptables.init stop
 Environment=BOOTUP=serial
 Environment=CONSOLETYPE=serial
 StandardOutput=syslog

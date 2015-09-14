@@ -30,10 +30,10 @@ License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
 Source0:	http://netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
-Source2:	iptables.init
-Source3:	ip6tables.init
-Source4:	iptables.config
-Source5:	ip6tables.config
+Source1:	iptables.init
+Source2:	iptables-config
+Source4:	sysconfig_iptables
+Source5:	sysconfig_ip6tables
 Source6:	iptables.service
 # S100 and up used to be in the added patches
 Source100:	libipt_IMQ.c
@@ -43,9 +43,6 @@ Source102:	libipt_psd.c
 Source103:	libipt_psd.man
 Patch0:		iptables-1.2.8-libiptc.h.patch
 Patch100:	iptables-imq.diff
-#Patch101:	iptables-IFWLOG_extension.diff
-#Patch102:	iptables-psd.diff
-#Patch103:	iptables-1.4.17-fix-linking.patch
 
 BuildRequires:	pkgconfig(libnfnetlink)
 Requires(pre):	coreutils
@@ -151,21 +148,6 @@ This package contains the development files for IP6TC library.
 
 %prep
 %setup -q
-cp %{SOURCE2} iptables.init
-cp %{SOURCE3} ip6tables.init
-cp %{SOURCE4} iptables.sample
-cp %{SOURCE5} ip6tables.sample
-
-# fix libdir
-sed -i -e "s|\@lib\@|%{_lib}|g" iptables.init
-
-# extensions
-#install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
-#install -m0644 %{SOURCE101} extensions/
-# (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
-#install -m0644 %{SOURCE102} extensions/
-#install -m0644 %{SOURCE103} extensions/
-
 %apply_patches
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
@@ -174,8 +156,6 @@ find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 sed -i -e "s|/sbin/ldconfig|/bin/true|g" Makefile*
 
 %build
-export LIBS="-ldl"
-
 %serverbuild
 
 autoreconf -fi
@@ -240,9 +220,16 @@ ln -sf xtables-multi %{buildroot}/sbin/ip6tables-multi
 # module will avoid a post-merge conflict by renaming the files to match this
 # naming convension. If this package is updated to change the names below,
 # you should also take care to update dracut and the convertfs module accordingly.
-install -d %{buildroot}%{script_path}
-install -m0755 iptables.init %{buildroot}%{script_path}/
-install -m0755 ip6tables.init %{buildroot}%{script_path}/
+install -d -m 755 %{buildroot}%{script_path}
+install -c -m 755 %{SOURCE1} %{buildroot}%{script_path}/iptables.init
+sed -e 's;iptables;ip6tables;g' -e 's;IPTABLES;IP6TABLES;g' < %{SOURCE1} > ip6tables.init
+install -c -m 755 ip6tables.init %{buildroot}%{script_path}/ip6tables.init
+install -d -m 755 %{buildroot}%{_sysconfdir}/sysconfig
+install -c -m 600 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/iptables-config
+sed -e 's;iptables;ip6tables;g' -e 's;IPTABLES;IP6TABLES;g' < %{SOURCE2} > ip6tables-config
+install -c -m 600 ip6tables-config %{buildroot}%{_sysconfdir}/sysconfig/ip6tables-config
+install -c -m 600 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/iptables
+install -c -m 600 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/ip6tables
 
 # install systemd service files
 install -d -m 755 %{buildroot}/lib/systemd/system
@@ -284,8 +271,12 @@ fi
 /bin/systemctl try-restart ip6tables.service >/dev/null 2>&1 || :
 
 %files
-%doc INSTALL INCOMPATIBILITIES iptables.sample ip6tables.sample
+%doc INSTALL INCOMPATIBILITIES
 %attr(0755,root,root) %{script_path}/ip*
+%config(noreplace) %{_sysconfdir}/sysconfig/iptables
+%config(noreplace) %{_sysconfdir}/sysconfig/ip6tables
+%config(noreplace) %{_sysconfdir}/sysconfig/iptables-config
+%config(noreplace) %{_sysconfdir}/sysconfig/ip6tables-config
 /lib/systemd/system/iptables.service
 /lib/systemd/system/ip6tables.service
 /sbin/iptables
@@ -394,6 +385,7 @@ fi
 /%{_lib}/xtables/libxt_TRACE.so
 /%{_lib}/xtables/libxt_u32.so
 /%{_lib}/xtables/libxt_udp.so
+/%{_lib}/xtables/libxt_connlabel.so
 %{_mandir}/*/iptables*
 %{_datadir}/xtables/pf.os
 # ipv6
@@ -463,4 +455,3 @@ fi
 %files -n %{devip6tcg}
 /%{_lib}/libip6tc.so
 %{_libdir}/pkgconfig/libip6tc.pc
-
