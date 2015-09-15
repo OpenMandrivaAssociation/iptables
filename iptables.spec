@@ -45,7 +45,6 @@ Patch0:		iptables-1.2.8-libiptc.h.patch
 Patch100:	iptables-imq.diff
 
 BuildRequires:	pkgconfig(libnfnetlink)
-BuildRequires:	pkgconfig(libnetfilter_conntrack)
 Requires(pre):	coreutils
 Requires:	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
@@ -386,7 +385,6 @@ fi
 /%{_lib}/xtables/libxt_TRACE.so
 /%{_lib}/xtables/libxt_u32.so
 /%{_lib}/xtables/libxt_udp.so
-/%{_lib}/xtables/libxt_connlabel.so
 %{_mandir}/*/iptables*
 %{_datadir}/xtables/pf.os
 # ipv6
