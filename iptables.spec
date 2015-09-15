@@ -220,10 +220,10 @@ ln -sf xtables-multi %{buildroot}/sbin/ip6tables-multi
 # module will avoid a post-merge conflict by renaming the files to match this
 # naming convension. If this package is updated to change the names below,
 # you should also take care to update dracut and the convertfs module accordingly.
-install -d -m 755 %{buildroot}%{script_path}
-install -c -m 755 %{SOURCE1} %{buildroot}%{script_path}/iptables.init
+install -d -m 755 %{buildroot}%{script_path}/%{name}
+install -c -m 755 %{SOURCE1} %{buildroot}%{script_path}/%{name}/iptables.init
 sed -e 's;iptables;ip6tables;g' -e 's;IPTABLES;IP6TABLES;g' < %{SOURCE1} > ip6tables.init
-install -c -m 755 ip6tables.init %{buildroot}%{script_path}/ip6tables.init
+install -c -m 755 ip6tables.init %{buildroot}%{script_path}/%{name}/ip6tables.init
 install -d -m 755 %{buildroot}%{_sysconfdir}/sysconfig
 install -c -m 600 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/iptables-config
 sed -e 's;iptables;ip6tables;g' -e 's;IPTABLES;IP6TABLES;g' < %{SOURCE2} > ip6tables-config
@@ -236,8 +236,6 @@ install -d -m 755 %{buildroot}/lib/systemd/system
 install -c -m 644 %{SOURCE6} %{buildroot}/lib/systemd/system/
 sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' < %{SOURCE6} > ip6tables.service
 install -c -m 644 ip6tables.service %{buildroot}/lib/systemd/system/
-sed -i 's!@LIBDIR@!%{script_path}!' %{buildroot}/lib/systemd/system/ip6tables.service
-sed -i 's!@LIBDIR@!%{script_path}!' %{buildroot}/lib/systemd/system/iptables.service
 
 %pre
 if [ $1 -ge 2 ]; then
