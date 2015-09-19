@@ -25,7 +25,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.21
-Release:	15
+Release:	15.1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -45,6 +45,7 @@ Patch0:		iptables-1.2.8-libiptc.h.patch
 Patch100:	iptables-imq.diff
 
 BuildRequires:	pkgconfig(libnfnetlink)
+BuildRequires:	pkgconfig(libnetfilter_conntrack)
 Requires(pre):	coreutils
 Requires:	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
