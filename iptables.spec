@@ -322,6 +322,7 @@ fi
 /%{_lib}/xtables/libxt_cluster.so
 /%{_lib}/xtables/libxt_comment.so
 /%{_lib}/xtables/libxt_connbytes.so
+/%{_lib}/xtables/libxt_connlabel.so
 /%{_lib}/xtables/libxt_connlimit.so
 /%{_lib}/xtables/libxt_connmark.so
 /%{_lib}/xtables/libxt_CONNMARK.so
