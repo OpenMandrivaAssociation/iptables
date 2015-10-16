@@ -25,7 +25,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.4.21
-Release:	16
+Release:	17
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -254,6 +254,9 @@ if [ $1 -ge 2 ]; then
 
 fi
 
+%posttrans
+ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
+
 %triggerun -- iptables < 1.4.12.1
 # Autostart
 /bin/systemctl --no-reload enable iptables.service >/dev/null 2>&1 ||:
@@ -293,7 +296,9 @@ fi
 %dir /%{_lib}/xtables
 %dir /%{_lib}/iptables
 %dir /%{_lib}/iptables.d
-%dir /%{_lib}/iptables.d/linux-2.6-main
+# we dont want this as otherwise the removal of the old package will cause removal of files
+# bug 1384
+%ghost /%{_lib}/iptables.d/linux-2.6-main
 /%{_lib}/xtables/libipt_ah.so
 /%{_lib}/xtables/libipt_CLUSTERIP.so
 /%{_lib}/xtables/libipt_DNAT.so
