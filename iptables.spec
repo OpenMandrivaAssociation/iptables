@@ -1,7 +1,7 @@
 # because the modules are not libtool aware
 %define _disable_ld_no_undefined 1
 
-%define major 10
+%define major 12
 %define libname %mklibname xtables %{major}
 %define devname %mklibname -d iptables
 
@@ -24,8 +24,8 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.4.21
-Release:	18
+Version:	1.6.1
+Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -46,6 +46,7 @@ Patch100:	iptables-imq.diff
 
 BuildRequires:	pkgconfig(libnfnetlink)
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
+BuildRequires:	pkgconfig(libnftnl) >= 1.0.7
 Requires(pre):	coreutils
 Requires:	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
@@ -275,6 +276,7 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 %files
 %doc INSTALL INCOMPATIBILITIES
 %attr(0755,root,root) %{script_path}/ip*
+%config(noreplace) %{_sysconfdir}/ethertypes
 %config(noreplace) %{_sysconfdir}/sysconfig/iptables
 %config(noreplace) %{_sysconfdir}/sysconfig/ip6tables
 %config(noreplace) %{_sysconfdir}/sysconfig/iptables-config
@@ -286,13 +288,26 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 /sbin/iptables-save
 /sbin/iptables-xml
 /sbin/iptables-multi
-/sbin/ip6tables-multi
 /sbin/xtables-multi
+/sbin/arptables-compat
+/sbin/ebtables-compat
+/sbin/iptables-compat
+/sbin/iptables-compat-restore
+/sbin/iptables-compat-save
+/sbin/iptables-restore-translate
+/sbin/iptables-translate
+/sbin/xtables-compat-multi
 /sbin/nfnl_osf
 # ipv6
 /sbin/ip6tables
 /sbin/ip6tables-restore
+/sbin/ip6tables-multi
 /sbin/ip6tables-save
+/sbin/ip6tables-compat
+/sbin/ip6tables-compat-restore
+/sbin/ip6tables-compat-save
+/sbin/ip6tables-restore-translate
+/sbin/ip6tables-translate
 %dir /%{_lib}/xtables
 %dir /%{_lib}/iptables
 %dir /%{_lib}/iptables.d
@@ -307,18 +322,15 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 #/%{_lib}/xtables/libipt_IFWLOG.so
 /%{_lib}/xtables/libipt_LOG.so
 /%{_lib}/xtables/libipt_MASQUERADE.so
-/%{_lib}/xtables/libipt_MIRROR.so
 /%{_lib}/xtables/libipt_NETMAP.so
 #/%{_lib}/xtables/libipt_psd.so
 /%{_lib}/xtables/libipt_realm.so
 /%{_lib}/xtables/libipt_REDIRECT.so
 /%{_lib}/xtables/libipt_REJECT.so
-/%{_lib}/xtables/libipt_SAME.so
 /%{_lib}/xtables/libipt_SNAT.so
 /%{_lib}/xtables/libipt_ttl.so
 /%{_lib}/xtables/libipt_TTL.so
 /%{_lib}/xtables/libipt_ULOG.so
-/%{_lib}/xtables/libipt_unclean.so
 /%{_lib}/xtables/libxt_addrtype.so
 /%{_lib}/xtables/libxt_AUDIT.so
 /%{_lib}/xtables/libxt_bpf.so
@@ -390,6 +402,17 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 /%{_lib}/xtables/libxt_TRACE.so
 /%{_lib}/xtables/libxt_u32.so
 /%{_lib}/xtables/libxt_udp.so
+/%{_lib}/xtables/libarpt_mangle.so
+/%{_lib}/xtables/libebt_802_3.so
+/%{_lib}/xtables/libebt_ip.so
+/%{_lib}/xtables/libebt_limit.so
+/%{_lib}/xtables/libebt_log.so
+/%{_lib}/xtables/libebt_mark.so
+/%{_lib}/xtables/libebt_mark_m.so
+/%{_lib}/xtables/libebt_nflog.so
+/%{_lib}/xtables/libxt_cgroup.so
+/%{_lib}/xtables/libxt_ipcomp.so
+/%{_lib}/xtables/libxt_mangle.so
 %{_mandir}/*/iptables*
 %{_datadir}/xtables/pf.os
 # ipv6
