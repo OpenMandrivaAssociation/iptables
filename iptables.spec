@@ -47,6 +47,9 @@ Patch100:	iptables-imq.diff
 BuildRequires:	pkgconfig(libnfnetlink)
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
 BuildRequires:	pkgconfig(libnftnl) >= 1.0.7
+BuildRequires:	bison
+BuildRequires:	byacc
+BuildRequires:	flex
 Requires(pre):	coreutils
 Requires:	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
