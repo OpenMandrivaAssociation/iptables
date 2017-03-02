@@ -25,7 +25,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.6.1
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -55,6 +55,7 @@ Requires:	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
 Provides:	userspace-ipfilter
 Conflicts:	%{name} < 1.4.21-11
+Conflicts:	setup < 2.8.9-5
 
 %description
 iptables controls the Linux kernel network packet filtering code. It allows you
@@ -242,6 +243,9 @@ install -c -m 644 %{SOURCE6} %{buildroot}/lib/systemd/system/
 sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' < %{SOURCE6} > ip6tables.service
 install -c -m 644 ip6tables.service %{buildroot}/lib/systemd/system/
 
+# Remove /etc/ethertypes (now part of setup)
+rm -f %{buildroot}%{_sysconfdir}/ethertypes
+
 %pre
 if [ $1 -ge 2 ]; then
 	if [ -d /%{_lib}/iptables.d/linux-2.6-main ]; then
@@ -279,7 +283,6 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 %files
 %doc INSTALL INCOMPATIBILITIES
 %attr(0755,root,root) %{script_path}/ip*
-%config(noreplace) %{_sysconfdir}/ethertypes
 %config(noreplace) %{_sysconfdir}/sysconfig/iptables
 %config(noreplace) %{_sysconfdir}/sysconfig/ip6tables
 %config(noreplace) %{_sysconfdir}/sysconfig/iptables-config
