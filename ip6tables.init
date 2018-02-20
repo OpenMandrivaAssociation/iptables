@@ -1,76 +1,59 @@
 #!/bin/sh
 #
-# Startup script to implement /etc/sysconfig/iptables pre-defined rules.
+# Startup script to implement /etc/sysconfig/ip6tables pre-defined rules.
 #
 # chkconfig: 2345 03 92
 #
-# description: Automates a packet filtering firewall with iptables.
+# description: Automates a packet filtering firewall with ip6tables.
 #
 # by bero@redhat.com, based on the ipchains script:
 # Script Author:	Joshua Jensen <joshua@redhat.com>
 #   -- hacked up by gafton with help from notting
 # modified by Anton Altaparmakov <aia21@cam.ac.uk>:
 # modified by Nils Philippsen <nils@redhat.de>
+#   -- changed to ip6tables by Ben Reser <ben@reser.org>
 #
-# config: /etc/sysconfig/iptables
+# config: /etc/sysconfig/ip6tables
 #
 ### BEGIN INIT INFO
-# Provides: iptables firewall
+# Provides: ip6tables firewall
 # Default-Start: 2 3 4 5
-# Short-Description: iptables packet filtering
-# Description: Automates a packet filtering firewall with iptables,
-#              using /etc/sysconfig/iptables pre-defined rules.
+# Short-Description: ip6tables packet filtering
+# Description: Automates a packet filtering firewall with ip6tables,
+#              using /etc/sysconfig/ip6tables pre-defined rules.
 ### END INIT INFO
 
 # Source 'em up
 . /etc/init.d/functions
 
-IPTABLES_CONFIG=/etc/sysconfig/iptables
+IPTABLES_CONFIG=/etc/sysconfig/ip6tables
 
-if [ ! -x /sbin/iptables ]; then
+if [ ! -x /sbin/ip6tables ]; then
+	exit 0
+fi
+
+
+if  /sbin/lsmod 2>/dev/null |grep -q ipchains ; then
+	# Don't do both
 	exit 0
 fi
 
 iftable() {
-	if fgrep -qsx $1 /proc/net/ip_tables_names; then
-		iptables -t "$@"
-	fi
-}
-
-check() {
-	if [ -n "$1" ]; then
-		rm -f /@lib@/iptables
-		ln -s /@lib@/iptables.d/${1} /@lib@/iptables
-		iftable nat -N __T__${1##*-}__ >/dev/null 2>&1
-		iftable nat -A __T__${1##*-}__ -j MASQUERADE >/dev/null 2>&1
-		res=$?
-		iftable nat -F __T__${1##*-}__ >/dev/null 2>&1
-		iftable nat -X __T__${1##*-}__ >/dev/null 2>&1
-		return $res
-	else
-		IPTABLES_LIST=`/bin/ls /@lib@/iptables.d`
-		if [ `echo $IPTABLES_LIST | wc -w` -gt 1 ] || [ ! -e /@lib@/iptables ]; then
-			/sbin/modprobe ipt_MASQUERADE >/dev/null 2>&1
-			for i in $IPTABLES_LIST ; do
-				check ${i} && break
-			done
-			/sbin/modprobe -r ipt_MASQUERADE >/dev/null 2>&1
-		else
-			return 0;
-		fi
+	if fgrep -qsx $1 /proc/net/ip6_tables_names; then
+		ip6tables -t "$@"
 	fi
 }
 
 start() {
 	# don't do squat if we don't have the config file
 	if [ -f $IPTABLES_CONFIG ]; then
-	    # We do _not_ need to flush/clear anything when using iptables-restore
-	    echo $"Applying iptables firewall rules: "
-            grep -v "^[[:space:]]*#" $IPTABLES_CONFIG | grep -v '^[[:space:]]*$' | /sbin/iptables-restore -c && \
-		    success $"Applying iptables firewall rules" || \
-		    failure $"Applying iptables firewall rules"
+	    # We do not need to flush/clear anything if using ip6tables-restore
+	    echo $"Applying ip6tables firewall rules: "
+	    grep -v "^[[:space:]]*#" $IPTABLES_CONFIG | grep -v '^[[:space:]]*$' | /sbin/ip6tables-restore -c && \
+		    success $"Applying ip6tables firewall rules" || \
+		    failure $"Applying ip6tables firewall rules"
 	    echo
-	    touch /var/lock/subsys/iptables
+	    touch /var/lock/subsys/ip6tables
 	fi
 }
 
@@ -78,11 +61,11 @@ stop() {
 	# don't reset firewall rules if we don't have the config file
 	[ -f $IPTABLES_CONFIG ] || return
 
-	chains=`cat /proc/net/ip_tables_names 2>/dev/null`
-        for i in $chains; do iptables -t $i -F; done && \
+	chains=`cat /proc/net/ip6_tables_names 2>/dev/null`
+        for i in $chains; do ip6tables -t $i -F; done && \
                 success $"Flushing all chains:" || \
                 failure $"Flushing all chains:"
-        for i in $chains; do iptables -t $i -X; done && \
+        for i in $chains; do ip6tables -t $i -X; done && \
                 success $"Removing user defined chains:" || \
                 failure $"Removing user defined chains:"
         echo -n $"Resetting built-in chains to the default ACCEPT policy:"
@@ -97,12 +80,11 @@ stop() {
 	   success $"Resetting built-in chains to the default ACCEPT policy" || \
 	   failure $"Resetting built-in chains to the default ACCEPT policy"
 	echo
-	rm -f /var/lock/subsys/iptables
+	rm -f /var/lock/subsys/ip6tables
 }
 
 case "$1" in
   start)
-	check
 	start
 	;;
 
@@ -118,14 +100,14 @@ case "$1" in
 	;;
 
   condrestart)
-	[ -e /var/lock/subsys/iptables ] && start
+	[ -e /var/lock/subsys/ip6tables ] && start
 	;;
 
   status)
-	tables=`cat /proc/net/ip_tables_names 2>/dev/null`
+	tables=`cat /proc/net/ip6_tables_names 2>/dev/null`
 	for table in $tables; do
 		echo $"Table: $table"
-		iptables -t $table --list
+		ip6tables -t $table --list
 	done
 	;;
 
@@ -168,20 +150,15 @@ case "$1" in
 	echo -n $"Saving current rules to $IPTABLES_CONFIG: "
 	touch $IPTABLES_CONFIG
 	chmod 600 $IPTABLES_CONFIG
-	/sbin/iptables-save -c > $IPTABLES_CONFIG  2>/dev/null && \
+	/sbin/ip6tables-save -c > $IPTABLES_CONFIG  2>/dev/null && \
 	  success $"Saving current rules to $IPTABLES_CONFIG" || \
 	  failure $"Saving current rules to $IPTABLES_CONFIG"
 	echo
 	;;
 
-  check)
-    check
-	;;
-
   *)
-	echo $"Usage: $0 {start|stop|restart|condrestart|status|panic|save|check}"
+	echo $"Usage: $0 {start|stop|restart|condrestart|status|panic|save}"
 	exit 1
 esac
 
 exit 0
-

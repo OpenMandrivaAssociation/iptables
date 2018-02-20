@@ -24,25 +24,26 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.6.1
-Release:	3
+Version:	1.6.2
+Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
 Source0:	http://netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
 Source1:	iptables.init
-Source2:	iptables-config
-Source4:	sysconfig_iptables
-Source5:	sysconfig_ip6tables
-Source6:	iptables.service
+Source2:	ip6tables.init
+Source3:	iptables.config
+Source4:	ip6tables.config
+Source5:	iptables.service
 # S100 and up used to be in the added patches
-Source100:	libipt_IMQ.c
-Source101:	libipt_IFWLOG.c
+Source100:      libipt_IMQ.c
+Source101:      libipt_IFWLOG.c
 # (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
-Source102:	libipt_psd.c
-Source103:	libipt_psd.man
-Patch0:		iptables-1.2.8-libiptc.h.patch
-Patch100:	iptables-imq.diff
+Source102:      libipt_psd.c
+Source103:      libipt_psd.man
+Patch100:       iptables-imq.diff
+Patch101:       iptables-IFWLOG_extension.diff
+Patch102:       iptables-psd.diff
 
 BuildRequires:	pkgconfig(libnfnetlink)
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
@@ -51,7 +52,7 @@ BuildRequires:	bison
 BuildRequires:	byacc
 BuildRequires:	flex
 Requires(pre):	coreutils
-Requires:	rpm-helper
+Requires(pre):	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
 Provides:	userspace-ipfilter
 Conflicts:	%{name} < 1.4.21-11
@@ -149,12 +150,29 @@ Requires:	kernel-headers
 Requires:	%{libip6tc} = %{version}-%{release}
 Provides:	%{name}-ip6tc-devel = %{version}
 
-%description -n	%{devip6tcg}
+%description -n %{devip6tcg}
 This package contains the development files for IP6TC library.
 
 %prep
 %setup -q
-%apply_patches
+
+cp %{SOURCE1} iptables.init
+cp %{SOURCE2} ip6tables.init
+cp %{SOURCE3} iptables.sample
+cp %{SOURCE4} ip6tables.sample
+
+# fix libdir
+perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
+
+# extensions
+#install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
+install -m0644 %{SOURCE101} extensions/
+# (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
+install -m0644 %{SOURCE102} extensions/
+install -m0644 %{SOURCE103} extensions/
+%patch100 -p0
+%patch101 -p0
+%patch102 -p0
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
@@ -213,11 +231,6 @@ install -d %{buildroot}%{_includedir}/iptables
 install -m0644 include/ip*tables.h %{buildroot}%{_includedir}/
 install -m0644 include/iptables/internal.h %{buildroot}%{_includedir}/iptables
 
-#Intird not need. TODO drop it!
-#install -d %{buildroot}%{_initrddir}
-#install -m0755 iptables.init %{buildroot}%{_initrddir}/iptables
-#install -m0755 ip6tables.init %{buildroot}%{_initrddir}/ip6tables
-
 # install compatible excutable (since 1.4.11)
 ln -sf xtables-multi %{buildroot}/sbin/iptables-multi
 ln -sf xtables-multi %{buildroot}/sbin/ip6tables-multi
@@ -227,24 +240,23 @@ ln -sf xtables-multi %{buildroot}/sbin/ip6tables-multi
 # naming convension. If this package is updated to change the names below,
 # you should also take care to update dracut and the convertfs module accordingly.
 install -d -m 755 %{buildroot}%{script_path}/%{name}
-install -c -m 755 %{SOURCE1} %{buildroot}%{script_path}/%{name}/iptables.init
-sed -e 's;iptables;ip6tables;g' -e 's;IPTABLES;IP6TABLES;g' < %{SOURCE1} > ip6tables.init
+install -c -m 755 iptables.init %{buildroot}%{script_path}/%{name}/iptables.init
 install -c -m 755 ip6tables.init %{buildroot}%{script_path}/%{name}/ip6tables.init
-install -d -m 755 %{buildroot}%{_sysconfdir}/sysconfig
-install -c -m 600 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/iptables-config
-sed -e 's;iptables;ip6tables;g' -e 's;IPTABLES;IP6TABLES;g' < %{SOURCE2} > ip6tables-config
-install -c -m 600 ip6tables-config %{buildroot}%{_sysconfdir}/sysconfig/ip6tables-config
-install -c -m 600 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/iptables
-install -c -m 600 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/ip6tables
 
 # install systemd service files
-install -d -m 755 %{buildroot}/lib/systemd/system
-install -c -m 644 %{SOURCE6} %{buildroot}/lib/systemd/system/
-sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' < %{SOURCE6} > ip6tables.service
-install -c -m 644 ip6tables.service %{buildroot}/lib/systemd/system/
+install -d -m 755 %{buildroot}%{_systemunitdir}
+install -c -m 644 %{SOURCE5} %{buildroot}%{_systemunitdir}
+sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' < %{SOURCE5} > ip6tables.service
+install -c -m 644 ip6tables.service %{buildroot}%{_systemunitdir}
 
 # Remove /etc/ethertypes (now part of setup)
 rm -f %{buildroot}%{_sysconfdir}/ethertypes
+
+install -d %{buildroot}%{_presetdir}
+cat > %{buildroot}%{_presetdir}/86-iptables.preset << EOF
+enable iptables.service
+enable ip6tables.service
+EOF
 
 %pre
 if [ $1 -ge 2 ]; then
@@ -265,6 +277,15 @@ fi
 %posttrans
 ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 
+%post
+%systemd_post iptables
+%systemd_post ip6tables
+%{script_path}/iptables.init check
+
+%preun
+%systemd_preun iptables
+%systemd_preun ip6tables
+
 %triggerun -- iptables < 1.4.12.1
 # Autostart
 /bin/systemctl --no-reload enable iptables.service >/dev/null 2>&1 ||:
@@ -283,12 +304,8 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 %files
 %doc INSTALL INCOMPATIBILITIES
 %attr(0755,root,root) %{script_path}/ip*
-%config(noreplace) %{_sysconfdir}/sysconfig/iptables
-%config(noreplace) %{_sysconfdir}/sysconfig/ip6tables
-%config(noreplace) %{_sysconfdir}/sysconfig/iptables-config
-%config(noreplace) %{_sysconfdir}/sysconfig/ip6tables-config
-/lib/systemd/system/iptables.service
-/lib/systemd/system/ip6tables.service
+%{_presetdir}/86-iptables.preset
+%{_systemunitdir}/*.service
 /sbin/iptables
 /sbin/iptables-restore
 /sbin/iptables-save
@@ -395,7 +412,7 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 /%{_lib}/xtables/libxt_state.so
 /%{_lib}/xtables/libxt_statistic.so
 /%{_lib}/xtables/libxt_string.so
-/%{_lib}/xtables/libxt_SYNPROXY.so    
+/%{_lib}/xtables/libxt_SYNPROXY.so
 /%{_lib}/xtables/libxt_tcpmss.so
 /%{_lib}/xtables/libxt_TCPMSS.so
 /%{_lib}/xtables/libxt_TCPOPTSTRIP.so

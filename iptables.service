@@ -1,6 +1,6 @@
 [Unit]
 Description=IPv4 firewall with iptables
-ConditionPathExists=/etc/sysconfig/iptables
+After=syslog.target
 
 [Service]
 Type=oneshot
