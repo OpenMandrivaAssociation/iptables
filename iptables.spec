@@ -417,6 +417,7 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 /%{_lib}/xtables/libxt_ipcomp.so
 /%{_lib}/xtables/libxt_mangle.so
 %{_mandir}/*/iptables*
+%{_mandir}/man8/nfnl_osf.8.*
 %{_datadir}/xtables/pf.os
 # ipv6
 /%{_lib}/xtables/libip6t_ah.so
@@ -438,6 +439,7 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 /%{_lib}/xtables/libip6t_REDIRECT.so
 /%{_lib}/xtables/libip6t_SNAT.so
 /%{_lib}/xtables/libip6t_SNPT.so
+/%{_lib}/xtables/libip6t_srh.so
 /%{_lib}/xtables/libip6t_rt.so
 %{_mandir}/*/ip6tables*
 
