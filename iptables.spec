@@ -35,16 +35,7 @@ Source2:	ip6tables.init
 Source3:	iptables.config
 Source4:	ip6tables.config
 Source5:	iptables.service
-# S100 and up used to be in the added patches
-Source100:      libipt_IMQ.c
-Source101:      libipt_IFWLOG.c
-# (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
-Source102:      libipt_psd.c
-Source103:      libipt_psd.man
-Patch100:       iptables-imq.diff
-Patch101:       iptables-IFWLOG_extension.diff
-Patch102:       iptables-psd.diff
-
+Patch0:		iptables-1.2.8-libiptc.h.patch
 BuildRequires:	pkgconfig(libnfnetlink)
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
 BuildRequires:	pkgconfig(libnftnl) >= 1.0.8
@@ -54,7 +45,7 @@ BuildRequires:	flex
 Requires(pre):	coreutils
 Requires(pre):	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
-Provides:	userspace-ipfilter
+Provides:	userspace-ipfilter = %{version}
 Conflicts:	%{name} < 1.4.21-11
 Conflicts:	setup < 2.8.9-5
 
@@ -68,17 +59,17 @@ Install iptables if you need to set up firewalling for your network.
 Summary:	Shared iptables library
 Group:		System/Libraries
 
-%description -n	%{libname}
+%description -n %{libname}
 This package contains the shared iptables library.
 
 %package -n %{devname}
 Summary:	Development library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{EVRD}
 Provides:	%{name}-devel = %{version}
 
-%description -n	%{devname}
+%description -n %{devname}
 This package contains the shared iptables library.
 
 # ipq
@@ -86,17 +77,17 @@ This package contains the shared iptables library.
 Summary:	Shared iptables library
 Group:		System/Libraries
 
-%description -n	%{libipq}
+%description -n %{libipq}
 This package contains the ipq library.
 
 %package -n %{devipq}
 Summary:	Development library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
-Requires:	%{libipq} = %{version}-%{release}
+Requires:	%{libipq} = %{EVRD}
 Provides:	%{name}-ipq-devel = %{version}
 
-%description -n	%{devipq}
+%description -n %{devipq}
 This package contains the ipq library.
 
 # iptc
@@ -104,14 +95,14 @@ This package contains the ipq library.
 Summary:	Shared iptables library
 Group:		System/Libraries
 
-%description -n	%{libiptc}
+%description -n %{libiptc}
 This package contains the IPTC library.
 
 %package -n %{deviptc}
 Summary:	Development library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
-Requires:	%{libiptc} = %{version}-%{release}
+Requires:	%{libiptc} = %{EVRD}
 Provides:	%{name}-iptc-devel = %{version}
 
 %description -n	%{deviptc}
@@ -122,17 +113,17 @@ This package contains the IPTC library.
 Summary:	Shared iptables library
 Group:		System/Libraries
 
-%description -n	%{libip4tc}
+%description -n %{libip4tc}
 This package contains the IP4TC library.
 
-%package -n	%{devip4tc}
+%package -n %{devip4tc}
 Summary:	Development library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
-Requires:	%{libip4tc} = %{version}-%{release}
+Requires:	%{libip4tc} = %{EVRD}
 Provides:	%{name}-ip4tc-devel = %{version}
 
-%description -n	%{devip4tc}
+%description -n %{devip4tc}
 This package contains the development files for IPTC library.
 
 # ip6tc
@@ -140,14 +131,14 @@ This package contains the development files for IPTC library.
 Summary:	Shared iptables library
 Group:		System/Libraries
 
-%description -n	%{libip6tc}
+%description -n %{libip6tc}
 This package contains the IP6TC library.
 
 %package -n %{devip6tcg}
 Summary:	Development library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
-Requires:	%{libip6tc} = %{version}-%{release}
+Requires:	%{libip6tc} = %{EVRD}
 Provides:	%{name}-ip6tc-devel = %{version}
 
 %description -n %{devip6tcg}
@@ -155,6 +146,7 @@ This package contains the development files for IP6TC library.
 
 %prep
 %setup -q
+%apply_patches
 
 cp %{SOURCE1} iptables.init
 cp %{SOURCE2} ip6tables.init
@@ -163,16 +155,6 @@ cp %{SOURCE4} ip6tables.sample
 
 # fix libdir
 perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
-
-# extensions
-#install -m0644 %{SOURCE100} extensions/ <- it needs ipt_IMQ.h and we don't have it anymore ?!
-install -m0644 %{SOURCE101} extensions/
-# (oe) psd comes from iptables-1.3.7, was removed in iptables-1.3.8
-install -m0644 %{SOURCE102} extensions/
-install -m0644 %{SOURCE103} extensions/
-%patch100 -p0
-%patch101 -p0
-%patch102 -p0
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
@@ -342,11 +324,9 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 /%{_lib}/xtables/libipt_DNAT.so
 /%{_lib}/xtables/libipt_ECN.so
 /%{_lib}/xtables/libipt_icmp.so
-#/%{_lib}/xtables/libipt_IFWLOG.so
 /%{_lib}/xtables/libipt_LOG.so
 /%{_lib}/xtables/libipt_MASQUERADE.so
 /%{_lib}/xtables/libipt_NETMAP.so
-#/%{_lib}/xtables/libipt_psd.so
 /%{_lib}/xtables/libipt_realm.so
 /%{_lib}/xtables/libipt_REDIRECT.so
 /%{_lib}/xtables/libipt_REJECT.so
