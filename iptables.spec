@@ -25,7 +25,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.6.2
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -43,7 +43,7 @@ BuildRequires:	bison
 BuildRequires:	byacc
 BuildRequires:	flex
 Requires(pre):	coreutils
-Requires(pre):	rpm-helper
+Requires(pre,post):	rpm-helper
 Provides:	%{name}-ipv6 = %{version}
 Provides:	userspace-ipfilter = %{version}
 Conflicts:	%{name} < 1.4.21-11
@@ -262,7 +262,7 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 %post
 %systemd_post iptables
 %systemd_post ip6tables
-%{script_path}/iptables.init check
+%{script_path}/%{name}/iptables.init check
 
 %preun
 %systemd_preun iptables
