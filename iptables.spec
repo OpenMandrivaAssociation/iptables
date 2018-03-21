@@ -191,7 +191,7 @@ export FFLAGS="$FFLAGS -fPIC"
 # (oe) this in conjunction with the mandriva initscript will make it possible
 # to use development versions of the netfilter modules and with different
 # api:s. (according to blino)
-# (tpg) p[rovide symlinks for backward compatibility
+# (tpg) provide symlinks for backward compatibility
 mkdir -p %{buildroot}/%{_lib}/iptables.d
 ln -sf /%{_lib}/xtables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
 ln -sf /%{_lib}/xtables %{buildroot}/%{_lib}/iptables
@@ -314,8 +314,8 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 /sbin/ip6tables-restore-translate
 /sbin/ip6tables-translate
 %dir /%{_lib}/xtables
-%dir /%{_lib}/iptables
-%dir /%{_lib}/iptables.d
+/%{_lib}/iptables
+/%{_lib}/iptables.d
 # we dont want this as otherwise the removal of the old package will cause removal of files
 # bug 1384
 %ghost /%{_lib}/iptables.d/linux-2.6-main
@@ -451,7 +451,6 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 %dir %{_includedir}/libipulog
 %{_includedir}/libipulog/*.h
 %{_includedir}/iptables/*.h
-#%{_includedir}/net/netfilter/*.h
 /%{_lib}/libxtables.so
 %{_libdir}/pkgconfig/xtables.pc
 
