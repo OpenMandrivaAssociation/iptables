@@ -316,7 +316,7 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 /sbin/ip6tables-translate
 %dir /%{_lib}/xtables
 /%{_lib}/iptables
-/%{_lib}/iptables.d
+%dir /%{_lib}/iptables.d
 # we dont want this as otherwise the removal of the old package will cause removal of files
 # bug 1384
 %ghost /%{_lib}/iptables.d/linux-2.6-main
