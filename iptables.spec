@@ -42,6 +42,7 @@ BuildRequires:	pkgconfig(libnftnl) >= 1.0.8
 BuildRequires:	bison
 BuildRequires:	byacc
 BuildRequires:	flex
+BuildRequires:	systemd
 Requires(pre):	coreutils
 Requires(pre,post):	rpm-helper
 Requires(post):	initscripts >= 9.79
