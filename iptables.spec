@@ -25,7 +25,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.6.2
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -42,6 +42,7 @@ BuildRequires:	pkgconfig(libnftnl) >= 1.0.8
 BuildRequires:	bison
 BuildRequires:	byacc
 BuildRequires:	flex
+BuildRequires:	systemd
 Requires(pre):	coreutils
 Requires(pre,post):	rpm-helper
 Requires(post):	initscripts >= 9.79
@@ -229,7 +230,7 @@ install -c -m 755 ip6tables.init %{buildroot}%{script_path}/%{name}/ip6tables.in
 # install systemd service files
 install -d -m 755 %{buildroot}%{_systemunitdir}
 install -c -m 644 %{SOURCE5} %{buildroot}%{_systemunitdir}
-sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' < %{SOURCE5} > ip6tables.service
+sed -e 's;iptables\.init;ip6tables.init;g' -e 's;IPv4;IPv6;g' < %{SOURCE5} > ip6tables.service
 install -c -m 644 ip6tables.service %{buildroot}%{_systemunitdir}
 
 # Remove /etc/ethertypes (now part of setup)
