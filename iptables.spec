@@ -43,7 +43,7 @@ BuildRequires:	pkgconfig(libmnl)
 BuildRequires:	bison
 BuildRequires:	byacc
 BuildRequires:	flex
-BuildRequires:	systemd
+BuildRequires:	systemd-macros
 Requires(pre):	coreutils
 Requires(pre,post):	rpm-helper
 Requires(post):	initscripts >= 9.79
@@ -229,12 +229,12 @@ install -c -m 755 iptables.init %{buildroot}%{script_path}/%{name}/iptables.init
 install -c -m 755 ip6tables.init %{buildroot}%{script_path}/%{name}/ip6tables.init
 
 # install systemd service files
-install -d -m 755 %{buildroot}%{_systemunitdir}
-install -c -m 644 %{SOURCE5} %{buildroot}%{_systemunitdir}
+install -d -m 755 %{buildroot}%{_unitdir}
+install -c -m 644 %{SOURCE5} %{buildroot}%{_unitdir}
 sed -e 's;iptables\.init;ip6tables.init;g' -e 's;IPv4;IPv6;g' < %{SOURCE5} > ip6tables.service
-install -c -m 644 ip6tables.service %{buildroot}%{_systemunitdir}
+install -c -m 644 ip6tables.service %{buildroot}%{_nitdir}
 
-# Remove /etc/ethertypes (now part of setup)
+# Remove /etc/ethertypes (now part of setupu)
 rm -f %{buildroot}%{_sysconfdir}/ethertypes
 
 install -d %{buildroot}%{_presetdir}
@@ -290,7 +290,7 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 %doc INSTALL INCOMPATIBILITIES
 %attr(0755,root,root) %{script_path}/ip*
 %{_presetdir}/86-iptables.preset
-%{_systemunitdir}/*.service
+%{_unitdir}/*.service
 /sbin/iptables
 /sbin/iptables-restore
 /sbin/iptables-save
