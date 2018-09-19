@@ -39,6 +39,7 @@ Patch0:		iptables-1.2.8-libiptc.h.patch
 BuildRequires:	pkgconfig(libnfnetlink)
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
 BuildRequires:	pkgconfig(libnftnl) >= 1.0.8
+BuildRequires:	pkgconfig(libmnl)
 BuildRequires:	bison
 BuildRequires:	byacc
 BuildRequires:	flex
