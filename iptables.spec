@@ -1,3 +1,4 @@
+%define Werror_cflags %nil
 # because the modules are not libtool aware
 %define _disable_ld_no_undefined 1
 
@@ -24,8 +25,8 @@
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
-Version:	1.6.2
-Release:	7
+Version:	1.8.2
+Release:	1
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -161,6 +162,9 @@ perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
+# use the saner headers from the kernel
+rm -f include/linux/{kernel,types}.h
+
 # don't run /sbin/ldconfig
 sed -i -e "s|/sbin/ldconfig|/bin/true|g" Makefile*
 
@@ -186,7 +190,7 @@ export FFLAGS="$FFLAGS -fPIC"
 	--with-ksource=%{_prefix}/src/linux \
 	--with-xtlibdir=/%{_lib}/xtables
 
-%make
+%make_build
 
 %install
 %makeinstall_std
@@ -296,26 +300,43 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 /sbin/iptables-save
 /sbin/iptables-xml
 /sbin/iptables-multi
-/sbin/xtables-multi
-/sbin/arptables-compat
-/sbin/ebtables-compat
-/sbin/iptables-compat
-/sbin/iptables-compat-restore
-/sbin/iptables-compat-save
 /sbin/iptables-restore-translate
 /sbin/iptables-translate
-/sbin/xtables-compat-multi
 /sbin/nfnl_osf
 # ipv6
 /sbin/ip6tables
 /sbin/ip6tables-restore
 /sbin/ip6tables-multi
 /sbin/ip6tables-save
-/sbin/ip6tables-compat
-/sbin/ip6tables-compat-restore
-/sbin/ip6tables-compat-save
 /sbin/ip6tables-restore-translate
 /sbin/ip6tables-translate
+/sbin/arptables
+/sbin/arptables-nft
+/sbin/arptables-nft-restore
+/sbin/arptables-nft-save
+/sbin/arptables-restore
+/sbin/arptables-save
+/sbin/ebtables
+/sbin/ebtables-nft
+/sbin/ebtables-nft-restore
+/sbin/ebtables-nft-save
+/sbin/ebtables-restore
+/sbin/ebtables-save
+/sbin/ip6tables-legacy
+/sbin/ip6tables-legacy-restore
+/sbin/ip6tables-legacy-save
+/sbin/ip6tables-nft
+/sbin/ip6tables-nft-restore
+/sbin/ip6tables-nft-save
+/sbin/iptables-legacy
+/sbin/iptables-legacy-restore
+/sbin/iptables-legacy-save
+/sbin/iptables-nft
+/sbin/iptables-nft-restore
+/sbin/iptables-nft-save
+/sbin/xtables-legacy-multi
+/sbin/xtables-monitor
+/sbin/xtables-nft-multi
 %dir /%{_lib}/xtables
 /%{_lib}/iptables
 %dir /%{_lib}/iptables.d
@@ -411,16 +432,23 @@ ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
 /%{_lib}/xtables/libarpt_mangle.so
 /%{_lib}/xtables/libebt_802_3.so
 /%{_lib}/xtables/libebt_ip.so
-/%{_lib}/xtables/libebt_limit.so
 /%{_lib}/xtables/libebt_log.so
 /%{_lib}/xtables/libebt_mark.so
 /%{_lib}/xtables/libebt_mark_m.so
 /%{_lib}/xtables/libebt_nflog.so
 /%{_lib}/xtables/libxt_cgroup.so
 /%{_lib}/xtables/libxt_ipcomp.so
-/%{_lib}/xtables/libxt_mangle.so
+/%{_lib}/xtables/libebt_arp.so
+/%{_lib}/xtables/libebt_arpreply.so
+/%{_lib}/xtables/libebt_dnat.so
+/%{_lib}/xtables/libebt_ip6.so
+/%{_lib}/xtables/libebt_pkttype.so
+/%{_lib}/xtables/libebt_redirect.so
+/%{_lib}/xtables/libebt_snat.so
+/%{_lib}/xtables/libebt_stp.so
+/%{_lib}/xtables/libebt_vlan.so
 %{_mandir}/*/iptables*
-%{_mandir}/man8/nfnl_osf.8.*
+%{_mandir}/man8/*.8.*
 %{_datadir}/xtables/pf.os
 # ipv6
 /%{_lib}/xtables/libip6t_ah.so
