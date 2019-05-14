@@ -26,7 +26,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.8.2
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -37,6 +37,8 @@ Source3:	iptables.config
 Source4:	ip6tables.config
 Source5:	iptables.service
 Patch0:		iptables-1.2.8-libiptc.h.patch
+Patch1:		0001-iptables-apply-Use-mktemp-instead-of-tempfile.patch
+Patch2:		0002-extensions-format-security-fixes-in-libip-6-t_icmp.patch
 BuildRequires:	pkgconfig(libnfnetlink)
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
 BuildRequires:	pkgconfig(libnftnl) >= 1.0.8
@@ -149,8 +151,7 @@ Provides:	%{name}-ip6tc-devel = %{version}
 This package contains the development files for IP6TC library.
 
 %prep
-%setup -q
-%apply_patches
+%autosetup -p1
 
 cp %{SOURCE1} iptables.init
 cp %{SOURCE2} ip6tables.init
@@ -158,7 +159,7 @@ cp %{SOURCE3} iptables.sample
 cp %{SOURCE4} ip6tables.sample
 
 # fix libdir
-perl -pi -e "s|\@lib\@|%{_lib}|g" iptables.init
+sed -i -e "s|\@lib\@|%{_lib}|g" iptables.init
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
@@ -193,7 +194,7 @@ export FFLAGS="$FFLAGS -fPIC"
 %make_build
 
 %install
-%makeinstall_std
+%make_install
 
 # (oe) this in conjunction with the mandriva initscript will make it possible
 # to use development versions of the netfilter modules and with different
@@ -249,18 +250,17 @@ EOF
 
 %pre
 if [ $1 -ge 2 ]; then
-	if [ -d /%{_lib}/iptables.d/linux-2.6-main ]; then
-    	rm -rf /%{_lib}/iptables.d/linux-2.6-main
+    if [ -d /%{_lib}/iptables.d/linux-2.6-main ]; then
+	rm -rf /%{_lib}/iptables.d/linux-2.6-main
     elif [ -L /%{_lib}/iptables.d/linux-2.6-main ] && [ ! "$(readlink /%{_lib}/iptables.d/linux-2.6-main)" = "/%{_lib}/xtables" ]; then
-    	rm -rf /%{_lib}/iptables.d/linux-2.6-main
-	fi
-    
-    if [ -d /%{_lib}/iptables ]; then
-    	rm -rf /%{_lib}/iptables
-	elif [ -L /%{_lib}/iptables ] && [ ! "$(readlink /%{_lib}/iptables)" = "/%{_lib}/xtables" ]; then
-    	rm -rf /%{_lib}/iptables
-	fi
+	rm -rf /%{_lib}/iptables.d/linux-2.6-main
+    fi
 
+    if [ -d /%{_lib}/iptables ]; then
+	rm -rf /%{_lib}/iptables
+    elif [ -L /%{_lib}/iptables ] && [ ! "$(readlink /%{_lib}/iptables)" = "/%{_lib}/xtables" ]; then
+	rm -rf /%{_lib}/iptables
+    fi
 fi
 
 %posttrans
