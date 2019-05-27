@@ -26,7 +26,7 @@
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		iptables
 Version:	1.8.2
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://netfilter.org/
@@ -71,7 +71,7 @@ This package contains the shared iptables library.
 %package -n %{devname}
 Summary:	Development library and header files for the iptables library
 Group:		Development/C
-Requires:	kernel-headers
+Requires:	kernel-release-headers
 Requires:	%{libname} = %{EVRD}
 Provides:	%{name}-devel = %{version}
 
@@ -89,7 +89,7 @@ This package contains the ipq library.
 %package -n %{devipq}
 Summary:	Development library and header files for the iptables library
 Group:		Development/C
-Requires:	kernel-headers
+Requires:	kernel-release-headers
 Requires:	%{libipq} = %{EVRD}
 Provides:	%{name}-ipq-devel = %{version}
 
@@ -107,7 +107,7 @@ This package contains the IPTC library.
 %package -n %{deviptc}
 Summary:	Development library and header files for the iptables library
 Group:		Development/C
-Requires:	kernel-headers
+Requires:	kernel-release-headers
 Requires:	%{libiptc} = %{EVRD}
 Provides:	%{name}-iptc-devel = %{version}
 
@@ -125,7 +125,7 @@ This package contains the IP4TC library.
 %package -n %{devip4tc}
 Summary:	Development library and header files for the iptables library
 Group:		Development/C
-Requires:	kernel-headers
+Requires:	kernel-release-headers
 Requires:	%{libip4tc} = %{EVRD}
 Provides:	%{name}-ip4tc-devel = %{version}
 
@@ -143,7 +143,7 @@ This package contains the IP6TC library.
 %package -n %{devip6tcg}
 Summary:	Development library and header files for the iptables library
 Group:		Development/C
-Requires:	kernel-headers
+Requires:	kernel-release-headers
 Requires:	%{libip6tc} = %{EVRD}
 Provides:	%{name}-ip6tc-devel = %{version}
 
