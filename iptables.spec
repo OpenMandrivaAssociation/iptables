@@ -38,7 +38,6 @@ Source4:	ip6tables.config
 Source5:	iptables.service
 Patch0:		iptables-1.2.8-libiptc.h.patch
 Patch1:		0001-iptables-apply-Use-mktemp-instead-of-tempfile.patch
-Patch2:		0002-extensions-format-security-fixes-in-libip-6-t_icmp.patch
 BuildRequires:	pkgconfig(libnfnetlink)
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
 BuildRequires:	pkgconfig(libnftnl) >= 1.0.8
