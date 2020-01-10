@@ -1,211 +1,253 @@
-%define Werror_cflags %nil
-# because the modules are not libtool aware
-%define _disable_ld_no_undefined 1
+# install init scripts to /usr/libexec with systemd
+%global script_path %{_libexecdir}/iptables
+
+# service legacy actions (RHBZ#748134)
+%global legacy_actions %{_libexecdir}/initscripts/legacy-actions
 
 %define major 12
-%define libname %mklibname xtables %{major}
-%define devname %mklibname -d iptables
+%define libname %mklibname iptables %{major}
+%define develname %mklibname -d iptables
+
+%define iptc_develname %mklibname -d iptc
 
 %define ipq_major 0
-%define libipq %mklibname ipq %{ipq_major}
-%define devipq %mklibname -d ipq
+%define ipq_libname %mklibname ipq %{ipq_major}
+%define ipq_develname %mklibname -d ipq
 
-%define iptc_major 0
-%define libiptc %mklibname iptc %{iptc_major}
-%define deviptc %mklibname -d iptc
+%define ip4tc_major 2
+%define ip4tc_libname %mklibname ip4tc %{ip4tc_major}
+%define ip4tc_develname %mklibname -d ip4tc
 
-%define libip4tc %mklibname ip4tc %{iptc_major}
-%define devip4tc %mklibname -d ip4tc
+%define ip6tc_major 2
+%define ip6tc_libname %mklibname ip6tc %{ip6tc_major}
+%define ip6tc_develname %mklibname -d ip6tc
 
-%define libip6tc %mklibname ip6tc %{iptc_major}
-%define devip6tcg %mklibname -d ip6tc
+Name: iptables
+Summary: Tools for managing Linux kernel packet filtering capabilities
+URL: http://www.netfilter.org/projects/iptables
+Version: 1.8.4
+Release: 1
+Source: %{url}/files/%{name}-%{version}.tar.bz2
+Source1: iptables.init
+Source2: iptables-config
+Source3: iptables.service
+Source4: sysconfig_iptables
+Source5: sysconfig_ip6tables
+Source6: arptables-nft-helper
 
-# install init scripts to /usr/libexec with systemd
-%define script_path %{_libexecdir}
+Patch1: 0001-iptables-apply-Use-mktemp-instead-of-tempfile.patch
+Patch2:	iptables-1.2.8-libiptc.h.patch
+# pf.os: ISC license
+# iptables-apply: Artistic Licence 2.0
+License: GPLv2 and Artistic Licence 2.0 and ISC
 
-Summary:	Tools for managing Linux kernel packet filtering capabilities
-Name:		iptables
-Version:	1.8.3
-Release:	1
-License:	GPLv2+
-Group:		System/Kernel and hardware
-Url:		http://netfilter.org/
-Source0:	http://netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
-Source1:	iptables.init
-Source2:	ip6tables.init
-Source3:	iptables.config
-Source4:	ip6tables.config
-Source5:	iptables.service
-Patch0:		iptables-1.2.8-libiptc.h.patch
-Patch1:		0001-iptables-apply-Use-mktemp-instead-of-tempfile.patch
-BuildRequires:	pkgconfig(libnfnetlink)
-BuildRequires:	pkgconfig(libnetfilter_conntrack)
-BuildRequires:	pkgconfig(libnftnl) >= 1.0.8
-BuildRequires:	pkgconfig(libmnl)
-BuildRequires:	bison
-BuildRequires:	byacc
-BuildRequires:	flex
-BuildRequires:	systemd-macros
-Requires(pre):	coreutils
-Requires(pre,post):	rpm-helper
-Requires(post):	initscripts >= 9.79
-Provides:	%{name}-ipv6 = %{version}
+# libnetfilter_conntrack is needed for xt_connlabel
+BuildRequires: pkgconfig(libnetfilter_conntrack)
+# libnfnetlink-devel is requires for nfnl_osf
+BuildRequires: pkgconfig(libnfnetlink)
+BuildRequires: selinux-devel
+BuildRequires: kernel-headers
+BuildRequires: systemd
+# libmnl, libnftnl, bison, flex for nftables
+BuildRequires: bison
+BuildRequires: flex
+BuildRequires: gcc
+BuildRequires: pkgconfig(libmnl) >= 1.0
+BuildRequires: pkgconfig(libnftnl) >= 1.1.5
+# libpcap-devel for nfbpf_compile
+BuildRequires: pcap-devel
+BuildRequires: autogen
+BuildRequires: autoconf
+BuildRequires: automake
+BuildRequires: libtool
+Requires: %{libname}
+Requires(post): %{_sbindir}/update-alternatives
+Requires(postun): %{_sbindir}/update-alternatives
 Provides:	userspace-ipfilter = %{version}
-Conflicts:	%{name} < 1.4.21-11
-Conflicts:	setup < 2.8.9-5
+Requires:	%{name}-services
 
 %description
+The iptables utility controls the network packet filtering code in the
+Linux kernel. If you need to set up firewalls and/or IP masquerading,
+you should install this package.
+
+%package -n	%{libname}
+Summary:	Shared iptables library
+Group:          System/Libraries
+Conflicts:	%mklibname %{name} 1
+
+%description -n	%{libname}
 iptables controls the Linux kernel network packet filtering code. It allows you
 to set up firewalls and IP masquerading, etc.
 
-Install iptables if you need to set up firewalling for your network.
-
-%package -n %{libname}
-Summary:	Shared iptables library
-Group:		System/Libraries
-
-%description -n %{libname}
 This package contains the shared iptables library.
 
-%package -n %{devname}
-Summary:	Development library and header files for the iptables library
+%package -n	%{develname}
+Summary:	Static library and header files for the iptables library
 Group:		Development/C
-Requires:	kernel-release-headers
-Requires:	%{libname} = %{EVRD}
-Provides:	%{name}-devel = %{version}
+Requires:	kernel-headers
+Requires:	%{libname} = %{version}-%{release}
+Provides:	iptables-devel = %{version}
+Obsoletes:	iptables-devel < 1.4.2
 
-%description -n %{devname}
-This package contains the shared iptables library.
+%description -n	%{develname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
+This package contains the static iptables library.
 
 # ipq
-%package -n %{libipq}
+%package -n	%{ipq_libname}
 Summary:	Shared iptables library
-Group:		System/Libraries
+Group:          System/Libraries
+Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
-%description -n %{libipq}
+%description -n	%{ipq_libname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
 This package contains the ipq library.
 
-%package -n %{devipq}
-Summary:	Development library and header files for the iptables library
+%package -n	%{ipq_develname}
+Summary:	Static library and header files for the iptables library
 Group:		Development/C
-Requires:	kernel-release-headers
-Requires:	%{libipq} = %{EVRD}
-Provides:	%{name}-ipq-devel = %{version}
+Requires:	kernel-headers
+Requires:	%{ipq_libname} = %{version}-%{release}
+Requires:	%{ipq_develname} = %{version}-%{release}
+Provides:	iptables-ipq-devel = %{version}
 
-%description -n %{devipq}
+%description -n	%{ipq_develname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
 This package contains the ipq library.
 
-# iptc
-%package -n %{libiptc}
-Summary:	Shared iptables library
-Group:		System/Libraries
-
-%description -n %{libiptc}
-This package contains the IPTC library.
-
-%package -n %{deviptc}
-Summary:	Development library and header files for the iptables library
+#iptc
+%package -n	%{iptc_develname}
+Summary:	Static library and header files for the iptables library
 Group:		Development/C
-Requires:	kernel-release-headers
-Requires:	%{libiptc} = %{EVRD}
-Provides:	%{name}-iptc-devel = %{version}
+Requires:	kernel-headers
+Provides:	iptables-iptc-devel = %{version}
 
-%description -n	%{deviptc}
+%description -n	%{iptc_develname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
 This package contains the IPTC library.
 
 # ip4tc
-%package -n %{libip4tc}
+%package -n	%{ip4tc_libname}
 Summary:	Shared iptables library
-Group:		System/Libraries
+Group:          System/Libraries
+Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
-%description -n %{libip4tc}
+%description -n	%{ip4tc_libname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
 This package contains the IP4TC library.
 
-%package -n %{devip4tc}
-Summary:	Development library and header files for the iptables library
+%package -n	%{ip4tc_develname}
+Summary:	Static library and header files for the iptables library
 Group:		Development/C
-Requires:	kernel-release-headers
-Requires:	%{libip4tc} = %{EVRD}
-Provides:	%{name}-ip4tc-devel = %{version}
+Requires:	kernel-headers
+Requires:	%{ip4tc_libname} = %{version}-%{release}
+Requires:	%{iptc_develname} = %{version}-%{release}
+Provides:	iptables-ip6tc-devel = %{version}
 
-%description -n %{devip4tc}
+%description -n	%{ip4tc_develname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
 This package contains the development files for IPTC library.
 
 # ip6tc
-%package -n %{libip6tc}
+%package -n	%{ip6tc_libname}
 Summary:	Shared iptables library
-Group:		System/Libraries
+Group:          System/Libraries
+Obsoletes:	%{mklibname iptables 1} < 1.4.3.2
 
-%description -n %{libip6tc}
+%description -n	%{ip6tc_libname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
 This package contains the IP6TC library.
 
-%package -n %{devip6tcg}
-Summary:	Development library and header files for the iptables library
+%package -n	%{ip6tc_develname}
+Summary:	Static library and header files for the iptables library
 Group:		Development/C
-Requires:	kernel-release-headers
-Requires:	%{libip6tc} = %{EVRD}
-Provides:	%{name}-ip6tc-devel = %{version}
+Requires:	kernel-headers
+Requires:	%{ip6tc_libname} = %{version}-%{release}
+Provides:	iptables-ip6tc-devel = %{version}
 
-%description -n %{devip6tcg}
+%description -n	%{ip6tc_develname}
+iptables controls the Linux kernel network packet filtering code. It allows you
+to set up firewalls and IP masquerading, etc.
+
 This package contains the development files for IP6TC library.
+
+%package services
+Summary: iptables and ip6tables services for iptables
+Requires: %{name} = %{version}-%{release}
+%{?systemd_ordering}
+# obsolete old main package
+Obsoletes: %{name} < 1.8.4-1
+# obsolete ipv6 sub package
+Obsoletes: %{name}-ipv6 < 1.4.11.1
+
+%description services
+iptables services for IPv4 and IPv6
+
+This package provides the services iptables and ip6tables that have been split
+out of the base package since they are not active by default anymore.
+
+%package utils
+Summary: iptables and ip6tables services for iptables
+Requires: %{name} = %{version}-%{release}
+
+%description utils
+Utils for iptables
+
+This package provides nfnl_osf with the pf.os database and nfbpf_compile,
+a bytecode generator for use with xt_bpf.
+
+%package nft
+Summary: nftables compatibility for iptables, arptables and ebtables
+Requires: %{name} = %{version}-%{release}
+Obsoletes: iptables-compat < 1.6.2-4
+Provides: arptables-helper
+
+%description nft
+nftables compatibility for iptables, arptables and ebtables.
 
 %prep
 %autosetup -p1
 
-cp %{SOURCE1} iptables.init
-cp %{SOURCE2} ip6tables.init
-cp %{SOURCE3} iptables.sample
-cp %{SOURCE4} ip6tables.sample
-
-# fix libdir
-sed -i -e "s|\@lib\@|%{_lib}|g" iptables.init
-
-find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
-
-# use the saner headers from the kernel
-rm -f include/linux/{kernel,types}.h
-
-# don't run /sbin/ldconfig
-sed -i -e "s|/sbin/ldconfig|/bin/true|g" Makefile*
-
 %build
-%serverbuild
-
-autoreconf -fi
-
-export CFLAGS="$CFLAGS -fPIC"
-export CXXFLAGS="$CXXFLAGS -fPIC"
-export FFLAGS="$FFLAGS -fPIC"
-
-%configure \
-	--disable-static \
-	--bindir=/sbin \
-	--sbindir=/sbin \
-	--libdir=/%{_lib} \
-	--libexecdir=/%{_lib} \
-	--enable-devel \
-	--enable-libipq \
-	--enable-ipv4 \
-	--enable-ipv6 \
+./autogen.sh
+CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing " \
+%configure --enable-devel \
+	--enable-bpf-compiler \
 	--with-ksource=%{_prefix}/src/linux \
-	--with-xtlibdir=/%{_lib}/xtables
+	--enable-libipq
+
+# do not use rpath
+sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+
+rm -f include/linux/types.h
 
 %make_build
 
 %install
 %make_install
+# remove la file(s)
+rm -f %{buildroot}/%{_libdir}/*.la
 
-# (oe) this in conjunction with the mandriva initscript will make it possible
-# to use development versions of the netfilter modules and with different
-# api:s. (according to blino)
-# (tpg) provide symlinks for backward compatibility
-mkdir -p %{buildroot}/%{_lib}/iptables.d
-ln -sf /%{_lib}/xtables %{buildroot}/%{_lib}/iptables.d/linux-2.6-main
-ln -sf /%{_lib}/xtables %{buildroot}/%{_lib}/iptables
-
-# pkgconfig files
-mkdir -p %{buildroot}%{_libdir}
-mv %{buildroot}/%{_lib}/pkgconfig %{buildroot}%{_libdir}/
+# install ip*tables.h header files
+install -m 644 include/ip*tables.h %{buildroot}%{_includedir}/
+install -d -m 755 %{buildroot}%{_includedir}/iptables
+install -m 644 include/iptables/internal.h %{buildroot}%{_includedir}/iptables/
 
 # header development files
 install -d %{buildroot}%{_includedir}/{libipq,libiptc,libipulog}
@@ -213,306 +255,269 @@ install -m0644 include/libipq/*.h %{buildroot}%{_includedir}/libipq/
 install -m0644 include/libiptc/*.h %{buildroot}%{_includedir}/libiptc/
 install -m0644 include/libipulog/*.h %{buildroot}%{_includedir}/libipulog/
 
-# iptables and netfilter development files
-install -d %{buildroot}%{_includedir}/net/netfilter/
-install -d %{buildroot}%{_includedir}/iptables
-#install -m0644 include/net/netfilter/*.h %{buildroot}%{_includedir}/net/netfilter/
-install -m0644 include/ip*tables.h %{buildroot}%{_includedir}/
-install -m0644 include/iptables/internal.h %{buildroot}%{_includedir}/iptables
+# install ipulog header file
+install -d -m 755 %{buildroot}%{_includedir}/libipulog/
+install -m 644 include/libipulog/*.h %{buildroot}%{_includedir}/libipulog/
 
-# install compatible excutable (since 1.4.11)
-ln -sf xtables-multi %{buildroot}/sbin/iptables-multi
-ln -sf xtables-multi %{buildroot}/sbin/ip6tables-multi
-
-# (cg) NB the name "iptables.init" is important. The dracut usrmove convertfs
-# module will avoid a post-merge conflict by renaming the files to match this
-# naming convension. If this package is updated to change the names below,
-# you should also take care to update dracut and the convertfs module accordingly.
-install -d -m 755 %{buildroot}%{script_path}/%{name}
-install -c -m 755 iptables.init %{buildroot}%{script_path}/%{name}/iptables.init
-install -c -m 755 ip6tables.init %{buildroot}%{script_path}/%{name}/ip6tables.init
+# install init scripts and configuration files
+install -d -m 755 %{buildroot}%{script_path}
+install -c -m 755 %{SOURCE1} %{buildroot}%{script_path}/iptables.init
+sed -e 's;iptables;ip6tables;g' -e 's;IPTABLES;IP6TABLES;g' < %{SOURCE1} > ip6tables.init
+install -c -m 755 ip6tables.init %{buildroot}%{script_path}/ip6tables.init
+install -d -m 755 %{buildroot}%{_sysconfdir}/sysconfig
+install -c -m 600 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/iptables-config
+sed -e 's;iptables;ip6tables;g' -e 's;IPTABLES;IP6TABLES;g' < %{SOURCE2} > ip6tables-config
+install -c -m 600 ip6tables-config %{buildroot}%{_sysconfdir}/sysconfig/ip6tables-config
+install -c -m 600 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/iptables
+install -c -m 600 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/ip6tables
 
 # install systemd service files
-install -d -m 755 %{buildroot}%{_unitdir}
-install -c -m 644 %{SOURCE5} %{buildroot}%{_unitdir}
-sed -e 's;iptables\.init;ip6tables.init;g' -e 's;IPv4;IPv6;g' < %{SOURCE5} > ip6tables.service
-install -c -m 644 ip6tables.service %{buildroot}%{_nitdir}
+install -d -m 755 %{buildroot}/%{_unitdir}
+install -c -m 644 %{SOURCE3} %{buildroot}/%{_unitdir}
+sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' -e 's;/usr/libexec/ip6tables;/usr/libexec/iptables;g' < %{SOURCE3} > ip6tables.service
+install -c -m 644 ip6tables.service %{buildroot}/%{_unitdir}
 
-# Remove /etc/ethertypes (now part of setupu)
+# install legacy actions for service command
+install -d %{buildroot}/%{legacy_actions}/iptables
+install -d %{buildroot}/%{legacy_actions}/ip6tables
+
+cat << EOF > %{buildroot}/%{legacy_actions}/iptables/save
+#!/bin/bash
+exec %{script_path}/iptables.init save
+EOF
+chmod 755 %{buildroot}/%{legacy_actions}/iptables/save
+sed -e 's;iptables.init;ip6tables.init;g' -e 's;IPTABLES;IP6TABLES;g' < %{buildroot}/%{legacy_actions}/iptables/save > ip6tabes.save-legacy
+install -c -m 755 ip6tabes.save-legacy %{buildroot}/%{legacy_actions}/ip6tables/save
+
+cat << EOF > %{buildroot}/%{legacy_actions}/iptables/panic
+#!/bin/bash
+exec %{script_path}/iptables.init panic
+EOF
+chmod 755 %{buildroot}/%{legacy_actions}/iptables/panic
+sed -e 's;iptables.init;ip6tables.init;g' -e 's;IPTABLES;IP6TABLES;g' < %{buildroot}/%{legacy_actions}/iptables/panic > ip6tabes.panic-legacy
+install -c -m 755 ip6tabes.panic-legacy %{buildroot}/%{legacy_actions}/ip6tables/panic
+
+# install iptables-apply with man page
+install -m 755 iptables/iptables-apply %{buildroot}%{_sbindir}/
+install -m 644 iptables/iptables-apply.8 %{buildroot}%{_mandir}/man8/
+
 rm -f %{buildroot}%{_sysconfdir}/ethertypes
 
-install -d %{buildroot}%{_presetdir}
-cat > %{buildroot}%{_presetdir}/86-iptables.preset << EOF
-enable iptables.service
-enable ip6tables.service
-EOF
+install -p -D -m 755 %{SOURCE6} %{buildroot}%{_libexecdir}/
+touch %{buildroot}%{_libexecdir}/arptables-helper
 
-%pre
-if [ $1 -ge 2 ]; then
-    if [ -d /%{_lib}/iptables.d/linux-2.6-main ]; then
-	rm -rf /%{_lib}/iptables.d/linux-2.6-main
-    elif [ -L /%{_lib}/iptables.d/linux-2.6-main ] && [ ! "$(readlink /%{_lib}/iptables.d/linux-2.6-main)" = "/%{_lib}/xtables" ]; then
-	rm -rf /%{_lib}/iptables.d/linux-2.6-main
-    fi
-
-    if [ -d /%{_lib}/iptables ]; then
-	rm -rf /%{_lib}/iptables
-    elif [ -L /%{_lib}/iptables ] && [ ! "$(readlink /%{_lib}/iptables)" = "/%{_lib}/xtables" ]; then
-	rm -rf /%{_lib}/iptables
-    fi
-fi
-
-%posttrans
-ln -sf /%{_lib}/xtables /%{_lib}/iptables.d/linux-2.6-main
+# prepare for alternatives
+touch %{buildroot}%{_mandir}/man8/arptables.8
+touch %{buildroot}%{_mandir}/man8/arptables-save.8
+touch %{buildroot}%{_mandir}/man8/arptables-restore.8
+touch %{buildroot}%{_mandir}/man8/ebtables.8
 
 %post
-%systemd_post iptables
-%systemd_post ip6tables
-%{script_path}/%{name}/iptables.init check
+pfx=%{_sbindir}/iptables
+pfx6=%{_sbindir}/ip6tables
+%{_sbindir}/update-alternatives --install \
+	$pfx iptables $pfx-legacy 10 \
+	--slave $pfx6 ip6tables $pfx6-legacy \
+	--slave $pfx-restore iptables-restore $pfx-legacy-restore \
+	--slave $pfx-save iptables-save $pfx-legacy-save \
+	--slave $pfx6-restore ip6tables-restore $pfx6-legacy-restore \
+	--slave $pfx6-save ip6tables-save $pfx6-legacy-save
 
-%preun
-%systemd_preun iptables
-%systemd_preun ip6tables
+%postun
+if [ $1 -eq 0 ]; then
+	%{_sbindir}/update-alternatives --remove \
+		iptables %{_sbindir}/iptables-legacy
+fi
 
-%triggerun -- iptables < 1.4.12.1
-# Autostart
-/bin/systemctl --no-reload enable iptables.service >/dev/null 2>&1 ||:
+%post services
+%systemd_post iptables.service ip6tables.service
 
-# Delete from sysv management, try to restart service
-/sbin/chkconfig --del iptables >/dev/null 2>&1 || :
-/bin/systemctl try-restart iptables.service >/dev/null 2>&1 || :
+%preun services
+%systemd_preun iptables.service ip6tables.service
 
-# Autostart
-/bin/systemctl --no-reload enable ip6tables.service >/dev/null 2>&1 ||:
+%postun services
+%systemd_postun iptables.service ip6tables.service
 
-# Delete from sysv management, try to restart service
-/sbin/chkconfig --del ip6tables >/dev/null 2>&1 || :
-/bin/systemctl try-restart ip6tables.service >/dev/null 2>&1 || :
+%post nft
+pfx=%{_sbindir}/iptables
+pfx6=%{_sbindir}/ip6tables
+%{_sbindir}/update-alternatives --install \
+	$pfx iptables $pfx-nft 5 \
+	--slave $pfx6 ip6tables $pfx6-nft \
+	--slave $pfx-restore iptables-restore $pfx-nft-restore \
+	--slave $pfx-save iptables-save $pfx-nft-save \
+	--slave $pfx6-restore ip6tables-restore $pfx6-nft-restore \
+	--slave $pfx6-save ip6tables-save $pfx6-nft-save
+
+pfx=%{_sbindir}/ebtables
+manpfx=%{_mandir}/man8/ebtables
+for sfx in "" "-restore" "-save"; do
+	if [ "$(readlink -e $pfx$sfx)" == $pfx$sfx ]; then
+		rm -f $pfx$sfx
+	fi
+done
+if [ "$(readlink -e $manpfx.8%{_extension})" == $manpfx.8%{_extension} ]; then
+	rm -f $manpfx.8%{_extension}
+fi
+%{_sbindir}/update-alternatives --install \
+	$pfx ebtables $pfx-nft 5 \
+	--slave $pfx-save ebtables-save $pfx-nft-save \
+	--slave $pfx-restore ebtables-restore $pfx-nft-restore \
+	--slave $manpfx.8%{_extension} ebtables-man $manpfx-nft.8%{_extension}
+
+pfx=%{_sbindir}/arptables
+manpfx=%{_mandir}/man8/arptables
+lepfx=%{_libexecdir}/arptables
+for sfx in "" "-restore" "-save"; do
+	if [ "$(readlink -e $pfx$sfx)" == $pfx$sfx ]; then
+		rm -f $pfx$sfx
+	fi
+	if [ "$(readlink -e $manpfx$sfx.8%{_extension})" == $manpfx$sfx.8%{_extension} ]; then
+		rm -f $manpfx$sfx.8%{_extension}
+	fi
+done
+if [ "$(readlink -e $lepfx-helper)" == $lepfx-helper ]; then
+	rm -f $lepfx-helper
+fi
+%{_sbindir}/update-alternatives --install \
+	$pfx arptables $pfx-nft 5 \
+	--slave $pfx-save arptables-save $pfx-nft-save \
+	--slave $pfx-restore arptables-restore $pfx-nft-restore \
+	--slave $manpfx.8%{_extension} arptables-man $manpfx-nft.8%{_extension} \
+	--slave $manpfx-save.8%{_extension} arptables-save-man $manpfx-nft-save.8%{_extension} \
+	--slave $manpfx-restore.8%{_extension} arptables-restore-man $manpfx-nft-restore.8%{_extension} \
+	--slave $lepfx-helper arptables-helper $lepfx-nft-helper
+
+%postun nft
+if [ $1 -eq 0 ]; then
+	for cmd in iptables ebtables arptables; do
+		%{_sbindir}/update-alternatives --remove \
+			$cmd %{_sbindir}/$cmd-nft
+	done
+fi
 
 %files
-%doc INSTALL INCOMPATIBILITIES
-%attr(0755,root,root) %{script_path}/ip*
-%{_presetdir}/86-iptables.preset
-%{_unitdir}/*.service
-/sbin/iptables
-/sbin/iptables-restore
-/sbin/iptables-save
-/sbin/iptables-xml
-/sbin/iptables-multi
-/sbin/iptables-restore-translate
-/sbin/iptables-translate
-/sbin/nfnl_osf
-# ipv6
-/sbin/ip6tables
-/sbin/ip6tables-restore
-/sbin/ip6tables-multi
-/sbin/ip6tables-save
-/sbin/ip6tables-restore-translate
-/sbin/ip6tables-translate
-/sbin/arptables
-/sbin/arptables-nft
-/sbin/arptables-nft-restore
-/sbin/arptables-nft-save
-/sbin/arptables-restore
-/sbin/arptables-save
-/sbin/ebtables
-/sbin/ebtables-nft
-/sbin/ebtables-nft-restore
-/sbin/ebtables-nft-save
-/sbin/ebtables-restore
-/sbin/ebtables-save
-/sbin/ip6tables-legacy
-/sbin/ip6tables-legacy-restore
-/sbin/ip6tables-legacy-save
-/sbin/ip6tables-nft
-/sbin/ip6tables-nft-restore
-/sbin/ip6tables-nft-save
-/sbin/iptables-legacy
-/sbin/iptables-legacy-restore
-/sbin/iptables-legacy-save
-/sbin/iptables-nft
-/sbin/iptables-nft-restore
-/sbin/iptables-nft-save
-/sbin/xtables-legacy-multi
-/sbin/xtables-monitor
-/sbin/xtables-nft-multi
-%dir /%{_lib}/xtables
-/%{_lib}/iptables
-%dir /%{_lib}/iptables.d
-# we dont want this as otherwise the removal of the old package will cause removal of files
-# bug 1384
-%ghost /%{_lib}/iptables.d/linux-2.6-main
-/%{_lib}/xtables/libipt_ah.so
-/%{_lib}/xtables/libipt_CLUSTERIP.so
-/%{_lib}/xtables/libipt_DNAT.so
-/%{_lib}/xtables/libipt_ECN.so
-/%{_lib}/xtables/libipt_icmp.so
-/%{_lib}/xtables/libipt_LOG.so
-/%{_lib}/xtables/libipt_MASQUERADE.so
-/%{_lib}/xtables/libipt_NETMAP.so
-/%{_lib}/xtables/libipt_realm.so
-/%{_lib}/xtables/libipt_REDIRECT.so
-/%{_lib}/xtables/libipt_REJECT.so
-/%{_lib}/xtables/libipt_SNAT.so
-/%{_lib}/xtables/libipt_ttl.so
-/%{_lib}/xtables/libipt_TTL.so
-/%{_lib}/xtables/libipt_ULOG.so
-/%{_lib}/xtables/libxt_addrtype.so
-/%{_lib}/xtables/libxt_AUDIT.so
-/%{_lib}/xtables/libxt_bpf.so
-/%{_lib}/xtables/libxt_CHECKSUM.so
-/%{_lib}/xtables/libxt_CLASSIFY.so
-/%{_lib}/xtables/libxt_cluster.so
-/%{_lib}/xtables/libxt_comment.so
-/%{_lib}/xtables/libxt_connbytes.so
-/%{_lib}/xtables/libxt_connlabel.so
-/%{_lib}/xtables/libxt_connlimit.so
-/%{_lib}/xtables/libxt_connmark.so
-/%{_lib}/xtables/libxt_CONNMARK.so
-/%{_lib}/xtables/libxt_CONNSECMARK.so
-/%{_lib}/xtables/libxt_conntrack.so
-/%{_lib}/xtables/libxt_cpu.so
-/%{_lib}/xtables/libxt_CT.so
-/%{_lib}/xtables/libxt_dccp.so
-/%{_lib}/xtables/libxt_devgroup.so
-/%{_lib}/xtables/libxt_dscp.so
-/%{_lib}/xtables/libxt_DSCP.so
-/%{_lib}/xtables/libxt_ecn.so
-/%{_lib}/xtables/libxt_esp.so
-/%{_lib}/xtables/libxt_hashlimit.so
-/%{_lib}/xtables/libxt_helper.so
-/%{_lib}/xtables/libxt_HMARK.so
-/%{_lib}/xtables/libxt_IDLETIMER.so
-/%{_lib}/xtables/libxt_iprange.so
-/%{_lib}/xtables/libxt_ipvs.so
-/%{_lib}/xtables/libxt_LED.so
-/%{_lib}/xtables/libxt_length.so
-/%{_lib}/xtables/libxt_limit.so
-/%{_lib}/xtables/libxt_mac.so
-/%{_lib}/xtables/libxt_mark.so
-/%{_lib}/xtables/libxt_MARK.so
-/%{_lib}/xtables/libxt_multiport.so
-/%{_lib}/xtables/libxt_nfacct.so
-/%{_lib}/xtables/libxt_NFLOG.so
-/%{_lib}/xtables/libxt_NFQUEUE.so
-/%{_lib}/xtables/libxt_NOTRACK.so
-/%{_lib}/xtables/libxt_osf.so
-/%{_lib}/xtables/libxt_owner.so
-/%{_lib}/xtables/libxt_physdev.so
-/%{_lib}/xtables/libxt_pkttype.so
-/%{_lib}/xtables/libxt_policy.so
-/%{_lib}/xtables/libxt_quota.so
-/%{_lib}/xtables/libxt_rateest.so
-/%{_lib}/xtables/libxt_RATEEST.so
-/%{_lib}/xtables/libxt_recent.so
-/%{_lib}/xtables/libxt_rpfilter.so
-/%{_lib}/xtables/libxt_sctp.so
-/%{_lib}/xtables/libxt_SECMARK.so
-/%{_lib}/xtables/libxt_set.so
-/%{_lib}/xtables/libxt_SET.so
-/%{_lib}/xtables/libxt_socket.so
-/%{_lib}/xtables/libxt_standard.so
-/%{_lib}/xtables/libxt_state.so
-/%{_lib}/xtables/libxt_statistic.so
-/%{_lib}/xtables/libxt_string.so
-/%{_lib}/xtables/libxt_SYNPROXY.so
-/%{_lib}/xtables/libxt_tcpmss.so
-/%{_lib}/xtables/libxt_TCPMSS.so
-/%{_lib}/xtables/libxt_TCPOPTSTRIP.so
-/%{_lib}/xtables/libxt_tcp.so
-/%{_lib}/xtables/libxt_TEE.so
-/%{_lib}/xtables/libxt_time.so
-/%{_lib}/xtables/libxt_tos.so
-/%{_lib}/xtables/libxt_TOS.so
-/%{_lib}/xtables/libxt_TPROXY.so
-/%{_lib}/xtables/libxt_TRACE.so
-/%{_lib}/xtables/libxt_u32.so
-/%{_lib}/xtables/libxt_udp.so
-/%{_lib}/xtables/libarpt_mangle.so
-/%{_lib}/xtables/libebt_802_3.so
-/%{_lib}/xtables/libebt_ip.so
-/%{_lib}/xtables/libebt_log.so
-/%{_lib}/xtables/libebt_mark.so
-/%{_lib}/xtables/libebt_mark_m.so
-/%{_lib}/xtables/libebt_nflog.so
-/%{_lib}/xtables/libxt_cgroup.so
-/%{_lib}/xtables/libxt_ipcomp.so
-/%{_lib}/xtables/libebt_arp.so
-/%{_lib}/xtables/libebt_arpreply.so
-/%{_lib}/xtables/libebt_dnat.so
-/%{_lib}/xtables/libebt_ip6.so
-/%{_lib}/xtables/libebt_pkttype.so
-/%{_lib}/xtables/libebt_redirect.so
-/%{_lib}/xtables/libebt_snat.so
-/%{_lib}/xtables/libebt_stp.so
-/%{_lib}/xtables/libebt_vlan.so
-%{_mandir}/*/iptables*
-%{_mandir}/man8/*.8.*
-%{_datadir}/xtables/pf.os
-# ipv6
-/%{_lib}/xtables/libip6t_ah.so
-/%{_lib}/xtables/libip6t_dst.so
-/%{_lib}/xtables/libip6t_eui64.so
-/%{_lib}/xtables/libip6t_frag.so
-/%{_lib}/xtables/libip6t_hbh.so
-/%{_lib}/xtables/libip6t_hl.so
-/%{_lib}/xtables/libip6t_HL.so
-/%{_lib}/xtables/libip6t_icmp6.so
-/%{_lib}/xtables/libip6t_ipv6header.so
-/%{_lib}/xtables/libip6t_LOG.so
-/%{_lib}/xtables/libip6t_mh.so
-/%{_lib}/xtables/libip6t_REJECT.so
-/%{_lib}/xtables/libip6t_DNAT.so
-/%{_lib}/xtables/libip6t_DNPT.so
-/%{_lib}/xtables/libip6t_MASQUERADE.so
-/%{_lib}/xtables/libip6t_NETMAP.so
-/%{_lib}/xtables/libip6t_REDIRECT.so
-/%{_lib}/xtables/libip6t_SNAT.so
-/%{_lib}/xtables/libip6t_SNPT.so
-/%{_lib}/xtables/libip6t_srh.so
-/%{_lib}/xtables/libip6t_rt.so
-%{_mandir}/*/ip6tables*
+%{!?_licensedir:%global license %%doc}
+%license COPYING
+%doc INCOMPATIBILITIES
+%{_sbindir}/iptables-apply
+%{_sbindir}/iptables-legacy*
+%{_sbindir}/ip6tables-legacy*
+%{_sbindir}/xtables-legacy-multi
+%{_bindir}/iptables-xml
+%{_mandir}/man1/iptables-xml*
+%{_mandir}/man8/iptables*
+%{_mandir}/man8/ip6tables*
+%{_mandir}/man8/xtables-legacy*
+%dir %{_libdir}/xtables
+%{_libdir}/xtables/libarpt*
+%{_libdir}/xtables/libebt*
+%{_libdir}/xtables/libipt*
+%{_libdir}/xtables/libip6t*
+%{_libdir}/xtables/libxt*
+%ghost %{_sbindir}/iptables
+%ghost %{_sbindir}/iptables-restore
+%ghost %{_sbindir}/iptables-save
+%ghost %{_sbindir}/ip6tables
+%ghost %{_sbindir}/ip6tables-restore
+%ghost %{_sbindir}/ip6tables-save
+
+%files -n %{ipq_libname}
+%{_libdir}/libipq.so.*
+
+%files -n %{ip4tc_libname}
+%{_libdir}/libip4tc.so.*
+
+%files -n %{ip6tc_libname}
+%{_libdir}/libip6tc.so.*
 
 %files -n %{libname}
-/%{_lib}/libxtables.so.%{major}*
+%{_libdir}/libxtables.so.%{major}*
 
-%files -n %{devname}
+%files -n %{develname}
 %{_includedir}/*.h
+%dir %{_includedir}/libipq
 %dir %{_includedir}/libipulog
+%{_includedir}/libipq/*.h
 %{_includedir}/libipulog/*.h
 %{_includedir}/iptables/*.h
-/%{_lib}/libxtables.so
+%{_libdir}/libxtables.so
 %{_libdir}/pkgconfig/xtables.pc
 
-%files -n %{libipq}
-/%{_lib}/libipq.so.%{ipq_major}*
-
-%files -n %{devipq}
+%files -n %{ipq_develname}
 %{_includedir}/libipq/*.h
-%dir %{_includedir}/libipq
-/%{_lib}/libipq.so
-%{_mandir}/man3/*ipq*
 %{_libdir}/pkgconfig/libipq.pc
+%dir %{_includedir}/libipq
+%{_libdir}/libipq.so
+%{_mandir}/man3/*ipq*
 
-%files -n %{libiptc}
-/%{_lib}/libiptc.so.%{iptc_major}*
-
-%files -n %{deviptc}
+%files -n %{iptc_develname}
 %{_includedir}/libiptc/*.h
 %dir %{_includedir}/libiptc
-/%{_lib}/libiptc.so
 %{_libdir}/pkgconfig/libiptc.pc
 
-%files -n %{libip4tc}
-/%{_lib}/libip4tc.so.%{iptc_major}*
-
-%files -n %{devip4tc}
-/%{_lib}/libip4tc.so
+%files -n %{ip4tc_develname}
+%{_libdir}/libip4tc.so
 %{_libdir}/pkgconfig/libip4tc.pc
 
-%files -n %{libip6tc}
-/%{_lib}/libip6tc.so.%{iptc_major}*
-
-%files -n %{devip6tcg}
-/%{_lib}/libip6tc.so
+%files -n %{ip6tc_develname}
+%{_libdir}/libip6tc.so
 %{_libdir}/pkgconfig/libip6tc.pc
+
+%files services
+%dir %{script_path}
+%{script_path}/iptables.init
+%{script_path}/ip6tables.init
+%config(noreplace) %{_sysconfdir}/sysconfig/iptables
+%config(noreplace) %{_sysconfdir}/sysconfig/ip6tables
+%config(noreplace) %{_sysconfdir}/sysconfig/iptables-config
+%config(noreplace) %{_sysconfdir}/sysconfig/ip6tables-config
+%{_unitdir}/iptables.service
+%{_unitdir}/ip6tables.service
+%dir %{legacy_actions}/iptables
+%{legacy_actions}/iptables/save
+%{legacy_actions}/iptables/panic
+%dir %{legacy_actions}/ip6tables
+%{legacy_actions}/ip6tables/save
+%{legacy_actions}/ip6tables/panic
+
+%files utils
+%{_sbindir}/nfnl_osf
+%{_sbindir}/nfbpf_compile
+%dir %{_datadir}/xtables
+%{_datadir}/xtables/pf.os
+%{_mandir}/man8/nfnl_osf*
+%{_mandir}/man8/nfbpf_compile*
+
+%files nft
+%{_sbindir}/iptables-nft*
+%{_sbindir}/iptables-restore-translate
+%{_sbindir}/iptables-translate
+%{_sbindir}/ip6tables-nft*
+%{_sbindir}/ip6tables-restore-translate
+%{_sbindir}/ip6tables-translate
+%{_sbindir}/ebtables-nft*
+%{_sbindir}/arptables-nft*
+%{_sbindir}/xtables-nft-multi
+%{_sbindir}/xtables-monitor
+%{_libexecdir}/arptables-nft-helper
+%{_mandir}/man8/xtables-monitor*
+%{_mandir}/man8/xtables-translate*
+%{_mandir}/man8/*-nft*
+%ghost %{_sbindir}/iptables
+%ghost %{_sbindir}/iptables-restore
+%ghost %{_sbindir}/iptables-save
+%ghost %{_sbindir}/ip6tables
+%ghost %{_sbindir}/ip6tables-restore
+%ghost %{_sbindir}/ip6tables-save
+%ghost %{_sbindir}/ebtables
+%ghost %{_sbindir}/ebtables-save
+%ghost %{_sbindir}/ebtables-restore
+%ghost %{_sbindir}/arptables
+%ghost %{_sbindir}/arptables-save
+%ghost %{_sbindir}/arptables-restore
+%ghost %{_libexecdir}/arptables-helper
+%ghost %{_mandir}/man8/arptables.8.*
+%ghost %{_mandir}/man8/arptables-save.8.*
+%ghost %{_mandir}/man8/arptables-restore.8.*
+%ghost %{_mandir}/man8/ebtables.8.*

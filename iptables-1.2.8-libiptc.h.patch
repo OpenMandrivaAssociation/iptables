@@ -7,5 +7,5 @@ diff -Naur iptables-1.4.17/iptables/ip6tables.c iptables-1.4.17.tpg/iptables/ip6
  #include "xshared.h"
 +#include "libiptc/libiptc.h"
  
- #ifndef TRUE
- #define TRUE 1
+ #define NUMBER_OF_OPT	ARRAY_SIZE(optflags)
+ static const char optflags[]
