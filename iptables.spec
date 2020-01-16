@@ -5,8 +5,10 @@
 %global legacy_actions %{_libexecdir}/initscripts/legacy-actions
 
 %define major 12
-%define libname %mklibname iptables %{major}
+%define libname %mklibname xtables %{major}
+%define iptlibname %mklibname iptables %{major}
 %define develname %mklibname -d iptables
+%define iptdevelname %mklibname -d iptables
 
 %define iptc_develname %mklibname -d iptc
 
@@ -26,7 +28,7 @@ Name: iptables
 Summary: Tools for managing Linux kernel packet filtering capabilities
 URL: http://www.netfilter.org/projects/iptables
 Version: 1.8.4
-Release: 2
+Release: 3
 Source: %{url}/files/%{name}-%{version}.tar.bz2
 Source1: iptables.init
 Source2: iptables-config
@@ -60,7 +62,7 @@ BuildRequires: autogen
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: libtool
-Requires: %{libname}
+Requires: %{libname} = %{EVRD}
 Requires(post): %{_sbindir}/update-alternatives
 Requires(postun): %{_sbindir}/update-alternatives
 Provides:	userspace-ipfilter = %{version}
@@ -75,6 +77,10 @@ you should install this package.
 Summary:	Shared iptables library
 Group:          System/Libraries
 Conflicts:	%mklibname %{name} 1
+# Some other distros name the libxtables package libiptables.
+# Let's remain compatible...
+# (rename = Obsoletes + Provides)
+%rename %{iptlibname}
 
 %description -n	%{libname}
 iptables controls the Linux kernel network packet filtering code. It allows you
@@ -89,6 +95,10 @@ Requires:	kernel-headers
 Requires:	%{libname} = %{version}-%{release}
 Provides:	iptables-devel = %{version}
 Obsoletes:	iptables-devel < 1.4.2
+# Some other distros name the libxtables package libiptables.
+# Let's remain compatible...
+# (rename = Obsoletes + Provides)
+%rename %{iptdevelname}
 
 %description -n	%{develname}
 iptables controls the Linux kernel network packet filtering code. It allows you
