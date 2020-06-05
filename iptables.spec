@@ -47,8 +47,8 @@
 Name: iptables
 Summary: Tools for managing Linux kernel packet filtering capabilities
 URL: http://www.netfilter.org/projects/iptables
-Version: 1.8.4
-Release: 4
+Version:	1.8.5
+Release:	1
 Source: %{url}/files/%{name}-%{version}.tar.bz2
 Source1: iptables.init
 Source2: iptables-config
@@ -57,7 +57,6 @@ Source4: sysconfig_iptables
 Source5: sysconfig_ip6tables
 Source6: arptables-nft-helper
 
-Patch1: 0001-iptables-apply-Use-mktemp-instead-of-tempfile.patch
 Patch2:	iptables-1.2.8-libiptc.h.patch
 # pf.os: ISC license
 # iptables-apply: Artistic Licence 2.0
@@ -569,6 +568,7 @@ fi
 %license COPYING
 %doc INCOMPATIBILITIES
 %{_sbindir}/iptables-apply
+%{_sbindir}/ip6tables-apply
 %{_sbindir}/iptables-legacy*
 %{_sbindir}/ip6tables-legacy*
 %{_sbindir}/xtables-legacy-multi
