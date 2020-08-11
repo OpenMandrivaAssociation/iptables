@@ -11,9 +11,6 @@
 # install init scripts to /usr/libexec with systemd
 %global script_path %{_libexecdir}/iptables
 
-# service legacy actions (RHBZ#748134)
-%global legacy_actions %{_libexecdir}/initscripts/legacy-actions
-
 %define major 12
 %define libname %mklibname xtables %{major}
 %define iptlibname %mklibname iptables %{major}
@@ -48,7 +45,7 @@ Name: iptables
 Summary: Tools for managing Linux kernel packet filtering capabilities
 URL: http://www.netfilter.org/projects/iptables
 Version:	1.8.5
-Release:	1
+Release:	2
 Source: %{url}/files/%{name}-%{version}.tar.bz2
 Source1: iptables.init
 Source2: iptables-config
@@ -444,26 +441,6 @@ install -c -m 644 %{SOURCE3} %{buildroot}/%{_unitdir}
 sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' -e 's;/usr/libexec/ip6tables;/usr/libexec/iptables;g' < %{SOURCE3} > ip6tables.service
 install -c -m 644 ip6tables.service %{buildroot}/%{_unitdir}
 
-# install legacy actions for service command
-install -d %{buildroot}/%{legacy_actions}/iptables
-install -d %{buildroot}/%{legacy_actions}/ip6tables
-
-cat << EOF > %{buildroot}/%{legacy_actions}/iptables/save
-#!/bin/bash
-exec %{script_path}/iptables.init save
-EOF
-chmod 755 %{buildroot}/%{legacy_actions}/iptables/save
-sed -e 's;iptables.init;ip6tables.init;g' -e 's;IPTABLES;IP6TABLES;g' < %{buildroot}/%{legacy_actions}/iptables/save > ip6tabes.save-legacy
-install -c -m 755 ip6tabes.save-legacy %{buildroot}/%{legacy_actions}/ip6tables/save
-
-cat << EOF > %{buildroot}/%{legacy_actions}/iptables/panic
-#!/bin/bash
-exec %{script_path}/iptables.init panic
-EOF
-chmod 755 %{buildroot}/%{legacy_actions}/iptables/panic
-sed -e 's;iptables.init;ip6tables.init;g' -e 's;IPTABLES;IP6TABLES;g' < %{buildroot}/%{legacy_actions}/iptables/panic > ip6tabes.panic-legacy
-install -c -m 755 ip6tabes.panic-legacy %{buildroot}/%{legacy_actions}/ip6tables/panic
-
 # install iptables-apply with man page
 install -m 755 iptables/iptables-apply %{buildroot}%{_sbindir}/
 install -m 644 build/iptables/iptables-apply.8 %{buildroot}%{_mandir}/man8/
@@ -642,12 +619,6 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/ip6tables-config
 %{_unitdir}/iptables.service
 %{_unitdir}/ip6tables.service
-%dir %{legacy_actions}/iptables
-%{legacy_actions}/iptables/save
-%{legacy_actions}/iptables/panic
-%dir %{legacy_actions}/ip6tables
-%{legacy_actions}/ip6tables/save
-%{legacy_actions}/ip6tables/panic
 
 %files utils
 %{_sbindir}/nfnl_osf
