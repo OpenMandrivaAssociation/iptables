@@ -45,7 +45,7 @@ Name: iptables
 Summary: Tools for managing Linux kernel packet filtering capabilities
 URL: http://www.netfilter.org/projects/iptables
 Version:	1.8.5
-Release:	2
+Release:	3
 Source: %{url}/files/%{name}-%{version}.tar.bz2
 Source1: iptables.init
 Source2: iptables-config
@@ -114,7 +114,8 @@ This package contains the shared iptables library.
 Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{EVRD}
+Requires:	%{name} = %{EVRD}
 Provides:	iptables-devel = %{version}
 Obsoletes:	iptables-devel < 1.4.2
 # Some other distros name the libxtables package libiptables.
