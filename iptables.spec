@@ -45,7 +45,7 @@ Name: iptables
 Summary: Tools for managing Linux kernel packet filtering capabilities
 URL: http://www.netfilter.org/projects/iptables
 Version:	1.8.5
-Release:	3
+Release:	4
 Source: %{url}/files/%{name}-%{version}.tar.bz2
 Source1: iptables.init
 Source2: iptables-config
@@ -220,7 +220,7 @@ This package contains the development files for IP6TC library.
 
 %package services
 Summary: iptables and ip6tables services for iptables
-Requires: %{name} = %{version}-%{release}
+Requires: %{name} >= %{EVRD}
 %{?systemd_ordering}
 # obsolete old main package
 Obsoletes: %{name} < 1.8.4-1
