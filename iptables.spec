@@ -44,8 +44,8 @@
 Name: iptables
 Summary: Tools for managing Linux kernel packet filtering capabilities
 URL: http://www.netfilter.org/projects/iptables
-Version:	1.8.5
-Release:	4
+Version:	1.8.6
+Release:	1
 Source: %{url}/files/%{name}-%{version}.tar.bz2
 Source1: iptables.init
 Source2: iptables-config
