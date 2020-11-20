@@ -50,8 +50,8 @@ if [ $EUID != 0 ]; then
     exit 4
 fi
 
-if [ ! -x /sbin/$IPTABLES ]; then
-    echo -n $"${IPTABLES}: /sbin/$IPTABLES does not exist."; warning; echo
+if [ ! -x /usr/sbin/$IPTABLES ]; then
+    echo -n $"${IPTABLES}: /usr/sbin/$IPTABLES does not exist."; warning; echo
     exit 5
 fi
 
