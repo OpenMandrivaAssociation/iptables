@@ -488,7 +488,7 @@ fi
 pfx=%{_sbindir}/iptables
 pfx6=%{_sbindir}/ip6tables
 %{_sbindir}/update-alternatives --install \
-    $pfx iptables $pfx-nft 5 \
+    $pfx iptables $pfx-nft 10 \
 	--slave $pfx6 ip6tables $pfx6-nft \
 	--slave $pfx-restore iptables-restore $pfx-nft-restore \
 	--slave $pfx-save iptables-save $pfx-nft-save \
@@ -506,7 +506,7 @@ if [ "$(readlink -e $manpfx.8%{_extension})" == $manpfx.8%{_extension} ]; then
     rm -f $manpfx.8%{_extension}
 fi
 %{_sbindir}/update-alternatives --install \
-    $pfx ebtables $pfx-nft 5 \
+    $pfx ebtables $pfx-nft 10 \
 	--slave $pfx-save ebtables-save $pfx-nft-save \
 	--slave $pfx-restore ebtables-restore $pfx-nft-restore \
 	--slave $manpfx.8%{_extension} ebtables-man $manpfx-nft.8%{_extension}
@@ -526,7 +526,7 @@ if [ "$(readlink -e $lepfx-helper)" == $lepfx-helper ]; then
     rm -f $lepfx-helper
 fi
 %{_sbindir}/update-alternatives --install \
-    $pfx arptables $pfx-nft 5 \
+    $pfx arptables $pfx-nft 10 \
 	--slave $pfx-save arptables-save $pfx-nft-save \
 	--slave $pfx-restore arptables-restore $pfx-nft-restore \
 	--slave $manpfx.8%{_extension} arptables-man $manpfx-nft.8%{_extension} \
