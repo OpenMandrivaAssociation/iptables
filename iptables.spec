@@ -44,8 +44,8 @@
 Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 URL:		http://www.netfilter.org/projects/iptables
-Version:	1.8.6
-Release:	4
+Version:	1.8.7
+Release:	1
 # pf.os: ISC license
 # iptables-apply: Artistic Licence 2.0
 License:	GPLv2 and Artistic Licence 2.0 and ISC
@@ -58,7 +58,6 @@ Source5:	sysconfig_ip6tables
 Source6:	arptables-nft-helper
 Patch2:		iptables-1.2.8-libiptc.h.patch
 Patch3:		iptables-1.8.2-dont_read_garbage.patch
-Patch4:		https://src.fedoraproject.org/rpms/iptables/raw/master/f/0001-ebtables-Fix-for-broken-chain-renaming.patch
 
 # libnetfilter_conntrack is needed for xt_connlabel
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
