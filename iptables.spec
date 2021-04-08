@@ -45,7 +45,7 @@ Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 URL:		http://www.netfilter.org/projects/iptables
 Version:	1.8.7
-Release:	1
+Release:	3
 # pf.os: ISC license
 # iptables-apply: Artistic Licence 2.0
 License:	GPLv2 and Artistic Licence 2.0 and ISC
@@ -80,7 +80,6 @@ Requires:	%{libname} = %{EVRD}
 Requires(post):	%{_sbindir}/update-alternatives
 Requires(postun):	%{_sbindir}/update-alternatives
 Provides:	userspace-ipfilter = %{version}
-Requires:	%{name}-services
 %if %{with compat32}
 BuildRequires:	devel(libmnl)
 BuildRequires:	devel(libnftnl)
@@ -243,7 +242,9 @@ a bytecode generator for use with xt_bpf.
 
 %package nft
 Summary:	nftables compatibility for iptables, arptables and ebtables
-Requires:	%{name} = %{version}-%{release}
+Requires(post):	%{name} = %{EVRD}
+Requires(post):	%{_sbindir}/update-alternatives
+Requires(postun):	%{_sbindir}/update-alternatives
 Obsoletes:	iptables-compat < 1.6.2-4
 Provides:	arptables-helper
 Provides:	arptables
