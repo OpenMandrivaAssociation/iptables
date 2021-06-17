@@ -45,11 +45,12 @@ Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 URL:		http://www.netfilter.org/projects/iptables
 Version:	1.8.7
-Release:	5
+Release:	6
 # pf.os: ISC license
 # iptables-apply: Artistic Licence 2.0
 License:	GPLv2 and Artistic Licence 2.0 and ISC
-Source:		%{url}/files/%{name}-%{version}.tar.bz2
+Group:		System/Kernel and hardware
+Source0:		%{url}/files/%{name}-%{version}.tar.bz2
 Source1:	iptables.init
 Source2:	iptables-config
 Source3:	iptables.service
@@ -86,6 +87,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool
 Requires:	%{libname} = %{EVRD}
+Requires:	%{name}-xtables = %{EVRD}
 Requires(post):	%{_sbindir}/update-alternatives
 Requires(postun):	%{_sbindir}/update-alternatives
 Provides:	userspace-ipfilter = %{version}
@@ -121,7 +123,7 @@ Summary:	Static library and header files for the iptables library
 Group:		Development/C
 Requires:	kernel-headers
 Requires:	%{libname} = %{EVRD}
-Requires:	%{name} = %{EVRD}
+Requires:	%{name}-xtables = %{EVRD}
 Provides:	iptables-devel = %{version}
 Obsoletes:	iptables-devel < 1.4.2
 # Some other distros name the libxtables package libiptables.
@@ -226,6 +228,7 @@ This package contains the development files for IP6TC library.
 
 %package services
 Summary:	iptables and ip6tables services for iptables
+Group:		System/Kernel and hardware
 Requires:	%{name} >= %{EVRD}
 %{?systemd_ordering}
 # obsolete old main package
@@ -241,7 +244,7 @@ out of the base package since they are not active by default anymore.
 
 %package utils
 Summary:	iptables and ip6tables services for iptables
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{EVRD}
 
 %description utils
 Utils for iptables.
@@ -249,9 +252,19 @@ Utils for iptables.
 This package provides nfnl_osf with the pf.os database and nfbpf_compile,
 a bytecode generator for use with xt_bpf.
 
+%package xtables
+Summary:	xtables and iptables extensions userspace support
+Group:		System/Kernel and hardware
+
+%description xtables
+Libxtables provides unified access to iptables extensions in userspace. Data
+and logic for those is kept in per-extension shared object files.
+
 %package nft
 Summary:	nftables compatibility for iptables, arptables and ebtables
-Requires(post):	%{name} = %{EVRD}
+Group:		System/Kernel and hardware
+Requires:	%{name}-xtables = %{EVRD}
+Requires(post):	coreutils
 Requires(post):	%{_sbindir}/update-alternatives
 Requires(postun):	%{_sbindir}/update-alternatives
 Obsoletes:	iptables-compat < 1.6.2-4
@@ -471,17 +484,17 @@ touch %{buildroot}%{_mandir}/man8/ebtables.8
 pfx=%{_sbindir}/iptables
 pfx6=%{_sbindir}/ip6tables
 %{_sbindir}/update-alternatives --install \
-$pfx iptables $pfx-legacy 10 \
---slave $pfx6 ip6tables $pfx6-legacy \
---slave $pfx-restore iptables-restore $pfx-legacy-restore \
---slave $pfx-save iptables-save $pfx-legacy-save \
---slave $pfx6-restore ip6tables-restore $pfx6-legacy-restore \
---slave $pfx6-save ip6tables-save $pfx6-legacy-save
+    $pfx iptables $pfx-legacy 10 \
+    --slave $pfx6 ip6tables $pfx6-legacy \
+    --slave $pfx-restore iptables-restore $pfx-legacy-restore \
+    --slave $pfx-save iptables-save $pfx-legacy-save \
+    --slave $pfx6-restore ip6tables-restore $pfx6-legacy-restore \
+    --slave $pfx6-save ip6tables-save $pfx6-legacy-save
 
 %postun
 if [ $1 -eq 0 ]; then
-%{_sbindir}/update-alternatives --remove \
-iptables %{_sbindir}/iptables-legacy
+    %{_sbindir}/update-alternatives --remove \
+	iptables %{_sbindir}/iptables-legacy
 fi
 
 %post services
@@ -498,12 +511,12 @@ pfx=%{_sbindir}/iptables
 pfx6=%{_sbindir}/ip6tables
 %{_sbindir}/update-alternatives --install \
     $pfx iptables $pfx-nft 10 \
-	--slave $pfx6 ip6tables $pfx6-nft \
-	--slave $pfx-restore iptables-restore $pfx-nft-restore \
-	--slave $pfx-save iptables-save $pfx-nft-save \
-	--slave $pfx6-restore ip6tables-restore $pfx6-nft-restore \
-	--slave $pfx6-save ip6tables-save $pfx6-nft-save
-
+    --slave $pfx6 ip6tables $pfx6-nft \
+    --slave $pfx-restore iptables-restore $pfx-nft-restore \
+    --slave $pfx-save iptables-save $pfx-nft-save \
+    --slave $pfx6-restore ip6tables-restore $pfx6-nft-restore \
+    --slave $pfx6-save ip6tables-save $pfx6-nft-save
+ 
 pfx=%{_sbindir}/ebtables
 manpfx=%{_mandir}/man8/ebtables
 for sfx in "" "-restore" "-save"; do
@@ -516,10 +529,10 @@ if [ "$(readlink -e $manpfx.8%{_extension})" == $manpfx.8%{_extension} ]; then
 fi
 %{_sbindir}/update-alternatives --install \
     $pfx ebtables $pfx-nft 10 \
-	--slave $pfx-save ebtables-save $pfx-nft-save \
-	--slave $pfx-restore ebtables-restore $pfx-nft-restore \
-	--slave $manpfx.8%{_extension} ebtables-man $manpfx-nft.8%{_extension}
-
+    --slave $pfx-save ebtables-save $pfx-nft-save \
+    --slave $pfx-restore ebtables-restore $pfx-nft-restore \
+    --slave $manpfx.8%{_extension} ebtables-man $manpfx-nft.8%{_extension}
+ 
 pfx=%{_sbindir}/arptables
 manpfx=%{_mandir}/man8/arptables
 lepfx=%{_libexecdir}/arptables
@@ -536,12 +549,12 @@ if [ "$(readlink -e $lepfx-helper)" == $lepfx-helper ]; then
 fi
 %{_sbindir}/update-alternatives --install \
     $pfx arptables $pfx-nft 10 \
-	--slave $pfx-save arptables-save $pfx-nft-save \
-	--slave $pfx-restore arptables-restore $pfx-nft-restore \
-	--slave $manpfx.8%{_extension} arptables-man $manpfx-nft.8%{_extension} \
-	--slave $manpfx-save.8%{_extension} arptables-save-man $manpfx-nft-save.8%{_extension} \
-	--slave $manpfx-restore.8%{_extension} arptables-restore-man $manpfx-nft-restore.8%{_extension} \
-	--slave $lepfx-helper arptables-helper $lepfx-nft-helper
+    --slave $pfx-save arptables-save $pfx-nft-save \
+    --slave $pfx-restore arptables-restore $pfx-nft-restore \
+    --slave $manpfx.8%{_extension} arptables-man $manpfx-nft.8%{_extension} \
+    --slave $manpfx-save.8%{_extension} arptables-save-man $manpfx-nft-save.8%{_extension} \
+    --slave $manpfx-restore.8%{_extension} arptables-restore-man $manpfx-nft-restore.8%{_extension} \
+    --slave $lepfx-helper arptables-helper $lepfx-nft-helper
 
 %postun nft
 if [ $1 -eq 0 ]; then
@@ -554,29 +567,18 @@ fi
 %files
 %{!?_licensedir:%global license %%doc}
 %license COPYING
-%doc INCOMPATIBILITIES
-%{_sbindir}/iptables-apply
-%{_sbindir}/ip6tables-apply
-%{_sbindir}/iptables-legacy*
-%{_sbindir}/ip6tables-legacy*
+%{_sbindir}/ip{,6}tables-legacy*
 %{_sbindir}/xtables-legacy-multi
 %{_bindir}/iptables-xml
 %{_mandir}/man1/iptables-xml*
-%{_mandir}/man8/iptables*
-%{_mandir}/man8/ip6tables*
 %{_mandir}/man8/xtables-legacy*
+%ghost %{_sbindir}/ip{,6}tables{,-save,-restore}
+
+%files xtables
 %dir %{_libdir}/xtables
-%{_libdir}/xtables/libarpt*
-%{_libdir}/xtables/libebt*
-%{_libdir}/xtables/libipt*
-%{_libdir}/xtables/libip6t*
-%{_libdir}/xtables/libxt*
-%ghost %{_sbindir}/iptables
-%ghost %{_sbindir}/iptables-restore
-%ghost %{_sbindir}/iptables-save
-%ghost %{_sbindir}/ip6tables
-%ghost %{_sbindir}/ip6tables-restore
-%ghost %{_sbindir}/ip6tables-save
+%{_libdir}/xtables/lib{ip,ip6,x}t*
+%{_mandir}/man8/ip{,6}tables.8%{_extension}
+%{_mandir}/man8/ip{,6}tables-{extensions,save,restore}.8%{_extension}
 
 %files -n %{ipq_libname}
 %{_libdir}/libipq.so.*
@@ -622,55 +624,38 @@ fi
 
 %files services
 %dir %{script_path}
-%{script_path}/iptables.init
-%{script_path}/ip6tables.init
-%config(noreplace) %{_sysconfdir}/sysconfig/iptables
-%config(noreplace) %{_sysconfdir}/sysconfig/ip6tables
-%config(noreplace) %{_sysconfdir}/sysconfig/iptables-config
-%config(noreplace) %{_sysconfdir}/sysconfig/ip6tables-config
-%{_unitdir}/iptables.service
-%{_unitdir}/ip6tables.service
+%{script_path}/ip{,6}tables.init
+%config(noreplace) %{_sysconfdir}/sysconfig/ip{,6}tables{,-config}
+%{_unitdir}/ip{,6}tables.service
 
 %files utils
 %{_sbindir}/nfnl_osf
 %{_sbindir}/nfbpf_compile
+%{_sbindir}/ip{,6}tables-apply
 %dir %{_datadir}/xtables
 %{_datadir}/xtables/pf.os
 %{_mandir}/man8/nfnl_osf*
 %{_mandir}/man8/nfbpf_compile*
+%{_mandir}/man8/ip{,6}tables-apply*
 
 %files nft
-%{_sbindir}/iptables-nft*
-%{_sbindir}/iptables-restore-translate
-%{_sbindir}/iptables-translate
-%{_sbindir}/ip6tables-nft*
-%{_sbindir}/ip6tables-restore-translate
-%{_sbindir}/ip6tables-translate
-%{_sbindir}/ebtables-nft*
-%{_sbindir}/arptables-nft*
+%{_sbindir}/ip{,6}tables-nft*
+%{_sbindir}/ip{,6}tables{,-restore}-translate
+%{_sbindir}/{eb,arp}tables-nft*
 %{_sbindir}/xtables-nft-multi
 %{_sbindir}/xtables-monitor
+%dir %{_libdir}/xtables
+%{_libdir}/xtables/lib{arp,eb}t*
 %{_libexecdir}/arptables-nft-helper
 %{_mandir}/man8/xtables-monitor*
 %{_mandir}/man8/xtables-translate*
 %{_mandir}/man8/*-nft*
-%ghost %{_sbindir}/iptables
-%ghost %{_sbindir}/iptables-restore
-%ghost %{_sbindir}/iptables-save
-%ghost %{_sbindir}/ip6tables
-%ghost %{_sbindir}/ip6tables-restore
-%ghost %{_sbindir}/ip6tables-save
-%ghost %{_sbindir}/ebtables
-%ghost %{_sbindir}/ebtables-save
-%ghost %{_sbindir}/ebtables-restore
-%ghost %{_sbindir}/arptables
-%ghost %{_sbindir}/arptables-save
-%ghost %{_sbindir}/arptables-restore
+%{_mandir}/man8/ip{,6}tables{,-restore}-translate*
+%ghost %{_sbindir}/ip{,6}tables{,-save,-restore}
+%ghost %{_sbindir}/{eb,arp}tables{,-save,-restore}
 %ghost %{_libexecdir}/arptables-helper
-%ghost %{_mandir}/man8/arptables.8.*
-%ghost %{_mandir}/man8/arptables-save.8.*
-%ghost %{_mandir}/man8/arptables-restore.8.*
-%ghost %{_mandir}/man8/ebtables.8.*
+%ghost %{_mandir}/man8/arptables{,-save,-restore}.8%{_extension}
+%ghost %{_mandir}/man8/ebtables.8%{_extension}
 
 %if %{with compat32}
 %files -n %{ipq_lib32name}
