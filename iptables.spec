@@ -45,7 +45,7 @@ Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 URL:		http://www.netfilter.org/projects/iptables
 Version:	1.8.7
-Release:	4
+Release:	5
 # pf.os: ISC license
 # iptables-apply: Artistic Licence 2.0
 License:	GPLv2 and Artistic Licence 2.0 and ISC
@@ -58,7 +58,16 @@ Source5:	sysconfig_ip6tables
 Source6:	arptables-nft-helper
 Patch2:		iptables-1.2.8-libiptc.h.patch
 Patch3:		iptables-1.8.2-dont_read_garbage.patch
-Patch4:		https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0001-ebtables-Exit-gracefully-on-invalid-table-names.patch
+Patch10:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0001-ebtables-Exit-gracefully-on-invalid-table-names.patch
+Patch11:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0002-iptables-nft-fix-Z-option.patch
+Patch12:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0003-nft-Fix-bitwise-expression-avoidance-detection.patch
+Patch13:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0004-extensions-sctp-Fix-nftables-translation.patch
+Patch14:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0005-libxtables-Drop-leftover-variable-in-xtables_numeric.patch
+Patch15:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0006-extensions-libebt_ip6-Drop-unused-variables.patch
+Patch16:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0007-libxtables-Fix-memleak-in-xtopt_parse_hostmask.patch
+Patch17:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0008-nft-Avoid-memleak-in-error-path-of-nft_cmd_new.patch
+Patch18:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0009-iptables-apply-Drop-unused-variable.patch
+
 # libnetfilter_conntrack is needed for xt_connlabel
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
 # libnfnetlink-devel is requires for nfnl_osf

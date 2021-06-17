@@ -1,4 +1,4 @@
-From 30c1d443896311e69762d6b51b63908ec602574f Mon Sep 17 00:00:00 2001
+From df7ed83da048317d344b34e9c38e31035e508f24 Mon Sep 17 00:00:00 2001
 From: Phil Sutter <phil@nwl.cc>
 Date: Thu, 28 Jan 2021 01:09:56 +0100
 Subject: [PATCH] ebtables: Exit gracefully on invalid table names
@@ -22,7 +22,7 @@ With this patch in place, output looks much better:
 | Perhaps iptables or your kernel needs to be upgraded.
 
 Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Phil Sutter <psutter@redhat.com>
+(cherry picked from commit 30c1d443896311e69762d6b51b63908ec602574f)
 ---
  iptables/xtables-eb.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
@@ -47,5 +47,5 @@ index cfa9317c78e94..5bb34d6d292a9 100644
  			table_set = true;
  			break;
 -- 
-2.28.0
+2.31.1
 
