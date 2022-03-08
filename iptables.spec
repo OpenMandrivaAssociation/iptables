@@ -7,6 +7,7 @@
 %endif
 
 %global optflags %{optflags} -fno-strict-aliasing
+%define dont_relink 1
 
 # install init scripts to /usr/libexec with systemd
 %global script_path %{_libexecdir}/iptables
@@ -45,12 +46,12 @@ Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 URL:		http://www.netfilter.org/projects/iptables
 Version:	1.8.7
-Release:	6
+Release:	7
 # pf.os: ISC license
 # iptables-apply: Artistic Licence 2.0
 License:	GPLv2 and Artistic Licence 2.0 and ISC
 Group:		System/Kernel and hardware
-Source0:		%{url}/files/%{name}-%{version}.tar.bz2
+Source0:	%{url}/files/%{name}-%{version}.tar.bz2
 Source1:	iptables.init
 Source2:	iptables-config
 Source3:	iptables.service
@@ -68,6 +69,13 @@ Patch15:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0006-extensio
 Patch16:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0007-libxtables-Fix-memleak-in-xtopt_parse_hostmask.patch
 Patch17:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0008-nft-Avoid-memleak-in-error-path-of-nft_cmd_new.patch
 Patch18:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0009-iptables-apply-Drop-unused-variable.patch
+Patch19:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0010-nft-cache-Sort-chains-on-demand-only.patch
+Patch20:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0011-nft-Increase-BATCH_PAGE_SIZE-to-support-huge-ruleset.patch
+Patch21:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0012-doc-ebtables-nft.8-Adjust-for-missing-atomic-options.patch
+Patch22:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0013-nft-Fix-for-non-verbose-check-command.patch
+Patch23:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0014-libxtables-Register-only-the-highest-revision-extens.patch
+Patch24:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0015-xshared-Fix-response-to-unprivileged-users.patch
+Patch25:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0016-Improve-error-messages-for-unsupported-extensions.patch
 
 # libnetfilter_conntrack is needed for xt_connlabel
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
@@ -235,6 +243,7 @@ Requires:	%{name} >= %{EVRD}
 Obsoletes:	%{name} < 1.8.4-1
 # obsolete ipv6 sub package
 Obsoletes:	%{name}-ipv6 < 1.4.11.1
+BuildArch:	noarch
 
 %description services
 iptables services for IPv4 and IPv6.
@@ -516,7 +525,7 @@ pfx6=%{_sbindir}/ip6tables
     --slave $pfx-save iptables-save $pfx-nft-save \
     --slave $pfx6-restore ip6tables-restore $pfx6-nft-restore \
     --slave $pfx6-save ip6tables-save $pfx6-nft-save
- 
+
 pfx=%{_sbindir}/ebtables
 manpfx=%{_mandir}/man8/ebtables
 for sfx in "" "-restore" "-save"; do
@@ -532,7 +541,7 @@ fi
     --slave $pfx-save ebtables-save $pfx-nft-save \
     --slave $pfx-restore ebtables-restore $pfx-nft-restore \
     --slave $manpfx.8%{_extension} ebtables-man $manpfx-nft.8%{_extension}
- 
+
 pfx=%{_sbindir}/arptables
 manpfx=%{_mandir}/man8/arptables
 lepfx=%{_libexecdir}/arptables
@@ -570,15 +579,15 @@ fi
 %{_sbindir}/ip{,6}tables-legacy*
 %{_sbindir}/xtables-legacy-multi
 %{_bindir}/iptables-xml
-%{_mandir}/man1/iptables-xml*
-%{_mandir}/man8/xtables-legacy*
+%doc %{_mandir}/man1/iptables-xml*
+%doc %{_mandir}/man8/xtables-legacy*
 %ghost %{_sbindir}/ip{,6}tables{,-save,-restore}
 
 %files xtables
 %dir %{_libdir}/xtables
 %{_libdir}/xtables/lib{ip,ip6,x}t*
-%{_mandir}/man8/ip{,6}tables.8%{_extension}
-%{_mandir}/man8/ip{,6}tables-{extensions,save,restore}.8%{_extension}
+%doc %{_mandir}/man8/ip{,6}tables.8%{_extension}
+%doc %{_mandir}/man8/ip{,6}tables-{extensions,save,restore}.8%{_extension}
 
 %files -n %{ipq_libname}
 %{_libdir}/libipq.so.*
@@ -607,7 +616,7 @@ fi
 %{_libdir}/pkgconfig/libipq.pc
 %dir %{_includedir}/libipq
 %{_libdir}/libipq.so
-%{_mandir}/man3/*ipq*
+%doc %{_mandir}/man3/*ipq*
 
 %files -n %{iptc_develname}
 %{_includedir}/libiptc/*.h
@@ -634,9 +643,9 @@ fi
 %{_sbindir}/ip{,6}tables-apply
 %dir %{_datadir}/xtables
 %{_datadir}/xtables/pf.os
-%{_mandir}/man8/nfnl_osf*
-%{_mandir}/man8/nfbpf_compile*
-%{_mandir}/man8/ip{,6}tables-apply*
+%doc %{_mandir}/man8/nfnl_osf*
+%doc %{_mandir}/man8/nfbpf_compile*
+%doc %{_mandir}/man8/ip{,6}tables-apply*
 
 %files nft
 %{_sbindir}/ip{,6}tables-nft*
@@ -647,10 +656,10 @@ fi
 %dir %{_libdir}/xtables
 %{_libdir}/xtables/lib{arp,eb}t*
 %{_libexecdir}/arptables-nft-helper
-%{_mandir}/man8/xtables-monitor*
-%{_mandir}/man8/xtables-translate*
-%{_mandir}/man8/*-nft*
-%{_mandir}/man8/ip{,6}tables{,-restore}-translate*
+%doc %{_mandir}/man8/xtables-monitor*
+%doc %{_mandir}/man8/xtables-translate*
+%doc %{_mandir}/man8/*-nft*
+%doc %{_mandir}/man8/ip{,6}tables{,-restore}-translate*
 %ghost %{_sbindir}/ip{,6}tables{,-save,-restore}
 %ghost %{_sbindir}/{eb,arp}tables{,-save,-restore}
 %ghost %{_libexecdir}/arptables-helper

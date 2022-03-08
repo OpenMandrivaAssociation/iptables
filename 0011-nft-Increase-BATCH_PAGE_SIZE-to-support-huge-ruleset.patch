@@ -1,0 +1,56 @@
+From 8086d05bb16e75a23b49bf1accef615193e726e6 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Tue, 6 Apr 2021 10:51:20 +0200
+Subject: [PATCH] nft: Increase BATCH_PAGE_SIZE to support huge rulesets
+
+In order to support the same ruleset sizes as legacy iptables, the
+kernel's limit of 1024 iovecs has to be overcome. Therefore increase
+each iovec's size from 128KB to 2MB.
+
+While being at it, add a log message for failing sendmsg() call. This is
+not supposed to happen, even if the transaction fails. Yet if it does,
+users are left with only a "line XXX failed" message (with line number
+being the COMMIT line).
+
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+(cherry picked from commit a3e81c62e8c5abb4158f1f66df6bbcffd1b33240)
+---
+ iptables/nft.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/iptables/nft.c b/iptables/nft.c
+index 8b14daeaed610..f1deb82f87576 100644
+--- a/iptables/nft.c
++++ b/iptables/nft.c
+@@ -88,11 +88,11 @@ int mnl_talk(struct nft_handle *h, struct nlmsghdr *nlh,
+ 
+ #define NFT_NLMSG_MAXSIZE (UINT16_MAX + getpagesize())
+ 
+-/* selected batch page is 256 Kbytes long to load ruleset of
+- * half a million rules without hitting -EMSGSIZE due to large
+- * iovec.
++/* Selected batch page is 2 Mbytes long to support loading a ruleset of 3.5M
++ * rules matching on source and destination address as well as input and output
++ * interfaces. This is what legacy iptables supports.
+  */
+-#define BATCH_PAGE_SIZE getpagesize() * 32
++#define BATCH_PAGE_SIZE 2 * 1024 * 1024
+ 
+ static struct nftnl_batch *mnl_batch_init(void)
+ {
+@@ -220,8 +220,10 @@ static int mnl_batch_talk(struct nft_handle *h, int numcmds)
+ 	int err = 0;
+ 
+ 	ret = mnl_nft_socket_sendmsg(h, numcmds);
+-	if (ret == -1)
++	if (ret == -1) {
++		fprintf(stderr, "sendmsg() failed: %s\n", strerror(errno));
+ 		return -1;
++	}
+ 
+ 	FD_ZERO(&readfds);
+ 	FD_SET(fd, &readfds);
+-- 
+2.31.1
+
