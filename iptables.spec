@@ -61,6 +61,7 @@ Source6:	arptables-nft-helper
 Patch2:		iptables-1.2.8-libiptc.h.patch
 Patch3:		iptables-1.8.2-dont_read_garbage.patch
 Patch10:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0001-xshared-Fix-build-for-Werror-format-security.patch
+Patch11:	0ebf52fc951b2a4d98a166afb34af4f364bbeece.patch
 # libnetfilter_conntrack is needed for xt_connlabel
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
 # libnfnetlink-devel is requires for nfnl_osf
@@ -431,14 +432,9 @@ install -d -m 755 %{buildroot}%{_includedir}/iptables
 install -m 644 include/iptables/internal.h %{buildroot}%{_includedir}/iptables/
 
 # header development files
-install -d %{buildroot}%{_includedir}/{libipq,libiptc,libipulog}
+install -d %{buildroot}%{_includedir}/{libipq,libiptc}
 install -m0644 include/libipq/*.h %{buildroot}%{_includedir}/libipq/
 install -m0644 include/libiptc/*.h %{buildroot}%{_includedir}/libiptc/
-install -m0644 include/libipulog/*.h %{buildroot}%{_includedir}/libipulog/
-
-# install ipulog header file
-install -d -m 755 %{buildroot}%{_includedir}/libipulog/
-install -m 644 include/libipulog/*.h %{buildroot}%{_includedir}/libipulog/
 
 # install init scripts and configuration files
 install -d -m 755 %{buildroot}%{script_path}
@@ -588,9 +584,7 @@ fi
 %files -n %{develname}
 %{_includedir}/*.h
 %dir %{_includedir}/libipq
-%dir %{_includedir}/libipulog
 %{_includedir}/libipq/*.h
-%{_includedir}/libipulog/*.h
 %{_includedir}/iptables/*.h
 %{_libdir}/libxtables.so
 %{_libdir}/pkgconfig/xtables.pc
