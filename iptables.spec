@@ -1,12 +1,4 @@
-# libip4tc and libip6tc are used by systemd,
-# libsystemd is used by wine
-%ifarch %{x86_64}
-%bcond_without compat32
-%else
-%bcond_with compat32
-%endif
-
-%global optflags %{optflags} -fno-strict-aliasing
+%global optflags %{optflags} -Oz -fno-strict-aliasing
 %define dont_relink 1
 
 # install init scripts to /usr/libexec with systemd
@@ -17,9 +9,7 @@
 %define iptlibname %mklibname iptables %{major}
 %define develname %mklibname -d iptables
 %define iptdevelname %mklibname -d iptables
-%define lib32name libxtables%{major}
-%define iptlib32name libiptables%{major}
-%define devel32name libiptables-devel
+
 
 %define iptc_develname %mklibname -d iptc
 %define iptc_devel32name libiptc-devel
@@ -27,31 +17,25 @@
 %define ipq_major 0
 %define ipq_libname %mklibname ipq %{ipq_major}
 %define ipq_develname %mklibname -d ipq
-%define ipq_lib32name libipq%{ipq_major}
-%define ipq_devel32name libipq-devel
 
 %define ip4tc_major 2
 %define ip4tc_libname %mklibname ip4tc %{ip4tc_major}
 %define ip4tc_develname %mklibname -d ip4tc
-%define ip4tc_lib32name libip4tc%{ip4tc_major}
-%define ip4tc_devel32name libip4tc-devel
 
 %define ip6tc_major 2
 %define ip6tc_libname %mklibname ip6tc %{ip6tc_major}
 %define ip6tc_develname %mklibname -d ip6tc
-%define ip6tc_lib32name libip6tc%{ip6tc_major}
-%define ip6tc_devel32name libip6tc-devel
 
 Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 URL:		http://www.netfilter.org/projects/iptables
-Version:	1.8.8
+Version:	1.8.9
 Release:	1
 # pf.os: ISC license
 # iptables-apply: Artistic Licence 2.0
 License:	GPLv2 and Artistic Licence 2.0 and ISC
 Group:		System/Kernel and hardware
-Source0:	%{url}/files/%{name}-%{version}.tar.bz2
+Source0:	%{url}/files/%{name}-%{version}.tar.xz
 Source1:	iptables.init
 Source2:	iptables-config
 Source3:	iptables.service
@@ -60,8 +44,7 @@ Source5:	sysconfig_ip6tables
 Source6:	arptables-nft-helper
 Patch2:		iptables-1.2.8-libiptc.h.patch
 Patch3:		iptables-1.8.2-dont_read_garbage.patch
-Patch10:	https://src.fedoraproject.org/rpms/iptables/raw/rawhide/f/0001-xshared-Fix-build-for-Werror-format-security.patch
-Patch11:	0ebf52fc951b2a4d98a166afb34af4f364bbeece.patch
+Patch100:	https://git.netfilter.org/iptables/patch/?id=ed4082a7405a5838c205a34c1559e289949200cc.patch
 # libnetfilter_conntrack is needed for xt_connlabel
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
 # libnfnetlink-devel is requires for nfnl_osf
@@ -84,12 +67,15 @@ Requires:	%{name}-xtables = %{EVRD}
 Requires(post):	%{_sbindir}/update-alternatives
 Requires(postun):	%{_sbindir}/update-alternatives
 Provides:	userspace-ipfilter = %{version}
-%if %{with compat32}
-BuildRequires:	devel(libmnl)
-BuildRequires:	devel(libnftnl)
-BuildRequires:	devel(libnfnetlink)
-BuildRequires:	devel(libnetfilter_conntrack)
-%endif
+Obsoletes:	libxtables12 < 1.8.9-1
+Obsoletes:	libiptables12 < 1.8.9-1
+Obsoletes:	libiptables-devel < 1.8.9-1
+Obsoletes:	libipq0 < 1.8.9-1
+Obsoletes:	libipq-devel < 1.8.9-1
+Obsoletes:	libip4tc2 < 1.8.9-1
+Obsoletes:	libip4tc-devel < 1.8.9-1
+Obsoletes:	libip6tc2 < 1.8.9-1
+Obsoletes:	libip6tc-devel < 1.8.9-1
 
 %description
 The iptables utility controls the network packet filtering code in the
@@ -270,161 +256,28 @@ Provides:	iptables
 %description nft
 nftables compatibility for iptables, arptables and ebtables.
 
-%if %{with compat32}
-%package -n %{lib32name}
-Summary:	Shared iptables library (32-bit)
-Group:		System/Libraries
-
-%description -n %{lib32name}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
-This package contains the shared iptables library.
-
-%package -n %{devel32name}
-Summary:	Static library and header files for the iptables library (32-bit)
-Group:		Development/C
-Requires:	kernel-headers
-Requires:	%{develname} = %{version}-%{release}
-Requires:	%{lib32name} = %{version}-%{release}
-
-%description -n %{devel32name}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
-This package contains the static iptables library.
-
-# ipq
-%package -n %{ipq_lib32name}
-Summary:	Shared iptables library (32-bit)
-Group:		System/Libraries
-
-%description -n %{ipq_lib32name}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
-This package contains the ipq library.
-
-%package -n %{ipq_devel32name}
-Summary:	Static library and header files for the iptables library
-Group:		Development/C
-Requires:	kernel-headers
-Requires:	%{ipq_develname} = %{version}-%{release}
-Requires:	%{ipq_lib32name} = %{version}-%{release}
-
-%description -n %{ipq_devel32name}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
-This package contains the ipq library.
-
-#iptc
-%package -n %{iptc_devel32name}
-Summary:	Static library and header files for the iptables library (32-bit)
-Group:		Development/C
-Requires:	kernel-headers
-Requires:	%{iptc_develname} = %{EVRD}
-
-%description -n %{iptc_devel32name}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
-This package contains the IPTC library.
-
-# ip4tc
-%package -n %{ip4tc_lib32name}
-Summary:	Shared iptables library (32-bit)
-Group:		System/Libraries
-
-%description -n %{ip4tc_lib32name}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
-This package contains the IP4TC library.
-
-%package -n %{ip4tc_devel32name}
-Summary:	Static library and header files for the iptables library (32-bit)
-Group:		Development/C
-Requires:	kernel-headers
-Requires:	%{ip4tc_lib32name} = %{version}-%{release}
-Requires:	%{iptc_devel32name} = %{version}-%{release}
-Requires:	%{ip4tc_develname} = %{EVRD}
-
-%description -n %{ip4tc_devel32name}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
-This package contains the development files for IPTC library.
-
-# ip6tc
-%package -n %{ip6tc_lib32name}
-Summary:	Shared iptables library (32-bit)
-Group:		System/Libraries
-
-%description -n %{ip6tc_lib32name}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
-This package contains the IP6TC library.
-
-%package -n %{ip6tc_devel32name}
-Summary:	Static library and header files for the iptables library (32-bit)
-Group:		Development/C
-Requires:	kernel-headers
-Requires:	%{ip6tc_develname} = %{EVRD}
-Requires:	%{ip6tc_lib32name} = %{version}-%{release}
-
-%description -n %{ip6tc_devel32name}
-iptables controls the Linux kernel network packet filtering code. It allows you
-to set up firewalls and IP masquerading, etc.
-
-This package contains the development files for IP6TC library.
-%endif
-
 %prep
 %autosetup -p1
 ./autogen.sh
-export CONFIGURE_TOP="$(pwd)"
 
-%if %{with compat32}
-mkdir build32
-cd build32
-%configure32 \
-	--enable-devel \
-	--with-xtlibdir=%{_prefix}/lib/xtables \
-	--with-ksource=%{_prefix}/src/linux \
-	--enable-libipq
-cd ..
-%endif
-
-mkdir build
-cd build
+%build
 %configure \
 	--enable-devel \
 	--enable-bpf-compiler \
 	--with-xtlibdir=%{_libdir}/xtables \
 	--with-ksource=%{_prefix}/src/linux \
 	--enable-libipq
+
 # do not use rpath
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 
-%build
 rm -f include/linux/types.h
 
-%if %{with compat32}
-%make_build -C build32
-%endif
-%make_build -C build
+%make_build
 
 %install
-%if %{with compat32}
-%make_install -C build32
-# We need only the libs, not the binaries or
-# plugins
-rm -rf %{buildroot}%{_prefix}/lib/xtables
-%endif
-%make_install -C build
+%make_install
 
 # install ip*tables.h header files
 install -m 644 include/ip*tables.h %{buildroot}%{_includedir}/
@@ -454,10 +307,6 @@ install -c -m 644 %{SOURCE3} %{buildroot}/%{_unitdir}
 sed -e 's;iptables;ip6tables;g' -e 's;IPv4;IPv6;g' -e 's;/usr/libexec/ip6tables;/usr/libexec/iptables;g' < %{SOURCE3} > ip6tables.service
 install -c -m 644 ip6tables.service %{buildroot}/%{_unitdir}
 
-# install iptables-apply with man page
-install -m 755 iptables/iptables-apply %{buildroot}%{_sbindir}/
-install -m 644 build/iptables/iptables-apply.8 %{buildroot}%{_mandir}/man8/
-
 rm -f %{buildroot}%{_sysconfdir}/ethertypes
 
 install -p -D -m 755 %{SOURCE6} %{buildroot}%{_libexecdir}/
@@ -468,6 +317,12 @@ touch %{buildroot}%{_mandir}/man8/arptables.8
 touch %{buildroot}%{_mandir}/man8/arptables-save.8
 touch %{buildroot}%{_mandir}/man8/arptables-restore.8
 touch %{buildroot}%{_mandir}/man8/ebtables.8
+
+# Drop xtables.conf, it's not used
+rm -f %{buildroot}%{_sysconfdir}/xtables.conf
+# fix absolute symlink
+rm -f %{buildroot}%{_bindir}/iptables-xml
+ln -s ../bin/xtables-legacy-multi %{buildroot}%{_bindir}/iptables-xml
 
 %post
 pfx=%{_sbindir}/iptables
@@ -561,6 +416,7 @@ fi
 %{_bindir}/iptables-xml
 %doc %{_mandir}/man1/iptables-xml*
 %doc %{_mandir}/man8/xtables-legacy*
+%{_datadir}/xtables/iptables.xslt
 %ghost %{_sbindir}/ip{,6}tables{,-save,-restore}
 
 %files xtables
@@ -629,6 +485,7 @@ fi
 %{_sbindir}/ip{,6}tables-nft*
 %{_sbindir}/ip{,6}tables{,-restore}-translate
 %{_sbindir}/{eb,arp}tables-nft*
+%{_sbindir}/ebtables-translate
 %{_sbindir}/xtables-nft-multi
 %{_sbindir}/xtables-monitor
 %dir %{_libdir}/xtables
@@ -638,41 +495,9 @@ fi
 %doc %{_mandir}/man8/xtables-translate*
 %doc %{_mandir}/man8/*-nft*
 %doc %{_mandir}/man8/ip{,6}tables{,-restore}-translate*
+%doc %{_mandir}/man8//ebtables-translate.*
 %ghost %{_sbindir}/ip{,6}tables{,-save,-restore}
 %ghost %{_sbindir}/{eb,arp}tables{,-save,-restore}
 %ghost %{_libexecdir}/arptables-helper
 %ghost %{_mandir}/man8/arptables{,-save,-restore}.8%{_extension}
 %ghost %{_mandir}/man8/ebtables.8%{_extension}
-
-%if %{with compat32}
-%files -n %{ipq_lib32name}
-%{_prefix}/lib/libipq.so.*
-
-%files -n %{ip4tc_lib32name}
-%{_prefix}/lib/libip4tc.so.*
-
-%files -n %{ip6tc_lib32name}
-%{_prefix}/lib/libip6tc.so.*
-
-%files -n %{lib32name}
-%{_prefix}/lib/libxtables.so.%{major}*
-
-%files -n %{devel32name}
-%{_prefix}/lib/libxtables.so
-%{_prefix}/lib/pkgconfig/xtables.pc
-
-%files -n %{ipq_devel32name}
-%{_prefix}/lib/pkgconfig/libipq.pc
-%{_prefix}/lib/libipq.so
-
-%files -n %{iptc_devel32name}
-%{_prefix}/lib/pkgconfig/libiptc.pc
-
-%files -n %{ip4tc_devel32name}
-%{_prefix}/lib/libip4tc.so
-%{_prefix}/lib/pkgconfig/libip4tc.pc
-
-%files -n %{ip6tc_devel32name}
-%{_prefix}/lib/libip6tc.so
-%{_prefix}/lib/pkgconfig/libip6tc.pc
-%endif
