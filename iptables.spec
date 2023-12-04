@@ -44,7 +44,6 @@ Source5:	sysconfig_ip6tables
 Source6:	arptables-nft-helper
 Patch2:		iptables-1.2.8-libiptc.h.patch
 Patch3:		iptables-1.8.2-dont_read_garbage.patch
-Patch100:	https://git.netfilter.org/iptables/patch/?id=ed4082a7405a5838c205a34c1559e289949200cc.patch
 # libnetfilter_conntrack is needed for xt_connlabel
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
 # libnfnetlink-devel is requires for nfnl_osf
