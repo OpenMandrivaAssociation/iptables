@@ -29,8 +29,8 @@
 Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 URL:		http://www.netfilter.org/projects/iptables
-Version:	1.8.9
-Release:	2
+Version:	1.8.10
+Release:	1
 # pf.os: ISC license
 # iptables-apply: Artistic Licence 2.0
 License:	GPLv2 and Artistic Licence 2.0 and ISC
