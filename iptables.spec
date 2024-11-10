@@ -29,7 +29,7 @@
 Name:		iptables
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 URL:		https://www.netfilter.org/projects/iptables
-Version:	1.8.10
+Version:	1.8.11
 Release:	1
 # pf.os: ISC license
 # iptables-apply: Artistic Licence 2.0
@@ -413,8 +413,10 @@ fi
 %{_sbindir}/ip{,6}tables-legacy*
 %{_sbindir}/xtables-legacy-multi
 %{_bindir}/iptables-xml
+%{_bindir}/arptables-translate
 %doc %{_mandir}/man1/iptables-xml*
 %doc %{_mandir}/man8/xtables-legacy*
+%doc %{_mandir}/man8/arptables-translate.8*
 %{_datadir}/xtables/iptables.xslt
 %ghost %{_sbindir}/ip{,6}tables{,-save,-restore}
 
