@@ -45,6 +45,8 @@ Source6:	arptables-nft-helper
 Patch2:		iptables-1.2.8-libiptc.h.patch
 Patch3:		iptables-1.8.2-dont_read_garbage.patch
 # libnetfilter_conntrack is needed for xt_connlabel
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
 BuildRequires:	pkgconfig(libnetfilter_conntrack)
 # libnfnetlink-devel is requires for nfnl_osf
 BuildRequires:	pkgconfig(libnfnetlink)
